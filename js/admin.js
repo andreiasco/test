@@ -408,6 +408,11 @@ async function adaugaOpera() {
             .getElementById("operaRezumat")
             .files[0];
 
+    const analizaLiterara =
+        document
+            .getElementById("operaAnalizaLiterara")
+            .files[0];
+
 
     const valoriMorale =
         document
@@ -483,6 +488,7 @@ async function adaugaOpera() {
 
     const areResursa = [
         rezumat,
+        analizaLiterara,
         valoriMorale,
         caracterizare,
         rezumatWord,
@@ -637,6 +643,12 @@ async function adaugaOpera() {
                 "rezumat"
             );
 
+        const caleAnalizaLiterara =
+            await incarcaFisier(
+                analizaLiterara,
+                "analiza_literara"
+            );
+
 
         const caleValori =
             await incarcaFisier(
@@ -753,6 +765,11 @@ async function adaugaOpera() {
                 ? `storage://${BUCKET}/${caleValori}`
                 : null;
 
+        const pdfAnalizaLiterara =
+            caleAnalizaLiterara
+                ? `storage://${BUCKET}/${caleAnalizaLiterara}`
+                : null;
+
 
         const pdfCaracterizare =
             caleCaracterizare
@@ -775,6 +792,9 @@ async function adaugaOpera() {
 
                         pdf:
                             pdf,
+
+                        pdf_analiza_literara:
+                            pdfAnalizaLiterara,
 
                         pdf_valori_morale:
                             pdfValoriMorale,
@@ -820,6 +840,7 @@ async function adaugaOpera() {
             "operaAutor",
             "operaTitlu",
             "operaRezumat",
+            "operaAnalizaLiterara",
             "operaValoriMorale",
             "operaCaracterizare",
             "operaRezumatWord",
@@ -1272,6 +1293,32 @@ async function incarcaOpereAdmin() {
 
                         </button>
 
+                        <p>
+                            Analiză literară:
+                            ${opera.pdf_analiza_literara
+                        ? "✔ Există"
+                        : "✖ Lipsește"
+                    }
+                        </p>
+
+                        <input
+                            type="file"
+                            id="pdfAnalizaLiterara-${opera.id}"
+                            accept="application/pdf">
+
+                        <button
+                            class="admin-btn"
+                            type="button"
+                            onclick="inlocuiestePDF(
+                                ${opera.id},
+                                'pdf_analiza_literara',
+                                'pdfAnalizaLiterara-${opera.id}'
+                            )">
+
+                            📚 Înlocuiește analiza literară
+
+                        </button>
+
 
                         <!-- =========================
                              VALORI MORALE
@@ -1493,6 +1540,7 @@ async function inlocuiestePDF(
 
     const coloanePermise = [
         "pdf",
+        "pdf_analiza_literara",
         "pdf_valori_morale",
         "pdf_caracterizare"
     ];
@@ -2056,6 +2104,9 @@ async function stergeOpera(operaId) {
         const fisiere = [
             obtineCalePDF(
                 opera.pdf
+            ),
+            obtineCalePDF(
+                opera.pdf_analiza_literara
             ),
             obtineCalePDF(
                 opera.pdf_valori_morale
