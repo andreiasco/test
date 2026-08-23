@@ -656,24 +656,19 @@ async function adaugaOpera() {
         if (rezumatWord) {
 
             if (
-                !rezumatWord.name
-                    .toLowerCase()
-                    .endsWith(".docx") &&
-                !rezumatWord.name
-                    .toLowerCase()
-                    .endsWith(".doc")
+                !/\.(doc|docx|pdf)$/i.test(rezumatWord.name)
             ) {
-                throw new Error("Rezumatul Word trebuie să fie .doc sau .docx.");
+                throw new Error("Rezumatul scris trebuie să fie .doc, .docx sau .pdf.");
             }
 
-            const numeWord =
+            const numeRezumat =
                 rezumatWord.name
                     .normalize("NFD")
                     .replace(/[\u0300-\u036f]/g, "")
                     .replace(/[^a-zA-Z0-9._-]/g, "_");
 
             caleRezumatWord =
-                `${autorId}/${Date.now()}_rezumat_word_${numeWord}`;
+                `${autorId}/${Date.now()}_rezumat_scris_${numeRezumat}`;
 
             const { error: wordError } =
                 await supabaseClient
@@ -684,8 +679,10 @@ async function adaugaOpera() {
                         rezumatWord,
                         {
                             contentType:
-                                rezumatWord.type ||
-                                "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                                rezumatWord.name.toLowerCase().endsWith(".pdf")
+                                    ? "application/pdf"
+                                    : rezumatWord.type ||
+                                    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
                             upsert: false
                         }
                     );
@@ -1338,7 +1335,7 @@ async function incarcaOpereAdmin() {
                         </button>
 
                         <p>
-                            Rezumat Word:
+                            Rezumat scris:
                             ${opera.rezumat_word
                         ? "✔ Există"
                         : "✖ Lipsește"
@@ -1348,7 +1345,7 @@ async function incarcaOpereAdmin() {
                         <input
                             type="file"
                             id="rezumatWord-${opera.id}"
-                            accept=".doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
+                            accept=".doc,.docx,.pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf">
 
                         <button
                             class="admin-btn"
@@ -1361,7 +1358,7 @@ async function incarcaOpereAdmin() {
                                 'word'
                             )">
 
-                            📄 Înlocuiește rezumatul Word
+                            📄 Înlocuiește rezumatul scris
 
                         </button>
 
@@ -1820,14 +1817,14 @@ async function inlocuiesteFisierOpera(
         return;
     }
 
-    const esteWord = tipFisier === "word";
-    const extensieValida = esteWord
-        ? /\.(doc|docx)$/i.test(fisier.name)
+    const esteRezumatScris = tipFisier === "word";
+    const extensieValida = esteRezumatScris
+        ? /\.(doc|docx|pdf)$/i.test(fisier.name)
         : fisier.type.startsWith("image/");
 
     if (!extensieValida) {
-        status.textContent = esteWord
-            ? "Fișierul trebuie să fie .doc sau .docx."
+        status.textContent = esteRezumatScris
+            ? "Fișierul trebuie să fie .doc, .docx sau .pdf."
             : "Fișierul selectat nu este o imagine validă.";
         status.style.color = "#c62828";
         return;
@@ -1874,8 +1871,10 @@ async function inlocuiesteFisierOpera(
                 .from(bucket)
                 .upload(caleNoua, fisier, {
                     contentType: fisier.type || (
-                        esteWord
-                            ? "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                        esteRezumatScris
+                            ? /\.pdf$/i.test(fisier.name)
+                                ? "application/pdf"
+                                : "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                             : "image/png"
                     ),
                     upsert: false

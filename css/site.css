@@ -15,6 +15,16 @@ body {
     transition: .3s;
 }
 
+#site {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+main {
+    flex: 1;
+}
+
 
 /* ======================================================
    MENIU
@@ -35,7 +45,6 @@ nav {
 
     gap: 15px;
     flex-wrap: wrap;
-    position: relative;
 }
 
 .nav-links {
@@ -46,17 +55,28 @@ nav {
     justify-content: center;
 }
 
-.account-menu {
+.nav-tools {
     position: absolute;
-    top: 9px;
+    top: 50%;
     right: 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
     z-index: 2;
+    transform: translateY(-50%);
+}
+
+.account-menu {
+    position: relative;
 }
 
 .account-menu summary {
     list-style: none;
-    padding: 8px 11px;
-    border: 1px solid rgba(255,255,255,.4);
+    min-height: 36px;
+    display: flex;
+    align-items: center;
+    padding: 0 11px;
+    border: 1px solid rgba(255, 255, 255, .4);
     border-radius: 16px;
     color: white;
     cursor: pointer;
@@ -74,17 +94,20 @@ nav {
 }
 
 .account-actions {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
     display: flex;
     min-width: 190px;
-    margin-top: 8px;
+    margin-top: 0;
     padding: 12px;
     flex-direction: column;
     align-items: stretch;
     gap: 8px;
     background: #35152a;
-    border: 1px solid rgba(255,255,255,.25);
+    border: 1px solid rgba(255, 255, 255, .25);
     border-radius: 10px;
-    box-shadow: 0 8px 20px rgba(0,0,0,.25);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, .25);
 }
 
 nav a {
@@ -127,16 +150,16 @@ nav button:hover {
 
 .account-actions .auth-status {
     padding: 3px 2px 7px;
-    border-bottom: 1px solid rgba(255,255,255,.2);
+    border-bottom: 1px solid rgba(255, 255, 255, .2);
 }
 
 .theme-btn {
     background: transparent;
-    border: 1px solid rgba(255,255,255,.45);
+    border: 1px solid rgba(255, 255, 255, .45);
 }
 
 .theme-btn:hover {
-    background: rgba(255,255,255,.12);
+    background: rgba(255, 255, 255, .12);
 }
 
 
@@ -144,24 +167,26 @@ nav button:hover {
    BARA DE CĂUTARE
 ====================================================== */
 .search-toggle {
-    border: 1px solid rgba(255,255,255,.4);
-    background: #7b2450;
+    min-height: 36px;
+    border: 1px solid rgba(255, 255, 255, .4);
+    background: transparent;
     color: white;
-    padding: 9px 16px;
+    padding: 0 16px;
     border-radius: 20px;
     cursor: pointer;
     font-weight: bold;
 }
 
 .search-toggle:hover {
-    background: #a8446c;
+    background: #7b2450;
 }
 
 
 .search-container {
-    width: 100%;
-    margin: 10px auto 0;
-    position: relative;
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    width: min(20vw, 420px);
     text-align: center;
 }
 
@@ -174,10 +199,10 @@ nav button:hover {
     width: 100%;
     padding: 7px 34px 7px 11px;
 
-    border: 2px solid rgba(255,255,255,.3);
+    border: 2px solid rgba(255, 255, 255, .3);
     border-radius: 18px;
 
-    background: rgba(255,255,255,.12);
+    background: rgba(255, 255, 255, .12);
     color: white;
 
     font-size: 13px;
@@ -185,8 +210,9 @@ nav button:hover {
 
     transition: .25s;
 }
+
 .search-input::placeholder {
-    color: rgba(255,255,255,.75);
+    color: rgba(255, 255, 255, .75);
 }
 
 .search-input:focus {
@@ -219,7 +245,7 @@ nav button:hover {
     background: white;
     border-radius: 14px;
 
-    box-shadow: 0 10px 30px rgba(0,0,0,.25);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, .25);
 
     max-height: 400px;
     overflow-y: auto;
@@ -283,9 +309,14 @@ body.dark .search-result small {
 
 @media(max-width:700px) {
 
+    .nav-tools {
+        top: 50%;
+        right: 10px;
+        bottom: auto;
+    }
+
     .search-container {
-        order: 3;
-        width: 100%;
+        width: min(88vw, 420px);
     }
 
     .search-input {
@@ -312,15 +343,11 @@ body.dark .search-result small {
     padding: 30px;
 
     background:
-        linear-gradient(
-            rgba(53,21,42,.8),
-            rgba(123,36,80,.8)
-        ),
-        radial-gradient(
-            circle,
+        linear-gradient(rgba(53, 21, 42, .8),
+            rgba(123, 36, 80, .8)),
+        radial-gradient(circle,
             #c76c91,
-            #35152a
-        );
+            #35152a);
 }
 
 .hero h1 {
@@ -386,7 +413,7 @@ section {
     background: white;
     padding: 28px;
     border-radius: 16px;
-    box-shadow: 0 7px 25px rgba(0,0,0,.08);
+    box-shadow: 0 7px 25px rgba(0, 0, 0, .08);
 }
 
 .intro-box {
@@ -511,7 +538,7 @@ body.dark .status-cont {
     border-radius: 18px;
 
     box-shadow:
-        0 7px 25px rgba(0,0,0,.08);
+        0 7px 25px rgba(0, 0, 0, .08);
 
     border-top: 5px solid #7b2450;
 
@@ -645,11 +672,9 @@ body.dark .status-cont {
     padding: 45px;
 
     background:
-        linear-gradient(
-            135deg,
+        linear-gradient(135deg,
             #7b2450,
-            #a8446c
-        );
+            #a8446c);
 
     color: white;
 
@@ -705,7 +730,7 @@ body.dark .status-cont {
 
 .quiz-tab.activ {
     box-shadow:
-        0 5px 20px rgba(0,0,0,.3);
+        0 5px 20px rgba(0, 0, 0, .3);
 
     transform: scale(1.05);
 }
@@ -730,7 +755,7 @@ body.dark .status-cont {
     text-align: center;
 
     box-shadow:
-        0 7px 25px rgba(0,0,0,.08);
+        0 7px 25px rgba(0, 0, 0, .08);
 }
 
 .quiz-card {
@@ -800,7 +825,7 @@ body.dark .status-cont {
     align-items: center;
     justify-content: center;
 
-    background: rgba(0,0,0,.75);
+    background: rgba(0, 0, 0, .75);
 }
 
 .login-modal.ascuns {
@@ -819,7 +844,7 @@ body.dark .status-cont {
     border-radius: 20px;
 
     box-shadow:
-        0 15px 50px rgba(0,0,0,.4);
+        0 15px 50px rgba(0, 0, 0, .4);
 
     text-align: center;
 }
@@ -948,7 +973,7 @@ body.dark .status-cont {
     border-radius: 20px;
 
     box-shadow:
-        0 10px 35px rgba(0,0,0,.15);
+        0 10px 35px rgba(0, 0, 0, .15);
 }
 
 .admin-panel.ascuns {
@@ -978,7 +1003,7 @@ body.dark .status-cont {
     border-radius: 15px;
 
     box-shadow:
-        0 5px 20px rgba(0,0,0,.08);
+        0 5px 20px rgba(0, 0, 0, .08);
 }
 
 .admin-box h3 {
@@ -1119,6 +1144,7 @@ footer {
     text-align: center;
 
     padding: 35px;
+    margin-top: auto;
 }
 
 
@@ -1168,20 +1194,15 @@ body.dark .pdf-item {
 
     nav {
         display: flex;
-    flex-direction: column;
-    align-items: center;
-    }
-
-    .account-menu {
-        top: auto;
-        right: 10px;
-        bottom: 10px;
+        flex-direction: column;
+        align-items: center;
     }
 
     .account-actions {
         position: absolute;
         right: 0;
-        bottom: 38px;
+        top: calc(100% + 10px);
+        bottom: auto;
     }
 
     .quizuri {
