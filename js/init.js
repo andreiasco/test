@@ -92,17 +92,34 @@ document.addEventListener(
                 "searchResults"
             );
 
+        const accountMenu =
+            document.querySelector(
+                ".account-menu"
+            );
+
 
         if (
             container &&
             results &&
-            !container.contains(event.target)
+            !container.contains(event.target) &&
+            !searchToggle.contains(event.target)
         ) {
+
+            container.classList.add(
+                "ascuns"
+            );
 
             results.classList.remove(
                 "activ"
             );
 
+        }
+
+        if (
+            accountMenu &&
+            !accountMenu.contains(event.target)
+        ) {
+            accountMenu.removeAttribute("open");
         }
 
     }

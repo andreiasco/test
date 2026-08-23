@@ -52,11 +52,33 @@ site.innerHTML = `
         <a id="adminLink" class="ascuns" href="admin.html">Panou admin</a>
     </div>
     
- <button id="searchToggle" class="search-toggle">
-        🔍 Search
-    </button>
+    <div class="nav-tools">
 
-    <div class="search-container ascuns">
+        <button id="searchToggle" class="search-toggle">
+            🔍 Search
+        </button>
+
+        <details class="account-menu">
+            <summary>⚙️ Cont</summary>
+
+            <div class="account-actions">
+            <span id="authStatus" class="auth-status">Signed out</span>
+
+            <button onclick="afiseazaLogin()">
+                🔐 Logare / Register
+            </button>
+
+            <button id="logoutButton" class="ascuns" onclick="logoutUtilizator()">
+                🚪 Deconectare
+            </button>
+
+            <button class="theme-btn" onclick="schimbaTema()">
+                🌙 Mod întunecat
+            </button>
+            </div>
+        </details>
+
+        <div class="search-container ascuns">
 
         <input
             type="search"
@@ -67,27 +89,9 @@ site.innerHTML = `
 
         <div id="searchResults" class="search-results"></div>
 
-    </div>
-
-    <details class="account-menu">
-        <summary>⚙️ Cont</summary>
-
-        <div class="account-actions">
-        <span id="authStatus" class="auth-status">Signed out</span>
-
-        <button onclick="afiseazaLogin()">
-            🔐 Logare / Register
-        </button>
-
-        <button id="logoutButton" class="ascuns" onclick="logoutUtilizator()">
-            🚪 Deconectare
-        </button>
-
-        <button class="theme-btn" onclick="schimbaTema()">
-            🌙 Mod întunecat
-        </button>
         </div>
-    </details>
+
+    </div>
 
 </nav>
 
@@ -722,7 +726,7 @@ site.innerHTML = `
             accept="application/pdf">
 
         <label>
-            👤 Personaje si semnificatii PDF
+            👤 Personaje și semnificații PDF
         </label>
 
         <input
@@ -731,13 +735,13 @@ site.innerHTML = `
             accept="application/pdf">
 
         <label>
-            📄 Rezumat Word pentru descărcare
+            📄 Rezumat scris pentru descărcare
         </label>
 
         <input
             type="file"
             id="operaRezumatWord"
-            accept=".doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
+            accept=".doc,.docx,.pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf">
 
         <label>
             🎬 Link extern film
@@ -992,7 +996,6 @@ function pregatesteDateCautare(autori, opere) {
         dateCautare.push({
             tip: "Autor",
             titlu: autor.nume || "",
-            descriere: autor.descriere || "",
             categorie: autor.categorie || "",
             autorId: autor.id
         });
@@ -1011,7 +1014,7 @@ function pregatesteDateCautare(autori, opere) {
         dateCautare.push({
             tip: "Operă",
             titlu: opera.titlu || "",
-            descriere: autor
+            autorNume: autor
                 ? autor.nume
                 : "",
             categorie: autor
@@ -1061,7 +1064,7 @@ function cautaSite(text) {
 
                 item.tip,
                 item.titlu,
-                item.descriere,
+                item.autorNume,
                 item.categorie
 
             ]
@@ -1113,9 +1116,9 @@ function cautaSite(text) {
                     escapeHTML(item.categorie)
                     : ""}
                         ${item.tip === "Operă" &&
-                    item.descriere
+                    item.autorNume
                     ? " • " +
-                    escapeHTML(item.descriere)
+                    escapeHTML(item.autorNume)
                     : ""}
                     </small>
 
@@ -1519,7 +1522,7 @@ async function incarcaAutori() {
                             type="button"
                             onclick='deschidePDF(${JSON.stringify(opera.pdf_caracterizare)})'>
 
-                            👤 Personaje si semnificatii
+                            👤 Personaje și semnificații
 
                         </button>
 
@@ -1536,7 +1539,7 @@ async function incarcaAutori() {
                             type="button"
                             onclick='descarcaRezumatWord(${JSON.stringify(opera.rezumat_word)})'>
 
-                            📄 Descarcă rezumat Word
+                            📄 Descarcă rezumatul scris
 
                         </button>
 
