@@ -717,6 +717,15 @@ site.innerHTML = `
             accept="application/pdf">
 
         <label>
+            📚 Analiză literară PDF
+        </label>
+
+        <input
+            type="file"
+            id="operaAnalizaLiterara"
+            accept="application/pdf">
+
+        <label>
             💡 Valori morale PDF
         </label>
 
@@ -1436,6 +1445,9 @@ async function incarcaAutori() {
                 const areRezumat =
                     !!opera.pdf;
 
+                const areAnalizaLiterara =
+                    !!opera.pdf_analiza_literara;
+
                 const areValori =
                     !!opera.pdf_valori_morale;
 
@@ -1460,6 +1472,7 @@ async function incarcaAutori() {
 
                 if (
                     !areRezumat &&
+                    !areAnalizaLiterara &&
                     !areValori &&
                     !areCaracterizare &&
                     !areRezumatWord &&
@@ -1487,6 +1500,23 @@ async function incarcaAutori() {
                             onclick='deschidePDF(${JSON.stringify(opera.pdf)})'>
 
                             📕 Rezumat
+
+                        </button>
+
+                    `;
+
+                }
+
+                if (areAnalizaLiterara) {
+
+                    butoane += `
+
+                        <button
+                            class="opera-btn"
+                            type="button"
+                            onclick='deschidePDF(${JSON.stringify(opera.pdf_analiza_literara)})'>
+
+                            📚 Analiză literară
 
                         </button>
 
