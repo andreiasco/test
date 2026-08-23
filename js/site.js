@@ -780,13 +780,13 @@ site.innerHTML = `
             placeholder="https://...">
 
         <label>
-            📸 Imagine personaje pentru Instagram
+            📄 Document personaje pentru Instagram (PDF)
         </label>
 
         <input
             type="file"
             id="operaPersonajeInstagram"
-            accept="image/*">
+            accept="application/pdf">
 
         <button
             class="admin-btn"
@@ -1469,6 +1469,9 @@ async function incarcaAutori() {
                 const areImaginePersonaje =
                     !!opera.personaje_instagram;
 
+                const esteDocumentInstagram =
+                    /\.pdf(?:$|[?#])/i.test(opera.personaje_instagram || "");
+
 
                 if (
                     !areRezumat &&
@@ -1595,13 +1598,29 @@ async function incarcaAutori() {
                     `;
                 }
 
-                const personajeInstagramHTML = areImaginePersonaje
+                const personajeInstagramHTML = areImaginePersonaje &&
+                    !esteDocumentInstagram
                     ? `
                         <div class="personaje-instagram">
                             <img src="${escapeHTML(opera.personaje_instagram)}" alt="Personajele din ${escapeHTML(opera.titlu)}" loading="lazy">
                         </div>
                     `
                     : "";
+
+                if (esteDocumentInstagram) {
+                    butoane += `
+
+                        <button
+                            class="opera-btn"
+                            type="button"
+                            onclick='deschidePDF(${JSON.stringify(opera.personaje_instagram)})'>
+
+                            📄 Document personaje Instagram
+
+                        </button>
+
+                    `;
+                }
 
 
                 opereHTML.push(`

@@ -706,49 +706,45 @@ async function adaugaOpera() {
             fisiereIncarcate.push(caleRezumatWord);
         }
 
-        let pozaPersonajeUrl = null;
+        let documentPersonajeUrl = null;
 
         if (personajeInstagram) {
 
-            if (!personajeInstagram.type.startsWith("image/")) {
-                throw new Error("Imaginea personajelor nu este validă.");
+            if (
+                personajeInstagram.type !== "application/pdf" &&
+                !/\.pdf$/i.test(personajeInstagram.name)
+            ) {
+                throw new Error("Documentul personajelor trebuie să fie PDF.");
             }
 
-            const extensieImagine =
-                personajeInstagram.name
-                    .split(".")
-                    .pop()
-                    .toLowerCase();
+            const numeDocument = personajeInstagram.name
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "")
+                .replace(/[^a-zA-Z0-9._-]/g, "_");
 
-            const caleImaginePersonaje =
-                `personaje/${Date.now()}_${autorId}.${extensieImagine}`;
+            const caleDocumentPersonaje =
+                `${autorId}/${Date.now()}_personaje_instagram_${numeDocument}`;
 
-            const { error: imagineError } =
+            const { error: documentError } =
                 await supabaseClient
                     .storage
-                    .from(IMAGINI_BUCKET)
+                    .from(BUCKET)
                     .upload(
-                        caleImaginePersonaje,
+                        caleDocumentPersonaje,
                         personajeInstagram,
                         {
-                            contentType: personajeInstagram.type,
+                            contentType: "application/pdf",
                             upsert: false
                         }
                     );
 
-            if (imagineError) {
-                throw imagineError;
+            if (documentError) {
+                throw documentError;
             }
 
-            imaginiIncarcate.push(caleImaginePersonaje);
-
-            const { data: imagineData } =
-                supabaseClient
-                    .storage
-                    .from(IMAGINI_BUCKET)
-                    .getPublicUrl(caleImaginePersonaje);
-
-            pozaPersonajeUrl = imagineData.publicUrl;
+            fisiereIncarcate.push(caleDocumentPersonaje);
+            documentPersonajeUrl =
+                `storage://${BUCKET}/${caleDocumentPersonaje}`;
         }
 
 
@@ -817,7 +813,7 @@ async function adaugaOpera() {
                             linkTestLectura || null,
 
                         personaje_instagram:
-                            pozaPersonajeUrl
+                            documentPersonajeUrl
                     }
                 ]);
 
@@ -1467,14 +1463,14 @@ async function incarcaOpereAdmin() {
                         </button>
 
                         <p>
-                            Imagine Instagram personaje:
+                            Document personaje Instagram:
                             ${opera.personaje_instagram ? "✔ Există" : "✖ Lipsește"}
                         </p>
 
                         <input
                             type="file"
                             id="personajeInstagram-${opera.id}"
-                            accept="image/*">
+                            accept="application/pdf">
 
                         <button
                             class="admin-btn"
@@ -1483,11 +1479,11 @@ async function incarcaOpereAdmin() {
                                 ${opera.id},
                                 'personaje_instagram',
                                 'personajeInstagram-${opera.id}',
-                                'Imagini',
-                                'personaje'
+                                'Pdf',
+                                'pdf'
                             )">
 
-                            📸 Înlocuiește imaginea Instagram
+                            📄 Înlocuiește documentul Instagram
 
                         </button>
 
@@ -1866,14 +1862,19 @@ async function inlocuiesteFisierOpera(
     }
 
     const esteRezumatScris = tipFisier === "word";
+    const esteDocumentPDF = tipFisier === "pdf";
     const extensieValida = esteRezumatScris
         ? /\.(doc|docx|pdf)$/i.test(fisier.name)
-        : fisier.type.startsWith("image/");
+        : esteDocumentPDF
+            ? /\.pdf$/i.test(fisier.name) || fisier.type === "application/pdf"
+            : fisier.type.startsWith("image/");
 
     if (!extensieValida) {
         status.textContent = esteRezumatScris
             ? "Fișierul trebuie să fie .doc, .docx sau .pdf."
-            : "Fișierul selectat nu este o imagine validă.";
+            : esteDocumentPDF
+                ? "Fișierul selectat nu este un PDF valid."
+                : "Fișierul selectat nu este o imagine validă.";
         status.style.color = "#c62828";
         return;
     }
@@ -1911,7 +1912,9 @@ async function inlocuiesteFisierOpera(
 
         caleNoua = tipFisier === "word"
             ? `${opera.autor_id}/${Date.now()}_rezumat_word_${numeCurat}`
-            : `personaje/${Date.now()}_${opera.autor_id}_${numeCurat}`;
+            : esteDocumentPDF
+                ? `${opera.autor_id}/${Date.now()}_personaje_instagram_${numeCurat}`
+                : `personaje/${Date.now()}_${opera.autor_id}_${numeCurat}`;
 
         const { error: uploadError } =
             await supabaseClient
@@ -1923,7 +1926,9 @@ async function inlocuiesteFisierOpera(
                             ? /\.pdf$/i.test(fisier.name)
                                 ? "application/pdf"
                                 : "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-                            : "image/png"
+                            : esteDocumentPDF
+                                ? "application/pdf"
+                                : "image/png"
                     ),
                     upsert: false
                 });
@@ -1932,7 +1937,7 @@ async function inlocuiesteFisierOpera(
             throw uploadError;
         }
 
-        const valoareNoua = tipFisier === "word"
+        const valoareNoua = tipFisier === "word" || esteDocumentPDF
             ? `storage://${bucket}/${caleNoua}`
             : supabaseClient
                 .storage
@@ -2113,6 +2118,9 @@ async function stergeOpera(operaId) {
             ),
             obtineCalePDF(
                 opera.pdf_caracterizare
+            ),
+            obtineCalePDF(
+                opera.personaje_instagram
             )
         ]
             .filter(Boolean);
