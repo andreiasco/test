@@ -1881,6 +1881,13 @@ async function incarcaMaterialeLimba() {
             return `
                 <section id="limba-clasa-${clasa.numar}" class="limba-clasa">
                     <h2 class="titlu">${escapeHTML(clasa.titlu || `Clasa a ${clasa.numar}-a`)}</h2>
+                    <p class="subtitlu limba-clasa-descriere">${escapeHTML(
+                {
+                    5: "Noțiuni de bază de gramatică, vocabular, ortografie și comunicare.",
+                    6: "Consolidarea gramaticii, a vocabularului și a înțelegerii textului.",
+                    7: "Sintaxa frazei, vocabularul și exprimarea clară în contexte diverse.",
+                    8: "Recapitulare și aprofundare pentru comunicare și evaluarea de la finalul gimnaziului."
+                }[clasa.numar] || "Gramatică, vocabular, ortografie și comunicare.")}</p>
                     <div class="capitole-limba">
                         ${capitoleHTML || "<p>Nu există capitole definite pentru această clasă.</p>"}
                     </div>

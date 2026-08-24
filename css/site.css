@@ -571,6 +571,19 @@ body.dark .status-cont {
 }
 
 .limba-clasa h2 {
+    margin-bottom: 8px;
+}
+
+#poezie .titlu,
+#proza .titlu,
+#teatru .titlu {
+    margin-bottom: 8px;
+}
+
+.limba-clasa-descriere,
+#poezie .subtitlu,
+#proza .subtitlu,
+#teatru .subtitlu {
     border-bottom: 3px solid #7b2450;
     padding-bottom: 12px;
 }
