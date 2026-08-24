@@ -290,41 +290,40 @@ site.innerHTML = `
     </h2>
 
     <p class="subtitlu">
-        Descoperă principalele domenii ale limbii române.
+        Alege clasa pentru a vedea capitolele și materialele disponibile.
     </p>
 
-    <div class="cards">
+    <div class="cards clase-limba-selectie">
 
-        <div class="card">
-            <div class="icon">🔤</div>
-            <h3>Gramatică</h3>
-            <p>
-                Descoperă regulile după care sunt
-                construite cuvintele și propozițiile.
-            </p>
-        </div>
+        <a class="card clasa-limba-box" href="#limba-clasa-5">
+            <div class="icon">5</div>
+            <h3>Clasa a V-a</h3>
+            <p>Capitole și materiale pentru clasa a V-a.</p>
+        </a>
 
-        <div class="card">
-            <div class="icon">📚</div>
-            <h3>Vocabular</h3>
-            <p>
-                Vocabularul cuprinde totalitatea
-                cuvintelor unei limbi.
-            </p>
-        </div>
+        <a class="card clasa-limba-box" href="#limba-clasa-6">
+            <div class="icon">6</div>
+            <h3>Clasa a VI-a</h3>
+            <p>Capitole și materiale pentru clasa a VI-a.</p>
+        </a>
 
-        <div class="card">
-            <div class="icon">✍️</div>
-            <h3>Ortografie</h3>
-            <p>
-                Învață să scrii corect și să respecți
-                regulile limbii române.
-            </p>
-        </div>
+        <a class="card clasa-limba-box" href="#limba-clasa-7">
+            <div class="icon">7</div>
+            <h3>Clasa a VII-a</h3>
+            <p>Capitole și materiale pentru clasa a VII-a.</p>
+        </a>
+
+        <a class="card clasa-limba-box" href="#limba-clasa-8">
+            <div class="icon">8</div>
+            <h3>Clasa a VIII-a</h3>
+            <p>Capitole și materiale pentru clasa a VIII-a.</p>
+        </a>
 
     </div>
 
 </section>
+
+<div id="limbaClase"></div>
 
 </div>
 
@@ -800,6 +799,65 @@ site.innerHTML = `
             id="operaStatus"
             class="admin-status">
         </div>
+
+    </div>
+
+
+    <div
+        class="admin-box"
+        style="margin-top:20px;">
+
+        <h3>🔤 Adaugă capitol pentru Limba română</h3>
+
+        <label for="limbaCapitolClasa">Clasa</label>
+        <select id="limbaCapitolClasa">
+            <option value="">Selectează clasa</option>
+            <option value="5">Clasa a V-a</option>
+            <option value="6">Clasa a VI-a</option>
+            <option value="7">Clasa a VII-a</option>
+            <option value="8">Clasa a VIII-a</option>
+        </select>
+
+        <input type="text" id="limbaCapitolTitlu" placeholder="Titlul capitolului">
+        <textarea id="limbaCapitolDescriere" placeholder="Descrierea capitolului" rows="3"></textarea>
+        <input type="number" id="limbaCapitolOrdine" placeholder="Ordine (opțional)" min="0">
+
+        <button class="admin-btn" onclick="adaugaCapitolLimba()">➕ Adaugă capitol</button>
+        <div id="limbaCapitolStatus" class="admin-status"></div>
+
+    </div>
+
+
+    <div
+        class="admin-box"
+        style="margin-top:20px;">
+
+        <h3>📄 Adaugă material PDF pentru Limba română</h3>
+
+        <label for="limbaMaterialCapitol">Capitol</label>
+        <select id="limbaMaterialCapitol">
+            <option value="">Selectează capitolul</option>
+        </select>
+
+        <input type="text" id="limbaMaterialTitlu" placeholder="Titlul materialului">
+        <textarea id="limbaMaterialDescriere" placeholder="Descrierea materialului" rows="3"></textarea>
+        <input type="number" id="limbaMaterialOrdine" placeholder="Ordine (opțional)" min="0">
+        <input type="file" id="limbaMaterialPDF" accept="application/pdf">
+
+        <button class="admin-btn" onclick="adaugaMaterialLimba()">➕ Încarcă materialul</button>
+        <div id="limbaMaterialStatus" class="admin-status"></div>
+
+    </div>
+
+
+    <div
+        class="admin-box"
+        style="margin-top:20px;">
+
+        <h3>📚 Capitole și materiale de limbă existente</h3>
+
+        <button class="admin-btn" onclick="incarcaLimbaAdmin()">🔄 Reîmprospătează</button>
+        <div id="listaLimbaAdmin"></div>
 
     </div>
 
@@ -1734,6 +1792,104 @@ async function incarcaAutori() {
                 "</p>";
         });
 
+    }
+}
+
+// ======================================================
+// ÎNCARCĂ MATERIALELE DE LIMBĂ
+// ======================================================
+
+async function incarcaMaterialeLimba() {
+
+    const container = document.getElementById("limbaClase");
+
+    if (!container) {
+        return;
+    }
+
+    container.innerHTML = "<p style='text-align:center'>Se încarcă materialele...</p>";
+
+    try {
+        const { data: clase, error: eroareClase } = await supabaseClient
+            .from("limba_clase")
+            .select("id, numar, titlu")
+            .order("numar", { ascending: true });
+
+        if (eroareClase) {
+            throw eroareClase;
+        }
+
+        const { data: capitole, error: eroareCapitole } = await supabaseClient
+            .from("limba_capitole")
+            .select("id, clasa_id, titlu, descriere, ordine")
+            .order("ordine", { ascending: true })
+            .order("titlu", { ascending: true });
+
+        if (eroareCapitole) {
+            throw eroareCapitole;
+        }
+
+        const { data: materiale, error: eroareMateriale } = await supabaseClient
+            .from("limba_materiale")
+            .select("id, capitol_id, titlu, descriere, pdf, ordine")
+            .order("ordine", { ascending: true })
+            .order("titlu", { ascending: true });
+
+        if (eroareMateriale) {
+            throw eroareMateriale;
+        }
+
+        if (!clase || clase.length === 0) {
+            container.innerHTML = "<p style='text-align:center'>Momentan nu există materiale pentru Limba română.</p>";
+            return;
+        }
+
+        container.innerHTML = clase.map(clasa => {
+            const capitoleClasa = (capitole || []).filter(
+                capitol => String(capitol.clasa_id) === String(clasa.id)
+            );
+
+            const capitoleHTML = capitoleClasa.map(capitol => {
+                const materialeCapitol = (materiale || []).filter(
+                    material => String(material.capitol_id) === String(capitol.id)
+                );
+
+                const materialeHTML = materialeCapitol.length > 0
+                    ? materialeCapitol.map(material => `
+                        <div class="material-limba">
+                            <div>
+                                <strong>${escapeHTML(material.titlu)}</strong>
+                                ${material.descriere ? `<p>${escapeHTML(material.descriere)}</p>` : ""}
+                            </div>
+                            <button class="opera-btn" type="button"
+                                onclick='deschidePDF(${JSON.stringify(material.pdf)})'>
+                                📄 Deschide PDF
+                            </button>
+                        </div>
+                    `).join("")
+                    : "<p>Nu există materiale în acest capitol.</p>";
+
+                return `
+                    <article class="capitol-limba">
+                        <h4>${escapeHTML(capitol.titlu)}</h4>
+                        ${capitol.descriere ? `<p>${escapeHTML(capitol.descriere)}</p>` : ""}
+                        <div class="materiale-limba">${materialeHTML}</div>
+                    </article>
+                `;
+            }).join("");
+
+            return `
+                <section id="limba-clasa-${clasa.numar}" class="limba-clasa">
+                    <h2 class="titlu">${escapeHTML(clasa.titlu || `Clasa a ${clasa.numar}-a`)}</h2>
+                    <div class="capitole-limba">
+                        ${capitoleHTML || "<p>Nu există capitole definite pentru această clasă.</p>"}
+                    </div>
+                </section>
+            `;
+        }).join("");
+    } catch (error) {
+        console.error("Eroare încărcare materiale Limba română:", error);
+        container.innerHTML = "<p style='color:#c62828;text-align:center'>Nu am putut încărca materialele de limbă.</p>";
     }
 }
 
