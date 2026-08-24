@@ -554,6 +554,71 @@ body.dark .status-cont {
     text-decoration: none;
 }
 
+.clasa-limba-box {
+    color: inherit;
+    text-decoration: none;
+    text-align: center;
+}
+
+.clasa-limba-box .icon {
+    color: #7b2450;
+    font-weight: bold;
+}
+
+.limba-clasa {
+    margin-top: 55px;
+    scroll-margin-top: 25px;
+}
+
+.limba-clasa h2 {
+    margin-bottom: 8px;
+}
+
+#poezie .titlu,
+#proza .titlu,
+#teatru .titlu {
+    margin-bottom: 8px;
+}
+
+.limba-clasa-descriere,
+#poezie .subtitlu,
+#proza .subtitlu,
+#teatru .subtitlu {
+    border-bottom: 3px solid #7b2450;
+    padding-bottom: 12px;
+}
+
+.capitole-limba {
+    display: grid;
+    gap: 18px;
+}
+
+.capitol-limba {
+    background: #f8eef3;
+    padding: 22px;
+    border-left: 5px solid #7b2450;
+    border-radius: 10px;
+}
+
+.capitol-limba h4 {
+    margin: 0;
+    color: #7b2450;
+    font-size: 20px;
+}
+
+.material-limba {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 12px 0;
+    border-top: 1px solid #ead7e0;
+}
+
+.material-limba p {
+    margin: 5px 0 0;
+}
+
 .card h3 {
     color: #7b2450;
 }
@@ -629,6 +694,17 @@ body.dark .status-cont {
 
 .opera-btn:hover {
     background: #7b2450;
+    color: white;
+}
+
+.personaje-instagram-btn {
+    background: #eadcf8;
+    color: #65358a;
+    border-color: #65358a;
+}
+
+.personaje-instagram-btn:hover {
+    background: #65358a;
     color: white;
 }
 

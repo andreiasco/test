@@ -10,6 +10,10 @@ function afiseazaPagina(hash = window.location.hash) {
         functionalitati: "pagina-acasa",
         "how-to": "pagina-acasa",
         limba: "pagina-limba",
+        "limba-clasa-5": "pagina-limba",
+        "limba-clasa-6": "pagina-limba",
+        "limba-clasa-7": "pagina-limba",
+        "limba-clasa-8": "pagina-limba",
         literatura: "pagina-literatura",
         poezie: "pagina-literatura",
         proza: "pagina-literatura",
@@ -49,6 +53,7 @@ window.addEventListener("hashchange", () => afiseazaPagina());
 afiseazaPagina();
 
 incarcaAutori();
+incarcaMaterialeLimba();
 
 verificaSesiunea();
 
