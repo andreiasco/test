@@ -632,6 +632,17 @@ body.dark .status-cont {
     color: white;
 }
 
+.personaje-instagram-btn {
+    background: #eadcf8;
+    color: #65358a;
+    border-color: #65358a;
+}
+
+.personaje-instagram-btn:hover {
+    background: #65358a;
+    color: white;
+}
+
 .opera-link {
     display: inline-block;
     padding: 10px 15px;

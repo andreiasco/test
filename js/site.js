@@ -1611,11 +1611,11 @@ async function incarcaAutori() {
                     butoane += `
 
                         <button
-                            class="opera-btn"
+                            class="opera-btn personaje-instagram-btn"
                             type="button"
                             onclick='deschidePDF(${JSON.stringify(opera.personaje_instagram)})'>
 
-                            📄 Document personaje Instagram
+                            📷 Instagramul personajelor
 
                         </button>
 
