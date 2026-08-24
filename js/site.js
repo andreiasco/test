@@ -98,183 +98,69 @@ site.innerHTML = `
 
 <main>
 
-<div id="pagina-acasa" class="pagina activ">
+<div id="pagina-acasa" class="pagina activ home-page">
 
-<header class="hero" id="acasa">
-
-    <div>
-
-        <h1>
-            Limba și Literatura Română
-        </h1>
-
-        <p>
-            Descoperă lumea cuvintelor,
-            a literaturii și a marilor scriitori români.
-        </p>
-
-        <a href="#limba" class="buton">
-            Începe călătoria 📖
-        </a>
-
+<header class="home-hero" id="acasa">
+    <div class="home-hero-copy">
+        <p class="home-kicker">Un loc pentru idei, povești și curiozitate</p>
+        <h1>Cine suntem noi?</h1>
+        <p class="home-lead">Suntem un profesor și trei IT-iști, uniți de aceeași pasiune: <strong>educația.</strong></p>
+        <p class="home-intro">Ne-am dorit o educație mai aproape de copii, mai curioasă, mai creativă și, de ce nu, puțin mai veselă.</p>
+        <a href="#functionalitati" class="home-cta">Descoperă lumea noastră ↓</a>
     </div>
-
+    <div class="home-hero-art" aria-hidden="true"><span>📚</span><span>💡</span><span>✦</span></div>
 </header>
 
-
-<section id="despre-noi">
-
-    <h2 class="titlu">Cine suntem noi?</h2>
-
-    <p class="subtitlu">
-        Un spațiu de învățare pentru limba și literatura română.
-    </p>
-
-    <div class="intro-grid">
-
-        <div class="intro-box">
-            <h3>Învățare într-un singur loc</h3>
-            <p>
-                Adunăm explicații, autori, opere și activități
-                interactive pentru ca învățarea să fie mai clară și mai ușor de urmărit.
-            </p>
-        </div>
-
-        <div class="intro-box">
-            <h3>Conținut pentru fiecare ritm</h3>
-            <p>
-                Poți reveni oricând la noțiunile de bază, poți explora literatura
-                română și îți poți verifica cunoștințele prin quiz-uri.
-            </p>
-        </div>
-
-        <div class="intro-box">
-            <h3>Construim împreună</h3>
-            <p>
-                Site-ul este pregătit să crească odată cu nevoile comunității,
-                prin funcționalități dedicate elevilor și profesorilor.
-            </p>
-        </div>
-
+<section class="home-story" id="despre-noi">
+    <div class="home-section-heading"><span class="home-sprout">🌱</span><h2>Așa a început povestea noastră.</h2></div>
+    <p class="home-story-line">Din multe idei, discuții, încercări și nopți târzii.</p>
+    <div class="home-timeline" aria-label="Drumul proiectului">
+        <div><span>💬</span><strong>multe idei</strong></div><i>→</i>
+        <div><span>🗣️</span><strong>discuții</strong></div><i>→</i>
+        <div><span>⚗️</span><strong>încercări</strong></div><i>→</i>
+        <div><span>🌙</span><strong>nopți târzii</strong></div>
     </div>
-
+    <div class="home-question">Și dintr-o întrebare simplă:<br><strong>„Cum ar fi dacă am face școala puțin altfel?”</strong></div>
 </section>
 
-
-<section id="functionalitati">
-
-    <h2 class="titlu">Ce poți face pe site?</h2>
-
-    <p class="subtitlu">
-        Conținutul se va adapta tipului de cont cu care te conectezi.
-    </p>
-
-    <div class="status-cont">Momentan navighezi ca vizitator nelogat</div>
-
-    <div class="roluri-grid">
-
-        <div class="rol-card profesor">
-            <span class="rol-eticheta">Cont profesor</span>
-            <h3>Predai și organizezi</h3>
-            <p>
-                Aici va fi locul pentru instrumentele dedicate profesorilor.
-            </p>
-            <details>
-                <summary>Vezi funcționalitățile pregătite</summary>
-                <p>
-                    Spațiu rezervat pentru adăugarea și gestionarea materialelor,
-                    activități pentru clasă și alte instrumente didactice.
-                </p>
-            </details>
-        </div>
-
-        <div class="rol-card elev">
-            <span class="rol-eticheta">Cont elev</span>
-            <h3>Înveți și exersezi</h3>
-            <p>
-                Aici va fi locul pentru instrumentele care te ajută să progresezi.
-            </p>
-            <details>
-                <summary>Vezi funcționalitățile pregătite</summary>
-                <p>
-                    Spațiu rezervat pentru exerciții, progres personal,
-                    teme și activități recomandate de profesor.
-                </p>
-            </details>
-        </div>
-
-        <div class="rol-card">
-            <span class="rol-eticheta">Fără cont</span>
-            <h3>Descoperi liber</h3>
-            <p>
-                Poți explora resursele publice și poți începe să înveți imediat.
-            </p>
-            <details>
-                <summary>Vezi ce este disponibil</summary>
-                <p>
-                    Ai acces la secțiunile publice despre limbă, literatură,
-                    autori, opere și quiz-uri.
-                </p>
-            </details>
-        </div>
-
-    </div>
-
+<section class="home-explainer" aria-label="Ce este pe site">
+    <article class="home-note note-wide"><span class="home-note-icon">✒️</span><div><h3>Am pornit de la limba și literatura română,</h3><p>pentru că aici poveștile ne-au fost cel mai aproape.</p></div></article>
+    <article class="home-note"><span class="home-note-icon">📝</span><div><h3>Am creat:</h3><p>rezumate originale, rezumate ilustrate și rezumate editabile în Word.</p></div></article>
+    <article class="home-note"><span class="home-note-icon">❤️</span><div><h3>Am adăugat</h3><p>fișe de lectură, personaje, valori morale și semnificații.</p></div></article>
+    <article class="home-note"><span class="home-note-icon">📱</span><div><h3>Personajele au ieșit din carte</h3><p>și și-au primit propriul colț de lume pe Instagram.</p></div></article>
+    <article class="home-note"><span class="home-note-icon">🎬</span><div><h3>Poveștile continuă cu:</h3><p>filme, audiobookuri și alte resurse.</p></div></article>
+    <article class="home-note"><span class="home-note-icon">🏆</span><div><h3>Testele de lectură?</h3><p>Le-am transformat în jocuri și provocări!</p></div></article>
+    <article class="home-note"><span class="home-note-icon">✅</span><div><h3>La gramatică:</h3><p>teste originale, pe clase și capitole, iar pentru clasa a VIII-a, teste pe tipuri de itemi.</p></div></article>
+    <article class="home-note"><span class="home-note-icon">💼</span><div><h3>Și pentru profesori:</h3><p>analize SWOT, PIP-uri, modele și resurse, plus Revista Profesorilor.</p></div></article>
 </section>
 
-
-<section id="how-to">
-
-    <h2 class="titlu">How to</h2>
-
-    <p class="subtitlu">
-        Pași simpli pentru a folosi resursele disponibile.
-    </p>
-
-    <div class="howto-grid">
-
-        <div class="howto-card">
-            <h3>1. Explorează</h3>
-            <p>
-                Folosește meniul pentru a ajunge rapid la domeniul care te interesează.
-            </p>
-            <details>
-                <summary>Cum încep?</summary>
-                <p>
-                    Apasă „Începe călătoria” sau alege direct o secțiune din meniul de sus.
-                </p>
-            </details>
-        </div>
-
-        <div class="howto-card">
-            <h3>2. Citește și învață</h3>
-            <p>
-                Consultă explicațiile, autorii și operele din fiecare categorie.
-            </p>
-            <details>
-                <summary>Unde găsesc resursele?</summary>
-                <p>
-                    Alege „Limba română” pentru noțiuni de limbă sau „Literatura română”
-                    pentru poezie, proză și teatru.
-                </p>
-            </details>
-        </div>
-
-        <div class="howto-card">
-            <h3>3. Verifică-ți cunoștințele</h3>
-            <p>
-                Folosește activitățile interactive pentru recapitulare și exersare.
-            </p>
-            <details>
-                <summary>Cum accesez quiz-urile?</summary>
-                <p>
-                    Deschide secțiunea „Quiz-uri” și alege activitatea potrivită.
-                </p>
-            </details>
-        </div>
-
+<section class="home-discovery" id="functionalitati">
+    <div class="home-section-heading"><span class="home-sprout">✦</span><h2>Ce găsești aici?</h2></div>
+    <p class="home-section-lead">Un spațiu în care ideile de lecție prind viață, iar învățarea devine o descoperire.</p>
+    <div class="home-discovery-grid">
+        <div><span>🧑‍🏫</span><p>idei pentru<br><strong>lecții</strong></p></div>
+        <div><span>🧒</span><p>personaje<br><strong>de descoperit</strong></p></div>
+        <div><span>📚</span><p>opere care<br><strong>prind viață</strong></p></div>
+        <div><span>🎮</span><p>lecții care<br><strong>stârnesc curiozitatea</strong></p></div>
     </div>
+</section>
 
+<section class="home-values" id="how-to">
+    <div class="home-section-heading"><span class="home-sprout">💡</span><h2>De ce facem toate acestea?</h2></div>
+    <div class="home-values-grid">
+        <div><span>🎯</span><p>Credem că educația poate fi <strong>riguroasă</strong> și, în același timp, <strong>caldă.</strong></p></div>
+        <div><span>🛡️</span><p>Poate fi serioasă fără să fie rigidă.</p></div>
+        <div><span>🎓</span><p>Poate respecta programa și, totuși, să lase loc <strong>imaginației.</strong></p></div>
+        <div><span>💗</span><p>Înainte de a iubi o carte, trebuie să avem un motiv să o deschidem.</p></div>
+        <div><span>💡</span><p>Înainte de a învăța, trebuie să ne trezim curiozitatea.</p></div>
+        <div><span>⭐</span><p>Cea mai importantă lecție e cea care te face să vrei să afli mai mult.</p></div>
+    </div>
+</section>
+
+<section class="home-welcome">
+    <div class="home-welcome-book">📖</div>
+    <div><p>Acesta este locul pe care încercăm să-l construim.</p><h2>Bine ai venit<br><small>în lumea noastră!</small></h2></div>
+    <p>Sperăm să devină, încet-încet,<br>și lumea ta. 🌍</p>
 </section>
 
 </div>
