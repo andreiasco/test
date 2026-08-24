@@ -1306,3 +1306,391 @@ body.dark .pdf-item {
         align-items: stretch;
     }
 }
+
+/* ======================================================
+   PAGINA ACASA - INSPIRATA DIN PDF
+====================================================== */
+
+.home-page {
+    background: #fffaf0;
+    color: #172c4f;
+}
+
+.home-page section {
+    max-width: 1200px;
+}
+
+.home-hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1.3fr) minmax(220px, .7fr);
+    align-items: center;
+    min-height: 430px;
+    padding: 70px max(7vw, 28px);
+    background: #f4e7c7;
+    border-bottom: 1px solid #ddcfae;
+    overflow: hidden;
+}
+
+.home-hero-copy {
+    max-width: 760px;
+}
+
+.home-kicker {
+    margin: 0 0 16px;
+    color: #b44b38;
+    font-size: 15px;
+    font-weight: bold;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+.home-hero h1 {
+    margin: 0 0 20px;
+    color: #142c54;
+    font-family: Georgia, serif;
+    font-size: clamp(46px, 7vw, 82px);
+    line-height: .98;
+}
+
+.home-lead {
+    max-width: 700px;
+    margin: 0 0 13px;
+    font-size: clamp(22px, 3vw, 32px);
+    line-height: 1.25;
+}
+
+.home-lead strong {
+    color: #c35a38;
+}
+
+.home-intro {
+    max-width: 660px;
+    margin: 0 0 28px;
+    color: #40536a;
+    font-size: 18px;
+    line-height: 1.6;
+}
+
+.home-cta {
+    display: inline-block;
+    padding: 13px 20px;
+    border-radius: 24px;
+    background: #2d6d68;
+    color: #fff;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.home-hero-art {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 260px;
+    transform: rotate(-7deg);
+    color: #2d6d68;
+    font-size: 78px;
+}
+
+.home-hero-art span:nth-child(2) {
+    margin: -80px -8px 0;
+    color: #c35a38;
+    font-size: 108px;
+}
+
+.home-hero-art span:nth-child(3) {
+    margin-top: 100px;
+    color: #d59b2e;
+    font-size: 45px;
+}
+
+.home-section-heading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+}
+
+.home-section-heading h2 {
+    margin: 0;
+    color: #142c54;
+    font-family: Georgia, serif;
+    font-size: clamp(29px, 4vw, 45px);
+}
+
+.home-sprout {
+    color: #5e9657;
+    font-size: 28px;
+}
+
+.home-story {
+    margin-top: 0;
+    padding-top: 58px;
+    padding-bottom: 58px;
+    border-bottom: 1px solid #ddcfae;
+    text-align: center;
+}
+
+.home-story-line,
+.home-section-lead {
+    margin: 14px auto 28px;
+    color: #536271;
+    font-size: 18px;
+}
+
+.home-timeline {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    margin: 28px auto;
+    color: #536271;
+}
+
+.home-timeline div {
+    display: grid;
+    gap: 5px;
+    min-width: 105px;
+}
+
+.home-timeline span {
+    font-size: 42px;
+}
+
+.home-timeline strong {
+    font-size: 15px;
+}
+
+.home-timeline i {
+    color: #c35a38;
+    font-size: 24px;
+    font-style: normal;
+}
+
+.home-question {
+    color: #536271;
+    font-size: 17px;
+    line-height: 1.55;
+}
+
+.home-question strong {
+    color: #142c54;
+    font-size: 21px;
+}
+
+.home-explainer {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+.home-note {
+    display: flex;
+    gap: 16px;
+    min-height: 150px;
+    padding: 28px 24px;
+    border-bottom: 1px solid #ddcfae;
+    border-right: 1px dashed #d7c8a7;
+}
+
+.home-note-icon {
+    flex: 0 0 48px;
+    font-size: 40px;
+}
+
+.home-note h3 {
+    margin: 0 0 8px;
+    color: #142c54;
+    font-size: 18px;
+    line-height: 1.25;
+}
+
+.home-note p {
+    margin: 0;
+    color: #536271;
+    line-height: 1.45;
+}
+
+.home-note:nth-child(3n) {
+    border-right: 0;
+}
+
+.home-note:nth-child(3n+1) h3 {
+    color: #b44b38;
+}
+
+.home-note:nth-child(3n+2) h3 {
+    color: #2d6d68;
+}
+
+.home-discovery {
+    text-align: center;
+}
+
+.home-discovery-grid,
+.home-values-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+    margin-top: 34px;
+}
+
+.home-discovery-grid div {
+    padding: 18px 8px;
+}
+
+.home-discovery-grid span {
+    font-size: 52px;
+}
+
+.home-discovery-grid p {
+    margin: 10px 0 0;
+    color: #536271;
+    line-height: 1.35;
+}
+
+.home-discovery-grid strong {
+    color: #142c54;
+}
+
+.home-values {
+    border-top: 1px solid #ddcfae;
+    text-align: center;
+}
+
+.home-values-grid {
+    grid-template-columns: repeat(6, 1fr);
+    gap: 0;
+}
+
+.home-values-grid div {
+    min-height: 170px;
+    padding: 20px 16px;
+    border-right: 1px dashed #d7c8a7;
+}
+
+.home-values-grid div:last-child {
+    border-right: 0;
+}
+
+.home-values-grid span {
+    font-size: 42px;
+}
+
+.home-values-grid p {
+    margin: 12px 0 0;
+    color: #536271;
+    line-height: 1.45;
+}
+
+.home-values-grid strong {
+    color: #b44b38;
+}
+
+.home-welcome {
+    display: grid;
+    grid-template-columns: .7fr 1fr 1fr;
+    align-items: center;
+    gap: 24px;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 32px max(7vw, 28px) !important;
+    background: #f4e7c7;
+    border-top: 1px solid #ddcfae;
+}
+
+.home-welcome-book {
+    font-size: 60px;
+    text-align: center;
+}
+
+.home-welcome p {
+    margin: 0;
+    color: #536271;
+    line-height: 1.45;
+}
+
+.home-welcome h2 {
+    margin: 5px 0 0;
+    color: #b44b38;
+    font-family: Georgia, serif;
+    font-size: 32px;
+}
+
+.home-welcome h2 small {
+    color: #142c54;
+    font-size: 22px;
+}
+
+.home-welcome>p:last-child {
+    text-align: right;
+    font-size: 17px;
+}
+
+@media(max-width:700px) {
+    .home-hero {
+        grid-template-columns: 1fr;
+        min-height: 0;
+        padding: 54px 24px 42px;
+    }
+
+    .home-hero-art {
+        min-height: 130px;
+        font-size: 55px;
+    }
+
+    .home-hero-art span:nth-child(2) {
+        font-size: 75px;
+    }
+
+    .home-hero-art span:nth-child(3) {
+        margin-top: 65px;
+        font-size: 30px;
+    }
+
+    .home-timeline {
+        gap: 5px;
+    }
+
+    .home-timeline div {
+        min-width: 70px;
+    }
+
+    .home-timeline i {
+        font-size: 16px;
+    }
+
+    .home-timeline span {
+        font-size: 30px;
+    }
+
+    .home-explainer {
+        grid-template-columns: 1fr;
+    }
+
+    .home-note {
+        border-right: 0;
+    }
+
+    .home-discovery-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .home-values-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .home-values-grid div:nth-child(2n) {
+        border-right: 0;
+    }
+
+    .home-welcome {
+        grid-template-columns: 1fr;
+        text-align: center;
+    }
+
+    .home-welcome>p:last-child {
+        text-align: center;
+    }
+}
