@@ -1936,6 +1936,11 @@ footer {
         padding-bottom: 58px;
     }
 
+    section[id],
+    header[id] {
+        scroll-margin-top: 150px;
+    }
+
     .nav-tools {
         top: auto;
         right: 18px;
@@ -2074,4 +2079,163 @@ nav button:hover,
 .sterge-opera-btn:hover,
 .sterge-btn:hover {
     background: #6e2822;
+}
+
+/* ======================================================
+   MOD INTUNECAT - ACEEASI IDENTITATE VIZUALA
+====================================================== */
+
+body.dark {
+    background: var(--navy-deep);
+    color: #f8f0df;
+}
+
+body.dark .pagina:not(#pagina-acasa),
+body.dark #adminPanel {
+    background: #132b4d;
+    color: #f8f0df;
+}
+
+body.dark .card,
+body.dark .quiz-card,
+body.dark .kahoot-card,
+body.dark .login-box,
+body.dark .admin-box {
+    background: #1b385c;
+    border-color: #3e6384;
+    border-top-color: var(--terracotta);
+    box-shadow: 0 10px 26px rgba(0, 0, 0, .22);
+}
+
+body.dark .card h3,
+body.dark .quiz-card h3,
+body.dark .kahoot-card h3,
+body.dark .login-box h2,
+body.dark .admin-box h3,
+body.dark .admin-header h2,
+body.dark .titlu {
+    color: #f8f0df;
+}
+
+body.dark .card p,
+body.dark .quiz-card p,
+body.dark .kahoot-card p,
+body.dark .subtitlu {
+    color: #cbd8e2;
+}
+
+body.dark .clasa-limba-box .icon,
+body.dark .quiz-card h3 {
+    color: #f1a15d;
+}
+
+body.dark .capitol-limba,
+body.dark .admin-autor,
+body.dark .admin-opera,
+body.dark .pdf-item {
+    background: #1b385c;
+    border-left-color: var(--terracotta);
+}
+
+body.dark .capitol-limba h4,
+body.dark .admin-box label {
+    color: #f8f0df;
+}
+
+body.dark .material-limba {
+    border-top-color: #3e6384;
+}
+
+body.dark .login-box input,
+body.dark .auth-form select,
+body.dark .admin-box input,
+body.dark .admin-box textarea,
+body.dark .admin-box select {
+    background: #102946;
+    border-color: #527795;
+    color: #f8f0df;
+}
+
+body.dark .login-box input::placeholder,
+body.dark .admin-box input::placeholder,
+body.dark .admin-box textarea::placeholder {
+    color: #a9bece;
+}
+
+body.dark .auth-tab,
+body.dark .reset-btn,
+body.dark .opera-btn,
+body.dark .opera-link {
+    background: #f4e7c7;
+    border-color: #f4e7c7;
+    color: var(--navy-deep);
+}
+
+body.dark .auth-tab.activ,
+body.dark .auth-tab.activ:hover,
+body.dark .opera-btn:hover,
+body.dark .opera-link:hover {
+    background: var(--terracotta);
+    border-color: var(--terracotta);
+    color: #fffaf0;
+}
+
+body.dark .admin-panel {
+    background: #1a385b;
+    border-color: #426887;
+    border-top-color: var(--terracotta);
+}
+
+body.dark .theme-btn {
+    background: var(--terracotta);
+    border-color: var(--terracotta);
+    color: #fffaf0;
+}
+
+body.dark .theme-btn:hover {
+    background: #d06a47;
+    color: #fffaf0;
+}
+
+body.dark .home-page {
+    background: #132b4d;
+    color: #f8f0df;
+}
+
+body.dark .home-hero,
+body.dark .home-welcome {
+    background: #1b385c;
+    border-color: #426887;
+}
+
+body.dark .home-hero h1,
+body.dark .home-section-heading h2,
+body.dark .home-note h3,
+body.dark .home-discovery-grid strong,
+body.dark .home-welcome h2 small,
+body.dark .home-question strong {
+    color: #f8f0df;
+}
+
+body.dark .home-intro,
+body.dark .home-story-line,
+body.dark .home-section-lead,
+body.dark .home-question,
+body.dark .home-note p,
+body.dark .home-discovery-grid p,
+body.dark .home-values-grid p,
+body.dark .home-welcome p {
+    color: #cbd8e2;
+}
+
+main {
+    display: flow-root;
+}
+
+main:has(.pagina.activ:not(#pagina-acasa)) {
+    background: var(--paper);
+}
+
+body.dark main:has(.pagina.activ:not(#pagina-acasa)) {
+    background: #132b4d;
 }
