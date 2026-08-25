@@ -1569,21 +1569,21 @@ async function incarcaAutori() {
 
                 opereHTML.push(`
 
-                    <div class="opera">
+                    <details class="opera">
 
-                        ${personajeInstagramHTML}
-
-                        <h4>
+                        <summary class="opera-titlu">
                             📖 ${escapeHTML(opera.titlu)}
-                        </h4>
+                        </summary>
 
-                        <div class="opera-list">
+                        <div class="opera-resurse">
+
+                            ${personajeInstagramHTML}
 
                             ${butoane}
 
                         </div>
 
-                    </div>
+                    </details>
 
                 `);
 
@@ -1633,13 +1633,17 @@ async function incarcaAutori() {
 
                     </div>
 
-                    <h3>
-                        ${escapeHTML(autor.nume)}
-                    </h3>
+                    <div class="autor-descriere">
 
-                    <p>
-                        ${escapeHTML(autor.descriere)}
-                    </p>
+                        <h3 class="autor-nume">
+                            ${escapeHTML(autor.nume)}
+                        </h3>
+
+                        <p>
+                            ${escapeHTML(autor.descriere || "Nu există încă o descriere pentru acest autor.")}
+                        </p>
+
+                    </div>
 
                     <div class="opera-list">
 
