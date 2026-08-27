@@ -2228,6 +2228,158 @@ body.dark .home-welcome p {
     color: #cbd8e2;
 }
 
+/* HARTA REGIUNILOR */
+.harta-layout {
+    display: flex;
+    justify-content: center;
+}
+
+.harta-canvas {
+    position: relative;
+    width: min(100%, 760px);
+    padding: 18px;
+    background: #f8f0df;
+    border: 1px solid var(--line);
+    border-radius: 7px;
+}
+
+.harta-romaniei {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+.regiune {
+    stroke: #fffaf0;
+    stroke-width: 4;
+    stroke-linejoin: round;
+    cursor: pointer;
+    outline: none;
+    transition: fill .2s ease, filter .2s ease;
+}
+
+.harta-contur {
+    fill: none;
+    stroke: var(--navy-deep);
+    stroke-width: 7;
+    stroke-linejoin: round;
+    pointer-events: none;
+}
+
+.regiune.banat {
+    fill: #d87d58;
+}
+
+.regiune.transilvania {
+    fill: #4e9187;
+}
+
+.regiune.tara-romaneasca {
+    fill: #d4a13a;
+}
+
+.regiune.moldova {
+    fill: #6685ad;
+}
+
+.regiune:hover,
+.regiune:focus,
+.regiune.activ {
+    filter: brightness(1.16) saturate(1.1);
+    stroke: var(--navy-deep);
+}
+
+.harta-romaniei text {
+    fill: #fffaf0;
+    font-family: Georgia, serif;
+    font-size: 17px;
+    font-weight: bold;
+    pointer-events: none;
+    text-anchor: middle;
+}
+
+.harta-legenda {
+    margin: 8px 0 0;
+    color: var(--ink-soft);
+    text-align: center;
+    font-size: 14px;
+}
+
+.harta-popup {
+    position: absolute;
+    z-index: 5;
+    width: min(320px, calc(100% - 24px));
+    max-height: 270px;
+    overflow-y: auto;
+    padding: 22px 20px 18px;
+    background: #fffdf8;
+    border: 2px solid var(--terracotta);
+    border-radius: 7px;
+    box-shadow: 0 12px 30px rgba(20, 44, 84, .22);
+}
+
+.harta-popup h3 {
+    margin: 0 30px 12px 0;
+    color: var(--navy);
+    font-family: Georgia, serif;
+}
+
+.harta-popup ul {
+    display: grid;
+    gap: 9px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.harta-popup li {
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--line);
+    color: var(--navy);
+}
+
+.harta-popup li small {
+    display: block;
+    margin-top: 3px;
+    color: var(--ink-soft);
+}
+
+.harta-popup-inchide {
+    position: absolute;
+    top: 8px;
+    right: 9px;
+    width: 28px;
+    height: 28px;
+    border: 1px solid var(--navy);
+    border-radius: 4px;
+    background: transparent;
+    color: var(--navy);
+    cursor: pointer;
+    font-weight: bold;
+}
+
+body.dark .harta-canvas {
+    background: #1b385c;
+}
+
+body.dark .harta-popup {
+    background: #132b4d;
+}
+
+body.dark .harta-popup h3,
+body.dark .harta-popup li,
+body.dark .harta-popup-inchide {
+    color: #f8f0df;
+}
+
+body.dark .harta-popup li {
+    border-color: #426887;
+}
+
+body.dark .harta-popup li small {
+    color: #cbd8e2;
+}
+
 .card.autor {
     display: flex;
     flex-direction: column;
@@ -2257,6 +2409,25 @@ body.dark .home-welcome p {
 }
 
 @media(max-width:700px) {
+
+    .harta-canvas {
+        padding: 8px;
+    }
+
+    .harta-popup {
+        position: fixed;
+        inset: 0;
+        width: 100%;
+        max-height: none;
+        padding: 58px 24px 28px;
+        border: 0;
+        border-radius: 0;
+        overflow-y: auto;
+    }
+
+    .harta-popup h3 {
+        font-size: 30px;
+    }
 
     .autor>h3,
     .autor>p {

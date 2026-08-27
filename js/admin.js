@@ -22,6 +22,14 @@ async function adaugaAutor() {
             .getElementById("autorCategorie")
             .value;
 
+    const loculNasteriiSelect = document
+        .getElementById("autorLoculNasterii");
+    const loculNasteriiOther = document
+        .getElementById("autorLocNastereOther");
+    const loculNasterii = loculNasteriiSelect.value === "other"
+        ? loculNasteriiOther.value.trim()
+        : loculNasteriiSelect.value;
+
 
     const pozaInput =
         document.getElementById(
@@ -69,6 +77,12 @@ async function adaugaAutor() {
 
         return;
 
+    }
+
+    if (!loculNasterii) {
+        status.textContent = "Selectează regiunea sau completează locul internațional al nașterii.";
+        status.style.color = "#c62828";
+        return;
     }
 
 
@@ -214,6 +228,9 @@ async function adaugaAutor() {
                         categorie:
                             categorie,
 
+                        locul_nasterii:
+                            loculNasterii,
+
                         poza:
                             urlImagine,
 
@@ -264,6 +281,10 @@ async function adaugaAutor() {
                 "autorCategorie"
             )
             .value = "";
+
+        document.getElementById("autorLoculNasterii").value = "";
+        document.getElementById("autorLocNastereOther").value = "";
+        document.getElementById("autorLocNastereOther").classList.add("ascuns");
 
 
         document
@@ -1044,6 +1065,25 @@ async function incarcaAutoriAdmin() {
             )}</b>
                     </p>
 
+                    <label for="autorLocNastereEdit-${autor.id}">Locul nașterii</label>
+                    <select id="autorLocNastereEdit-${autor.id}"
+                        onchange="this.nextElementSibling.classList.toggle('ascuns', this.value !== 'other')">
+                        <option value="">Neselectat</option>
+                        <option value="banat" ${autor.locul_nasterii === "banat" ? "selected" : ""}>Banat</option>
+                        <option value="transilvania" ${autor.locul_nasterii === "transilvania" ? "selected" : ""}>Transilvania</option>
+                        <option value="tara-romaneasca" ${autor.locul_nasterii === "tara-romaneasca" ? "selected" : ""}>Țara Românească</option>
+                        <option value="moldova" ${autor.locul_nasterii === "moldova" ? "selected" : ""}>Moldova</option>
+                        <option value="other" ${autor.locul_nasterii && !["banat", "transilvania", "tara-romaneasca", "moldova"].includes(autor.locul_nasterii) ? "selected" : ""}>Other / internațional</option>
+                    </select>
+                    <input type="text" id="autorLocNastereOtherEdit-${autor.id}"
+                        class="${autor.locul_nasterii && !["banat", "transilvania", "tara-romaneasca", "moldova"].includes(autor.locul_nasterii) ? "" : "ascuns"}"
+                        value="${escapeHTML(autor.locul_nasterii && !["banat", "transilvania", "tara-romaneasca", "moldova"].includes(autor.locul_nasterii) ? autor.locul_nasterii : "")}"
+                        placeholder="Locul nașterii (internațional)">
+
+                    <button class="admin-btn" type="button" onclick="actualizeazaLocNastereAutor(${autor.id})">
+                        Salvează locul nașterii
+                    </button>
+
                     <p>
                         ${escapeHTML(
                 autor.descriere
@@ -1083,6 +1123,30 @@ async function incarcaAutoriAdmin() {
             `
         ).join("");
 
+}
+
+async function actualizeazaLocNastereAutor(autorId) {
+    const select = document.getElementById(`autorLocNastereEdit-${autorId}`);
+    const other = document.getElementById(`autorLocNastereOtherEdit-${autorId}`);
+    const locatie = select.value === "other" ? other.value.trim() : select.value;
+
+    if (!locatie) {
+        alert("Selectează regiunea sau completează locul internațional al nașterii.");
+        return;
+    }
+
+    const { error } = await supabaseClient
+        .from("autori")
+        .update({ locul_nasterii: locatie })
+        .eq("id", autorId);
+
+    if (error) {
+        alert("Nu am putut actualiza locul nașterii: " + error.message);
+        return;
+    }
+
+    await incarcaAutoriAdmin();
+    await incarcaAutori();
 }
 
 

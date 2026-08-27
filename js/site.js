@@ -48,6 +48,7 @@ site.innerHTML = `
         <a href="${estePaginaAdmin ? "index.html" : ""}#limba">Limba română</a>
         <a href="${estePaginaAdmin ? "index.html" : ""}#literatura">Literatura română</a>
         <a href="${estePaginaAdmin ? "index.html" : ""}#quiz">Quiz-uri</a>
+        <a href="${estePaginaAdmin ? "index.html" : ""}#harta">Hartă</a>
         <a href="${estePaginaAdmin ? "index.html" : ""}#revista">Revista</a>
         <a id="adminLink" class="ascuns" href="admin.html">Panou admin</a>
     </div>
@@ -334,6 +335,43 @@ site.innerHTML = `
 </div>
 
 
+<div id="pagina-harta" class="pagina">
+
+<section id="harta">
+
+    <h2 class="titlu">Hartă</h2>
+
+    <p class="subtitlu">
+        Alege o regiune pentru a descoperi autorii născuți acolo.
+    </p>
+
+    <div class="harta-layout">
+        <div class="harta-canvas">
+            <svg class="harta-romaniei" viewBox="0 0 600 500" role="img" aria-label="Harta României împărțită în regiuni">
+                <path class="regiune banat" data-regiune="banat" tabindex="0" role="button" aria-label="Banat" d="M58 164 L190 142 L224 238 L183 342 L70 327 L35 243 Z"></path>
+                <path class="regiune transilvania" data-regiune="transilvania" tabindex="0" role="button" aria-label="Transilvania" d="M190 142 L365 129 L427 234 L354 354 L183 342 L224 238 Z"></path>
+                <path class="regiune tara-romaneasca" data-regiune="tara-romaneasca" tabindex="0" role="button" aria-label="Țara Românească" d="M183 342 L354 354 L482 326 L552 426 L217 466 L70 394 L70 327 Z"></path>
+                <path class="regiune moldova" data-regiune="moldova" tabindex="0" role="button" aria-label="Moldova" d="M365 129 L503 86 L567 172 L552 326 L482 326 L354 354 L427 234 Z"></path>
+                <text x="105" y="245">Banat</text>
+                <text x="265" y="235">Transilvania</text>
+                <text x="285" y="415">Țara Românească</text>
+                <text x="455" y="205">Moldova</text>
+            </svg>
+            <p class="harta-legenda">Regiunile colorate sunt selectabile.</p>
+
+            <div id="hartaPopup" class="harta-popup ascuns" role="dialog" aria-modal="false" aria-labelledby="hartaPopupTitlu">
+                <button class="harta-popup-inchide" type="button" aria-label="Închide lista">X</button>
+                <h3 id="hartaPopupTitlu"></h3>
+                <div id="hartaPopupLista"></div>
+            </div>
+        </div>
+    </div>
+
+</section>
+
+</div>
+
+
 <div id="pagina-quiz" class="pagina">
 
 <section id="quiz">
@@ -536,6 +574,25 @@ site.innerHTML = `
             <option value="proza">Proză</option>
             <option value="teatru">Teatru</option>
         </select>
+
+        <label for="autorLoculNasterii">
+            Locul nașterii
+        </label>
+
+        <select id="autorLoculNasterii">
+            <option value="">Selectează regiunea</option>
+            <option value="banat">Banat</option>
+            <option value="transilvania">Transilvania</option>
+            <option value="tara-romaneasca">Țara Românească</option>
+            <option value="moldova">Moldova</option>
+            <option value="other">Other / internațional</option>
+        </select>
+
+        <input
+            type="text"
+            id="autorLocNastereOther"
+            class="ascuns"
+            placeholder="Locul nașterii (internațional)">
 
         <label>
             🖼️ Imagine autor
@@ -881,6 +938,21 @@ site.innerHTML = `
 
 `;
 
+const loculNasteriiSelect = document.getElementById("autorLoculNasterii");
+const loculNasteriiOther = document.getElementById("autorLocNastereOther");
+
+if (loculNasteriiSelect && loculNasteriiOther) {
+    loculNasteriiSelect.addEventListener("change", () => {
+        loculNasteriiOther.classList.toggle(
+            "ascuns",
+            loculNasteriiSelect.value !== "other"
+        );
+        if (loculNasteriiSelect.value === "other") {
+            loculNasteriiOther.focus();
+        }
+    });
+}
+
 // ======================================================
 // BUTON SEARCH
 // ======================================================
@@ -938,6 +1010,70 @@ function golesteCampuri(...iduri) {
 // ======================================================
 
 let dateCautare = [];
+let autoriHarta = [];
+
+const numeRegiuni = {
+    banat: "Banat",
+    transilvania: "Transilvania",
+    "tara-romaneasca": "Țara Românească",
+    moldova: "Moldova"
+};
+
+function inchideHartaPopup() {
+    const popup = document.getElementById("hartaPopup");
+    if (popup) {
+        popup.classList.add("ascuns");
+    }
+}
+
+function deschideHartaPopup(regiune, element) {
+    const popup = document.getElementById("hartaPopup");
+    const titlu = document.getElementById("hartaPopupTitlu");
+    const lista = document.getElementById("hartaPopupLista");
+    const autori = autoriHarta.filter(autor =>
+        String(autor.locul_nasterii || "").trim().toLowerCase() === regiune
+    );
+
+    if (!popup || !titlu || !lista) {
+        return;
+    }
+
+    titlu.textContent = numeRegiuni[regiune];
+    lista.innerHTML = autori.length > 0
+        ? `<ul>${autori.map(autor => `<li><strong>${escapeHTML(autor.nume)}</strong>${autor.locul_nasterii ? `<small>${escapeHTML(autor.locul_nasterii)}</small>` : ""}</li>`).join("")}</ul>`
+        : "<p>Nu există încă autori înscriși în această regiune.</p>";
+    popup.classList.remove("ascuns");
+
+    if (element) {
+        const bounds = element.getBoundingClientRect();
+        const canvasBounds = element.closest(".harta-canvas").getBoundingClientRect();
+        popup.style.left = `${Math.min(Math.max(bounds.left - canvasBounds.left, 12), canvasBounds.width - 340)}px`;
+        popup.style.top = `${Math.min(Math.max(bounds.top - canvasBounds.top + 20, 12), canvasBounds.height - 250)}px`;
+    }
+}
+
+function initializeazaHarta(autori) {
+    autoriHarta = autori || [];
+    document.querySelectorAll(".regiune").forEach(regiune => {
+        if (regiune.dataset.hartaInitializata) {
+            return;
+        }
+        regiune.dataset.hartaInitializata = "true";
+        regiune.addEventListener("click", () => deschideHartaPopup(regiune.dataset.regiune, regiune));
+        regiune.addEventListener("keydown", event => {
+            if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                deschideHartaPopup(regiune.dataset.regiune, regiune);
+            }
+        });
+    });
+
+    const butonInchidere = document.querySelector(".harta-popup-inchide");
+    if (butonInchidere && !butonInchidere.dataset.initializat) {
+        butonInchidere.dataset.initializat = "true";
+        butonInchidere.addEventListener("click", inchideHartaPopup);
+    }
+}
 
 
 function pregatesteDateCautare(autori, opere) {
@@ -1359,6 +1495,8 @@ async function incarcaAutori() {
             autori,
             opere
         );
+
+        initializeazaHarta(autori);
 
         const carduri = {
             poezie: [],
