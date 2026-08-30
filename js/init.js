@@ -19,6 +19,7 @@ function afiseazaPagina(hash = window.location.hash) {
         proza: "pagina-literatura",
         teatru: "pagina-literatura",
         quiz: "pagina-quiz",
+        harta: "pagina-harta",
         revista: "pagina-revista"
     };
 
@@ -28,6 +29,7 @@ function afiseazaPagina(hash = window.location.hash) {
         "limba",
         "literatura",
         "quiz",
+        "harta",
         "revista"
     ].includes(ancora);
 
