@@ -339,31 +339,13 @@ site.innerHTML = `
 
 <section id="harta">
 
-    <h2 class="titlu">Hartă</h2>
-
-    <p class="subtitlu">
-        Alege o regiune pentru a descoperi autorii născuți acolo.
-    </p>
-
     <div class="harta-layout">
         <div class="harta-canvas">
-            <svg class="harta-romaniei" viewBox="0 0 600 500" role="img" aria-label="Harta României împărțită în regiuni">
-                <path class="regiune banat" data-regiune="banat" tabindex="0" role="button" aria-label="Banat" d="M58 164 L190 142 L224 238 L183 342 L70 327 L35 243 Z"></path>
-                <path class="regiune transilvania" data-regiune="transilvania" tabindex="0" role="button" aria-label="Transilvania" d="M190 142 L365 129 L427 234 L354 354 L183 342 L224 238 Z"></path>
-                <path class="regiune tara-romaneasca" data-regiune="tara-romaneasca" tabindex="0" role="button" aria-label="Țara Românească" d="M183 342 L354 354 L482 326 L552 426 L217 466 L70 394 L70 327 Z"></path>
-                <path class="regiune moldova" data-regiune="moldova" tabindex="0" role="button" aria-label="Moldova" d="M365 129 L503 86 L567 172 L552 326 L482 326 L354 354 L427 234 Z"></path>
-                <text x="105" y="245">Banat</text>
-                <text x="265" y="235">Transilvania</text>
-                <text x="285" y="415">Țara Românească</text>
-                <text x="455" y="205">Moldova</text>
-            </svg>
-            <p class="harta-legenda">Regiunile colorate sunt selectabile.</p>
-
-            <div id="hartaPopup" class="harta-popup ascuns" role="dialog" aria-modal="false" aria-labelledby="hartaPopupTitlu">
-                <button class="harta-popup-inchide" type="button" aria-label="Închide lista">X</button>
-                <h3 id="hartaPopupTitlu"></h3>
-                <div id="hartaPopupLista"></div>
-            </div>
+            <img
+                class="harta-romaniei"
+                src="assets/romania_historic_regions.svg"
+                alt="Hartă a regiunilor istorice ale României"
+            >
         </div>
     </div>
 
