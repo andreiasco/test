@@ -2633,3 +2633,47 @@ main:has(.pagina.activ:not(#pagina-acasa)) {
 body.dark main:has(.pagina.activ:not(#pagina-acasa)) {
     background: #132b4d;
 }
+
+/* Styling the region paths to act like buttons */
+.map-region-btn {
+    fill: #e0e0e0;
+    /* Default region background color */
+    stroke: #ffffff;
+    /* Regional border color */
+    stroke-width: 2;
+    /* Border thickness */
+    cursor: pointer;
+    transition: fill 0.2s ease, filter 0.2s ease;
+
+    /* CRITICAL: Ensures clicks only register on the actual filled 
+     shape area, not the transparent spaces between boundaries */
+    pointer-events: visiblePainted;
+}
+
+/* Hover State */
+.map-region-btn:hover {
+    fill: #4CAF50;
+    /* Green highlight on hover */
+    filter: drop-shadow(0px 4px 6px rgba(0, 0, 0, 0.3));
+    outline: none;
+}
+
+/* Keyboard Focus State (Tab Navigation) */
+.map-region-btn:focus-visible {
+    fill: #81C784;
+    stroke: #1B5E20;
+    stroke-width: 3;
+    outline: none;
+}
+
+/* Click / Active State */
+.map-region-btn:active {
+    fill: #2E7D32;
+    /* Darker green when pressed */
+}
+
+.harta-canvas {
+    /* Ensure this container handles layout correctly */
+    position: relative;
+    overflow: hidden;
+}
