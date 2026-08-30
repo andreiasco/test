@@ -2634,46 +2634,134 @@ body.dark main:has(.pagina.activ:not(#pagina-acasa)) {
     background: #132b4d;
 }
 
+/* CONTAINERUL PĂRINTE DIN SVG (Trebuie adăugat pentru a activa z-index în SVG) */
+#romania-regions {
+    isolation: isolate;
+}
+
 /* Styling the region paths to act like buttons */
 .map-region-btn {
-    fill: #e0e0e0;
-    /* Default region background color */
-    stroke: #ffffff;
-    /* Regional border color */
-    stroke-width: 2;
-    /* Border thickness */
+    /* Default region background color - Default fill overriden by specific region IDs below */
+    fill: #f5ebe0;
+    stroke: #0b132b;
+    /* Linia dintre regiuni are acum culoarea fundalului închis */
+    stroke-width: 1.5;
+    /* O linie mai fină arată mai elegant pe web */
     cursor: pointer;
-    transition: fill 0.2s ease, filter 0.2s ease;
+
+    /* MODIFICARE SPECIFICĂ: Pregătim elementul pentru stratificare */
+    position: relative;
+    z-index: 1;
+
+    transition: fill 0.25s ease, filter 0.25s ease, stroke 0.25s ease;
 
     /* CRITICAL: Ensures clicks only register on the actual filled 
      shape area, not the transparent spaces between boundaries */
     pointer-events: visiblePainted;
 }
 
-/* Hover State */
-.map-region-btn:hover {
-    fill: #4CAF50;
-    /* Green highlight on hover */
-    filter: drop-shadow(0px 4px 6px rgba(0, 0, 0, 0.3));
-    outline: none;
+/* REPARTIZAREA NUANȚELOR DE BEJ PE REGIUNI */
+#RO-BA {
+    fill: #f5ebe0;
 }
 
-/* Keyboard Focus State (Tab Navigation) */
+/* Banat */
+
+#RO-CR {
+    fill: #e3d5ca;
+}
+
+/* Crișana */
+
+#RO-MA {
+    fill: #d5bdaf;
+}
+
+/* Maramureș */
+
+#RO-TR {
+    fill: #eddfd3;
+}
+
+/* Transilvania */
+
+#RO-OL {
+    fill: #e6ccb2;
+}
+
+/* Oltenia */
+
+#RO-MU {
+    fill: #ddb892;
+}
+
+/* Muntenia */
+
+#RO-DO {
+    fill: #b7b7a4;
+}
+
+/* Dobrogea */
+
+#RO-MO {
+    fill: #f0e6ef;
+}
+
+/* Moldova */
+
+#RO-BC {
+    fill: #dbe7e4;
+}
+
+/* Bucovina */
+
+
+/* EFECTUL DE HOVER (Aici intervine Portocaliul tău Accent) */
+.map-region-btn:hover {
+    fill: #ff7900;
+    /* Portocaliul tău vibrant de accent */
+    stroke: #ffffff;
+    /* Linia devine albă la hover pentru a delimita clar regiunea */
+    stroke-width: 2;
+    filter: drop-shadow(0px 4px 12px rgba(255, 121, 0, 0.6));
+    /* Am mărit opacitatea la 0.6 pentru contrast pe fundal închis */
+    outline: none;
+
+    /* MODIFICARE SPECIFICĂ: Ridică regiunea deasupra tuturor vecinilor */
+    z-index: 10;
+    transform: translate3d(0, 0, 0);
+    /* Forțează randarea hardware în browsere */
+}
+
+/* ACCESIBILITATE (Când navighezi cu tasta TAB) */
 .map-region-btn:focus-visible {
-    fill: #81C784;
-    stroke: #1B5E20;
+    fill: #ff9130;
+    /* Un portocaliu ușor mai deschis */
+    stroke: #ffffff;
     stroke-width: 3;
     outline: none;
+
+    /* MODIFICARE SPECIFICĂ: Ridică regiunea și la selectarea din tastatură */
+    z-index: 10;
 }
 
-/* Click / Active State */
+/* EFECTUL DE CLICK / ACTIVE (Când se apasă fizic pe mouse) */
 .map-region-btn:active {
-    fill: #2E7D32;
-    /* Darker green when pressed */
+    fill: #e06a00;
+    /* Portocaliu mai închis în momentul apăsării */
+    stroke: #ffffff;
+    z-index: 10;
 }
 
-.harta-canvas {
-    /* Ensure this container handles layout correctly */
-    position: relative;
-    overflow: hidden;
+/* STAREA DE SELECTAT (Opțional)
+   Dacă adaugi din JavaScript clasa 'is-active' pe regiunea click-uită, 
+   aceasta va rămâne portocalie chiar și după ce muți mouse-ul de pe ea. */
+.map-region-btn.is-active {
+    fill: #ff7900;
+    stroke: #ffffff;
+    stroke-width: 2;
+    filter: drop-shadow(0px 2px 8px rgba(255, 121, 0, 0.4));
+
+    /* MODIFICARE SPECIFICĂ: Rămâne deasupra celor inactive, dar sub cea cu hover activ */
+    z-index: 5;
 }
