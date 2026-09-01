@@ -2249,13 +2249,10 @@ body.dark .home-welcome p {
     height: auto;
 }
 
-.regiune {
-    stroke: #fffaf0;
-    stroke-width: 4;
-    stroke-linejoin: round;
-    cursor: pointer;
-    outline: none;
-    transition: fill .2s ease, filter .2s ease;
+.romania-map {
+    display: block;
+    width: 100%;
+    height: auto;
 }
 
 .harta-contur {
@@ -2264,29 +2261,6 @@ body.dark .home-welcome p {
     stroke-width: 7;
     stroke-linejoin: round;
     pointer-events: none;
-}
-
-.regiune.banat {
-    fill: #d87d58;
-}
-
-.regiune.transilvania {
-    fill: #4e9187;
-}
-
-.regiune.tara-romaneasca {
-    fill: #d4a13a;
-}
-
-.regiune.moldova {
-    fill: #6685ad;
-}
-
-.regiune:hover,
-.regiune:focus,
-.regiune.activ {
-    filter: brightness(1.16) saturate(1.1);
-    stroke: var(--navy-deep);
 }
 
 .harta-romaniei text {
@@ -2411,22 +2385,40 @@ body.dark .harta-popup li small {
 @media(max-width:700px) {
 
     .harta-canvas {
-        padding: 8px;
+        padding: 6px;
+        background: #f8f0df;
+        border-radius: 10px;
     }
 
     .harta-popup {
-        position: fixed;
-        inset: 0;
-        width: 100%;
-        max-height: none;
-        padding: 58px 24px 28px;
-        border: 0;
-        border-radius: 0;
+        position: absolute;
+        left: 12px !important;
+        top: 12px !important;
+        width: min(260px, calc(100% - 24px));
+        max-width: calc(100% - 24px);
+        max-height: 280px;
+        padding: 42px 14px 14px;
+        border: 1px solid var(--terracotta);
+        border-radius: 14px;
         overflow-y: auto;
+        box-shadow: 0 18px 40px rgba(20, 44, 84, .26);
+        z-index: 20;
     }
 
     .harta-popup h3 {
-        font-size: 30px;
+        font-size: 24px;
+        margin-bottom: 8px;
+    }
+
+    .harta-popup li {
+        padding-bottom: 6px;
+    }
+
+    .harta-popup-inchide {
+        top: 8px;
+        right: 8px;
+        width: 26px;
+        height: 26px;
     }
 
     .autor>h3,
@@ -2648,17 +2640,21 @@ body.dark main:has(.pagina.activ:not(#pagina-acasa)) {
     stroke-width: 1.5;
     /* O linie mai fină arată mai elegant pe web */
     cursor: pointer;
-
-    /* MODIFICARE SPECIFICĂ: Pregătim elementul pentru stratificare */
     position: relative;
     z-index: 1;
-
-    transition: fill 0.25s ease, filter 0.25s ease, stroke 0.25s ease;
-
-    /* CRITICAL: Ensures clicks only register on the actual filled 
-     shape area, not the transparent spaces between boundaries */
+    transform: translateZ(0);
+    transform-origin: center center;
+    will-change: transform, filter, stroke, fill;
+    transition: fill 0.25s ease, filter 0.25s ease, stroke 0.25s ease, transform 0.2s ease, z-index 0s linear;
     pointer-events: visiblePainted;
+    isolation: isolate;
 }
+
+#romania-regions .map-region-btn {
+    position: relative;
+    z-index: 1;
+}
+
 
 /* REPARTIZAREA NUANȚELOR DE BEJ PE REGIUNI */
 #RO-BA {
@@ -2719,38 +2715,36 @@ body.dark main:has(.pagina.activ:not(#pagina-acasa)) {
 /* EFECTUL DE HOVER (Aici intervine Portocaliul tău Accent) */
 .map-region-btn:hover {
     fill: #ff7900;
-    /* Portocaliul tău vibrant de accent */
     stroke: #ffffff;
-    /* Linia devine albă la hover pentru a delimita clar regiunea */
     stroke-width: 2;
-    filter: drop-shadow(0px 4px 12px rgba(255, 121, 0, 0.6));
-    /* Am mărit opacitatea la 0.6 pentru contrast pe fundal închis */
+    filter: drop-shadow(0px 4px 12px rgba(255, 121, 0, 0.7)) drop-shadow(0px 0px 0px rgba(255, 255, 255, 0.8));
     outline: none;
+    z-index: 20;
+    transform: scale(1.0025);
+}
 
-    /* MODIFICARE SPECIFICĂ: Ridică regiunea deasupra tuturor vecinilor */
-    z-index: 10;
-    transform: translate3d(0, 0, 0);
-    /* Forțează randarea hardware în browsere */
+.map-region-btn:focus,
+.map-region-btn:focus-visible {
+    outline: none;
+    box-shadow: none;
 }
 
 /* ACCESIBILITATE (Când navighezi cu tasta TAB) */
 .map-region-btn:focus-visible {
     fill: #ff9130;
-    /* Un portocaliu ușor mai deschis */
     stroke: #ffffff;
     stroke-width: 3;
     outline: none;
-
-    /* MODIFICARE SPECIFICĂ: Ridică regiunea și la selectarea din tastatură */
-    z-index: 10;
+    z-index: 20;
+    transform: scale(1.0025);
 }
 
 /* EFECTUL DE CLICK / ACTIVE (Când se apasă fizic pe mouse) */
 .map-region-btn:active {
     fill: #e06a00;
-    /* Portocaliu mai închis în momentul apăsării */
     stroke: #ffffff;
-    z-index: 10;
+    z-index: 20;
+    transform: scale(1.003);
 }
 
 /* STAREA DE SELECTAT (Opțional)
@@ -2760,8 +2754,16 @@ body.dark main:has(.pagina.activ:not(#pagina-acasa)) {
     fill: #ff7900;
     stroke: #ffffff;
     stroke-width: 2;
-    filter: drop-shadow(0px 2px 8px rgba(255, 121, 0, 0.4));
+    filter: drop-shadow(0px 2px 8px rgba(255, 121, 0, 0.6));
+    z-index: 20;
+    transform: scale(1.0015);
+}
 
-    /* MODIFICARE SPECIFICĂ: Rămâne deasupra celor inactive, dar sub cea cu hover activ */
-    z-index: 5;
+.map-region-btn.is-active:hover,
+.map-region-btn.is-active:focus-visible {
+    fill: #ff7900;
+    stroke: #ffffff;
+    stroke-width: 2;
+    z-index: 20;
+    transform: scale(1.0025);
 }
