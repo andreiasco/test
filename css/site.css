@@ -2249,44 +2249,12 @@ body.dark .home-welcome p {
     height: auto;
 }
 
-.regiune {
-    stroke: #fffaf0;
-    stroke-width: 4;
-    stroke-linejoin: round;
-    cursor: pointer;
-    outline: none;
-    transition: fill .2s ease, filter .2s ease;
-}
-
 .harta-contur {
     fill: none;
     stroke: var(--navy-deep);
     stroke-width: 7;
     stroke-linejoin: round;
     pointer-events: none;
-}
-
-.regiune.banat {
-    fill: #d87d58;
-}
-
-.regiune.transilvania {
-    fill: #4e9187;
-}
-
-.regiune.tara-romaneasca {
-    fill: #d4a13a;
-}
-
-.regiune.moldova {
-    fill: #6685ad;
-}
-
-.regiune:hover,
-.regiune:focus,
-.regiune.activ {
-    filter: brightness(1.16) saturate(1.1);
-    stroke: var(--navy-deep);
 }
 
 .harta-romaniei text {

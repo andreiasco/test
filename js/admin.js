@@ -1070,14 +1070,20 @@ async function incarcaAutoriAdmin() {
                         onchange="this.nextElementSibling.classList.toggle('ascuns', this.value !== 'other')">
                         <option value="">Neselectat</option>
                         <option value="banat" ${autor.locul_nasterii === "banat" ? "selected" : ""}>Banat</option>
+                        <option value="crisana" ${autor.locul_nasterii === "crisana" ? "selected" : ""}>Crișana</option>
+                        <option value="maramures" ${autor.locul_nasterii === "maramures" ? "selected" : ""}>Maramureș</option>
                         <option value="transilvania" ${autor.locul_nasterii === "transilvania" ? "selected" : ""}>Transilvania</option>
-                        <option value="tara-romaneasca" ${autor.locul_nasterii === "tara-romaneasca" ? "selected" : ""}>Țara Românească</option>
+                        <option value="oltenia" ${autor.locul_nasterii === "oltenia" ? "selected" : ""}>Oltenia</option>
+                        <option value="muntenia" ${autor.locul_nasterii === "muntenia" ? "selected" : ""}>Muntenia</option>
+                        <option value="dobrogea" ${autor.locul_nasterii === "dobrogea" ? "selected" : ""}>Dobrogea</option>
                         <option value="moldova" ${autor.locul_nasterii === "moldova" ? "selected" : ""}>Moldova</option>
-                        <option value="other" ${autor.locul_nasterii && !["banat", "transilvania", "tara-romaneasca", "moldova"].includes(autor.locul_nasterii) ? "selected" : ""}>Other / internațional</option>
+                        <option value="bucovina" ${autor.locul_nasterii === "bucovina" ? "selected" : ""}>Bucovina</option>
+                        <option value="tara-romaneasca" ${autor.locul_nasterii === "tara-romaneasca" ? "selected" : ""}>Țara Românească</option>
+                        <option value="other" ${autor.locul_nasterii && !["banat", "crisana", "maramures", "transilvania", "oltenia", "muntenia", "dobrogea", "moldova", "bucovina", "tara-romaneasca"].includes(autor.locul_nasterii) ? "selected" : ""}>Other / internațional</option>
                     </select>
                     <input type="text" id="autorLocNastereOtherEdit-${autor.id}"
-                        class="${autor.locul_nasterii && !["banat", "transilvania", "tara-romaneasca", "moldova"].includes(autor.locul_nasterii) ? "" : "ascuns"}"
-                        value="${escapeHTML(autor.locul_nasterii && !["banat", "transilvania", "tara-romaneasca", "moldova"].includes(autor.locul_nasterii) ? autor.locul_nasterii : "")}"
+                        class="${autor.locul_nasterii && !["banat", "crisana", "maramures", "transilvania", "oltenia", "muntenia", "dobrogea", "moldova", "bucovina", "tara-romaneasca"].includes(autor.locul_nasterii) ? "" : "ascuns"}"
+                        value="${escapeHTML(autor.locul_nasterii && !["banat", "crisana", "maramures", "transilvania", "oltenia", "muntenia", "dobrogea", "moldova", "bucovina", "tara-romaneasca"].includes(autor.locul_nasterii) ? autor.locul_nasterii : "")}"
                         placeholder="Locul nașterii (internațional)">
 
                     <button class="admin-btn" type="button" onclick="actualizeazaLocNastereAutor(${autor.id})">
