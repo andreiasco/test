@@ -1139,6 +1139,11 @@ function obtineRegiuniCompatibile(regiune) {
 
 function inchideHartaPopup() {
     const popup = document.getElementById("hartaPopup");
+    document.querySelectorAll(".map-region-btn.is-active").forEach(regiune => {
+        regiune.classList.remove("is-active");
+        regiune.setAttribute("aria-pressed", "false");
+    });
+
     if (popup) {
         popup.classList.add("ascuns");
     }
@@ -1159,6 +1164,16 @@ function deschideHartaPopup(regiune, element) {
         return;
     }
 
+    document.querySelectorAll(".map-region-btn.is-active").forEach(regiuneActiva => {
+        regiuneActiva.classList.remove("is-active");
+        regiuneActiva.setAttribute("aria-pressed", "false");
+    });
+
+    if (element) {
+        element.classList.add("is-active");
+        element.setAttribute("aria-pressed", "true");
+    }
+
     titlu.textContent = numeRegiuni[regiuneCheie] || regiuneCheie;
     lista.innerHTML = autori.length > 0
         ? `<ul>${autori.map(autor => `<li><strong>${escapeHTML(autor.nume)}</strong>${autor.locul_nasterii ? `<small>${escapeHTML(numeRegiuni[normalizareRegiune(autor.locul_nasterii)] || autor.locul_nasterii)}</small>` : ""}</li>`).join("")}</ul>`
@@ -1166,6 +1181,16 @@ function deschideHartaPopup(regiune, element) {
     popup.classList.remove("ascuns");
 
     if (element) {
+        const isMobile = window.innerWidth <= 700;
+
+        if (isMobile) {
+            popup.style.left = "12px";
+            popup.style.top = "12px";
+            popup.style.width = "calc(100% - 24px)";
+            popup.style.maxHeight = "calc(100vh - 24px)";
+            return;
+        }
+
         const bounds = element.getBoundingClientRect();
         const canvas = element.closest(".harta-canvas");
         if (!canvas) {
@@ -1206,6 +1231,29 @@ function initializeazaHarta(autori) {
         butonInchidere.dataset.initializat = "true";
         butonInchidere.addEventListener("click", inchideHartaPopup);
     }
+
+    document.addEventListener("keydown", event => {
+        if (event.key === "Escape") {
+            const popup = document.getElementById("hartaPopup");
+            if (popup && !popup.classList.contains("ascuns")) {
+                inchideHartaPopup();
+            }
+        }
+    });
+
+    document.addEventListener("click", event => {
+        const popup = document.getElementById("hartaPopup");
+        const hartăCanvas = document.querySelector(".harta-canvas");
+        if (!popup || !hartăCanvas || popup.classList.contains("ascuns")) {
+            return;
+        }
+
+        const clicInPopup = popup.contains(event.target);
+        const clicPeRegiune = event.target.closest(".map-region-btn");
+        if (!clicInPopup && !clicPeRegiune) {
+            inchideHartaPopup();
+        }
+    });
 }
 
 
