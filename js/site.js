@@ -1100,12 +1100,12 @@ const hartaAliasRegiune = {
     crisana: ["crisana"],
     maramures: ["maramures"],
     transilvania: ["transilvania"],
-    oltenia: ["oltenia", "tara-romaneasca"],
-    muntenia: ["muntenia", "tara-romaneasca"],
+    oltenia: ["oltenia"],
+    muntenia: ["muntenia"],
     dobrogea: ["dobrogea"],
-    moldova: ["moldova", "bucovina"],
-    bucovina: ["bucovina", "moldova"],
-    "tara-romaneasca": ["tara-romaneasca", "muntenia", "oltenia"]
+    moldova: ["moldova"],
+    bucovina: ["bucovina"],
+    "tara-romaneasca": ["tara-romaneasca"]
 };
 
 function normalizareRegiune(valoare) {
@@ -1176,7 +1176,7 @@ function deschideHartaPopup(regiune, element) {
 
     titlu.textContent = numeRegiuni[regiuneCheie] || regiuneCheie;
     lista.innerHTML = autori.length > 0
-        ? `<ul>${autori.map(autor => `<li><strong>${escapeHTML(autor.nume)}</strong>${autor.locul_nasterii ? `<small>${escapeHTML(numeRegiuni[normalizareRegiune(autor.locul_nasterii)] || autor.locul_nasterii)}</small>` : ""}</li>`).join("")}</ul>`
+        ? `<ul>${autori.map(autor => `<li><a href="#literatura" onclick="navigheazaLaAutor(${autor.id}); return false;" style="text-decoration:none;color:inherit;cursor:pointer;"><strong style="text-decoration:underline">${escapeHTML(autor.nume)}</strong></a>${autor.localitate_nastere ? `<small>${escapeHTML(autor.localitate_nastere)}</small>` : ""}</li>`).join("")}</ul>`
         : "<p>Nu există încă autori înscriși în această regiune.</p>";
     popup.classList.remove("ascuns");
 
@@ -1201,6 +1201,24 @@ function deschideHartaPopup(regiune, element) {
         popup.style.left = `${Math.min(Math.max(bounds.left - canvasBounds.left, 12), canvasBounds.width - 340)}px`;
         popup.style.top = `${Math.min(Math.max(bounds.top - canvasBounds.top + 20, 12), canvasBounds.height - 250)}px`;
     }
+}
+
+function navigheazaLaAutor(autorId) {
+    // Navighează la literatura și scrollează la autorul selectat
+    window.location.hash = "#literatura";
+
+    // Așteaptă ca pagina să se înccarce și apoi scrollează la autorul selectat
+    setTimeout(() => {
+        const autorCard = document.getElementById(`autor-${autorId}`);
+        if (autorCard) {
+            autorCard.scrollIntoView({ behavior: "smooth", block: "start" });
+            // Highlight subtle al cardului
+            autorCard.style.backgroundColor = "rgba(255, 121, 0, 0.1)";
+            setTimeout(() => {
+                autorCard.style.backgroundColor = "";
+            }, 2000);
+        }
+    }, 300);
 }
 
 function initializeazaHarta(autori) {
@@ -1944,7 +1962,7 @@ async function incarcaAutori() {
 
             carduri[categorie].push(`
 
-                <div class="card autor">
+                <div class="card autor" id="autor-${autor.id}">
 
                     <div class="portret">
 

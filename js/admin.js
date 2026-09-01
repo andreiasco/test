@@ -1090,6 +1090,15 @@ async function incarcaAutoriAdmin() {
                         Salvează locul nașterii
                     </button>
 
+                    <label for="autorLocalitatNastereEdit-${autor.id}">Localitatea de naștere</label>
+                    <input type="text" id="autorLocalitatNastereEdit-${autor.id}"
+                        placeholder="Ex: Constanța, București, Lancrăm, Alba"
+                        value="${escapeHTML(autor.localitate_nastere || "")}">
+
+                    <button class="admin-btn" type="button" onclick="actualizeazaLocalitatNastereAutor(${autor.id})">
+                        Salvează localitatea
+                    </button>
+
                     <p>
                         ${escapeHTML(
                 autor.descriere
@@ -1155,6 +1164,29 @@ async function actualizeazaLocNastereAutor(autorId) {
     await incarcaAutori();
 }
 
+async function actualizeazaLocalitatNastereAutor(autorId) {
+    const input = document.getElementById(`autorLocalitatNastereEdit-${autorId}`);
+    const localitate = input.value.trim();
+
+    if (!localitate) {
+        alert("Completează localitatea de naștere.");
+        return;
+    }
+
+    const { error } = await supabaseClient
+        .from("autori")
+        .update({ localitate_nastere: localitate })
+        .eq("id", autorId);
+
+    if (error) {
+        alert("Nu am putut actualiza localitatea: " + error.message);
+        return;
+    }
+
+    alert("Localitatea a fost salvată cu succes!");
+    await incarcaAutoriAdmin();
+    await incarcaAutori();
+}
 
 // ======================================================
 // ACTUALIZEAZĂ DESCRIEREA AUTORULUI
