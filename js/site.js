@@ -986,6 +986,40 @@ site.innerHTML = `
 </div>
 
 
+<div
+    id="pdfPreviewModal"
+    class="pdf-preview-modal ascuns"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="pdfPreviewTitlu">
+
+    <div class="pdf-preview-box">
+        <div class="pdf-preview-header">
+            <h2 id="pdfPreviewTitlu">Vizualizare material</h2>
+            <div class="pdf-preview-actions">
+                <button
+                    id="pdfPreviewDownload"
+                    type="button"
+                    class="pdf-preview-download ascuns"
+                    onclick="descarcaPDFPrevizualizat()">Descarcă</button>
+                <button
+                    type="button"
+                    class="pdf-preview-inchide"
+                    onclick="inchidePrevizualizarePDF()"
+                    aria-label="Închide previzualizarea">×</button>
+            </div>
+        </div>
+
+        <div
+            id="pdfPreviewPages"
+            class="pdf-preview-pages"
+            aria-label="Paginile materialului PDF"
+            oncontextmenu="return false;"></div>
+    </div>
+
+</div>
+
+
 <footer>
 
     <h2>
@@ -2233,10 +2267,12 @@ async function deschidePDF(pdfUrl) {
         );
 
 
-        window.open(
-            data.signedUrl,
-            "_blank"
-        );
+        const { data: sesiuneData, error: sesiuneError } = await supabaseClient.auth.getSession();
+        if (sesiuneError) {
+            throw sesiuneError;
+        }
+
+        await deschidePrevizualizarePDF(data.signedUrl, Boolean(sesiuneData.session));
 
 
     } catch (error) {
@@ -2253,6 +2289,122 @@ async function deschidePDF(pdfUrl) {
 
     }
 
+}
+
+let pdfPreviewRenderId = 0;
+let pdfPreviewDownloadUrl = "";
+
+async function deschidePrevizualizarePDF(signedUrl, esteAutentificat = false) {
+    const modal = document.getElementById("pdfPreviewModal");
+    const pages = document.getElementById("pdfPreviewPages");
+    const titlu = document.getElementById("pdfPreviewTitlu");
+    const downloadButton = document.getElementById("pdfPreviewDownload");
+    if (!modal || !pages || !downloadButton || !window.pdfjsLib) {
+        return;
+    }
+
+    const renderId = ++pdfPreviewRenderId;
+    pdfPreviewDownloadUrl = esteAutentificat ? signedUrl : "";
+    downloadButton.classList.toggle("ascuns", !esteAutentificat);
+    titlu.textContent = esteAutentificat ? "Vizualizare material" : "Previzualizare material";
+    pages.innerHTML = "<p class=\"pdf-preview-loading\">Se încarcă previzualizarea...</p>";
+    modal.classList.remove("ascuns");
+    document.body.style.overflow = "hidden";
+
+    try {
+        window.pdfjsLib.GlobalWorkerOptions.workerSrc =
+            "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+
+        const response = await fetch(signedUrl);
+        if (!response.ok) {
+            throw new Error("PDF-ul nu a putut fi încărcat.");
+        }
+
+        const documentData = await response.arrayBuffer();
+        const pdf = await window.pdfjsLib.getDocument({ data: documentData }).promise;
+        pages.innerHTML = "";
+
+        const numarPaginiAfisate = esteAutentificat ? pdf.numPages : Math.min(pdf.numPages, 1);
+        for (let pageNumber = 1; pageNumber <= numarPaginiAfisate; pageNumber += 1) {
+            if (renderId !== pdfPreviewRenderId) {
+                return;
+            }
+
+            const page = await pdf.getPage(pageNumber);
+            const initialViewport = page.getViewport({ scale: 1 });
+            const availableWidth = Math.max(pages.clientWidth - 32, 280);
+            const scale = Math.min(1.5, availableWidth / initialViewport.width);
+            const viewport = page.getViewport({ scale });
+            const pageWrapper = document.createElement("div");
+            const canvas = document.createElement("canvas");
+            const context = canvas.getContext("2d", { alpha: false });
+            pageWrapper.className = "pdf-preview-page-wrapper";
+            if (!esteAutentificat) {
+                pageWrapper.style.maxHeight = `${Math.ceil(viewport.height * .25)}px`;
+            }
+            canvas.width = Math.ceil(viewport.width);
+            canvas.height = Math.ceil(viewport.height);
+            canvas.className = "pdf-preview-page";
+            canvas.setAttribute("aria-label", `Pagina ${pageNumber} din ${pdf.numPages}`);
+            pageWrapper.appendChild(canvas);
+            pages.appendChild(pageWrapper);
+
+            await page.render({ canvasContext: context, viewport }).promise;
+        }
+
+        if (!esteAutentificat) {
+            const notice = document.createElement("div");
+            notice.className = "pdf-preview-notice";
+            notice.innerHTML = `
+                <strong>Previzualizare limitată</strong>
+                <span>Autentifică-te pentru a deschide materialul complet.</span>
+                <button type="button" onclick="inchidePrevizualizarePDF(); afiseazaLogin()">Autentificare</button>
+            `;
+            pages.appendChild(notice);
+        }
+    } catch (error) {
+        console.error("Eroare previzualizare PDF:", error);
+        pages.innerHTML = "<p class=\"pdf-preview-error\">Nu am putut încărca previzualizarea acestui material.</p>";
+    }
+}
+
+function inchidePrevizualizarePDF() {
+    const modal = document.getElementById("pdfPreviewModal");
+    const pages = document.getElementById("pdfPreviewPages");
+    if (!modal || !pages) {
+        return;
+    }
+
+    pdfPreviewRenderId += 1;
+    pdfPreviewDownloadUrl = "";
+    pages.replaceChildren();
+    modal.classList.add("ascuns");
+    document.body.style.overflow = "";
+}
+
+async function descarcaPDFPrevizualizat() {
+    if (!pdfPreviewDownloadUrl) {
+        return;
+    }
+
+    try {
+        const response = await fetch(pdfPreviewDownloadUrl);
+        if (!response.ok) {
+            throw new Error("PDF-ul nu a putut fi descărcat.");
+        }
+
+        const blobUrl = URL.createObjectURL(await response.blob());
+        const link = document.createElement("a");
+        link.href = blobUrl;
+        link.download = "material.pdf";
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        URL.revokeObjectURL(blobUrl);
+    } catch (error) {
+        console.error("Eroare descărcare PDF:", error);
+        alert("Nu am putut descărca materialul.");
+    }
 }
 
 async function obtineURLSemnat(valoare, optiuni = {}) {
