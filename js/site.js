@@ -2385,7 +2385,7 @@ async function deschidePrevizualizarePDF(signedUrl, esteAutentificat = false) {
 
             const page = await pdf.getPage(pageNumber);
             const initialViewport = page.getViewport({ scale: 1 });
-            const availableWidth = Math.max(pages.clientWidth - 32, 280);
+            const availableWidth = Math.max(pages.clientWidth - 32, 1);
             const scale = Math.min(1.5, availableWidth / initialViewport.width);
             const viewport = page.getViewport({ scale });
             const pageWrapper = document.createElement("div");
