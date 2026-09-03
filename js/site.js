@@ -339,6 +339,14 @@ site.innerHTML = `
 
 <section id="harta">
 
+    <h2 class="titlu">
+        Harta regiunilor istorice 🗺️
+    </h2>
+
+    <p class="subtitlu">
+        Explorează regiunile istorice ale României și autorii asociați fiecărei zone.
+    </p>
+
     <div class="harta-layout">
         <div class="harta-canvas">
             <svg viewBox="0 0 2000 1400" class="romania-map">
