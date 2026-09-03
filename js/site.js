@@ -1020,6 +1020,25 @@ site.innerHTML = `
 </div>
 
 
+<div
+    id="autorPopupModal"
+    class="autor-popup-modal ascuns"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="autorPopupTitlu">
+
+    <div class="autor-popup-box">
+        <button
+            type="button"
+            class="autor-popup-inchide"
+            onclick="inchideAutorPopup()"
+            aria-label="Închide autorul">×</button>
+        <div id="autorPopupContent"></div>
+    </div>
+
+</div>
+
+
 <footer>
 
     <h2>
@@ -1247,6 +1266,7 @@ function deschideHartaPopup(regiune, element) {
 
 function navigheazaLaAutor(autorId) {
     // Navighează la literatura și scrollează la autorul selectat
+    inchideHartaPopup();
     window.location.hash = "#literatura";
 
     // Așteaptă ca pagina să se înccarce și apoi scrollează la autorul selectat
@@ -1254,14 +1274,47 @@ function navigheazaLaAutor(autorId) {
         const autorCard = document.getElementById(`autor-${autorId}`);
         if (autorCard) {
             autorCard.scrollIntoView({ behavior: "smooth", block: "start" });
-            // Highlight subtle al cardului
-            autorCard.style.backgroundColor = "rgba(255, 121, 0, 0.1)";
-            setTimeout(() => {
-                autorCard.style.backgroundColor = "";
-            }, 2000);
+            deschideAutorPopup(null, autorCard);
         }
     }, 300);
 }
+
+function deschideAutorPopup(event, autorCard) {
+    if (!autorCard || (event && event.target.closest("button, a, summary, input, select, textarea"))) {
+        return;
+    }
+
+    const modal = document.getElementById("autorPopupModal");
+    const content = document.getElementById("autorPopupContent");
+    if (!modal || !content) {
+        return;
+    }
+
+    content.innerHTML = autorCard.innerHTML;
+    modal.classList.remove("ascuns");
+    document.body.style.overflow = "hidden";
+}
+
+function inchideAutorPopup() {
+    const modal = document.getElementById("autorPopupModal");
+    const content = document.getElementById("autorPopupContent");
+    if (!modal || !content) {
+        return;
+    }
+
+    modal.classList.add("ascuns");
+    content.replaceChildren();
+    document.body.style.overflow = "";
+}
+
+document.addEventListener("keydown", event => {
+    if (event.key === "Escape") {
+        const autorPopup = document.getElementById("autorPopupModal");
+        if (autorPopup && !autorPopup.classList.contains("ascuns")) {
+            inchideAutorPopup();
+        }
+    }
+});
 
 function initializeazaHarta(autori) {
     autoriHarta = autori || [];
@@ -2004,7 +2057,7 @@ async function incarcaAutori() {
 
             carduri[categorie].push(`
 
-                <div class="card autor" id="autor-${autor.id}">
+                <div class="card autor" id="autor-${autor.id}" onclick="deschideAutorPopup(event, this)">
 
                     <div class="portret">
 
