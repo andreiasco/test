@@ -535,8 +535,8 @@ window.CastleQuiz3D = (() => {
         scene.background = new THREE.Color(0x080a14);
         scene.fog = new THREE.FogExp2(0x080a14, 0.055);
 
-        scene.add(new THREE.HemisphereLight(0x8397ca, 0x16121d, 1.1));
-        const moon = new THREE.DirectionalLight(0x9cb3ef, 1.25);
+        scene.add(new THREE.HemisphereLight(0x9db4e8, 0x211b2b, 1.35));
+        const moon = new THREE.DirectionalLight(0xb8c9ff, 1.45);
         moon.position.set(3, 7, 6); moon.castShadow = true; moon.shadow.mapSize.set(1024, 1024); scene.add(moon);
 
         const stone = mat(0x373642, 0.96, 0.015);
@@ -555,6 +555,7 @@ window.CastleQuiz3D = (() => {
                 stem.rotation.x = Math.PI / 2;
                 const flame = makeMesh(new THREE.SphereGeometry(0.14, 10, 8), new THREE.MeshBasicMaterial({ color: 0xffa23a }), x, 2.23, z - 0.23);
                 flame.userData.flame = true;
+                animatedFlames.push(flame);
                 const light = new THREE.PointLight(0xff9136, 2.15, 4.8, 2); light.position.set(x, 2.24, z - 0.2);
                 scene.add(stem, flame, light);
             });
@@ -657,28 +658,66 @@ window.CastleQuiz3D = (() => {
     }
 
     function renderLoop(time) {
-        animationId = requestAnimationFrame(renderLoop);
-        if (!renderer || !scene || !camera) return;
-        const t = (time - clockStart) / 1000;
-        scene.traverse((obj) => {
-            if (obj.userData?.flame) {
-                const s = 0.92 + Math.sin(t * 10 + obj.position.z) * 0.13;
-                obj.scale.set(s, 1.05 + Math.cos(t * 12 + obj.position.x) * 0.13, s);
-            }
-            if (obj.userData?.dust) {
-                obj.position.y += Math.sin(t * 0.8 + obj.userData.phase) * 0.0008;
-                obj.position.x += Math.cos(t * 0.45 + obj.userData.phase) * 0.00025;
-            }
-        });
-        animateHero(t);
-        animateMonster(t);
-        updateFx(time);
-        if (roomMoodLight && ambientPulse > 0) {
-            roomMoodLight.intensity *= 0.94 + Math.sin(t * 10) * 0.06;
-            ambientPulse = Math.max(0, ambientPulse - 0.012);
-        }
-        renderer.render(scene, camera);
+    animationId = requestAnimationFrame(renderLoop);
+
+    if (!renderer || !scene || !camera) {
+        return;
     }
+
+    const t = (time - clockStart) / 1000;
+
+    scene.traverse((obj) => {
+        if (obj.userData?.flame) {
+            const s =
+                0.92 +
+                Math.sin(t * 8 + obj.position.z) * 0.10;
+
+            obj.scale.set(
+                s,
+                1.03 + Math.cos(t * 9 + obj.position.x) * 0.10,
+                s
+            );
+        }
+
+        if (obj.userData?.dust) {
+            const phase = obj.userData.phase || 0;
+
+            obj.position.y +=
+                Math.sin(t * 0.6 + phase) * 0.0004;
+
+            obj.position.x +=
+                Math.cos(t * 0.35 + phase) * 0.00012;
+        }
+    });
+
+    animateHero(t);
+    animateMonster(t);
+
+    updateFx(time);
+
+    if (roomMoodLight && ambientPulse > 0) {
+        const baseIntensity =
+            roomMoodLight.userData?.baseIntensity ||
+            roomMoodLight.intensity ||
+            1;
+
+        roomMoodLight.intensity =
+            baseIntensity *
+            (
+                1 +
+                Math.sin(t * 8) *
+                0.04 *
+                ambientPulse
+            );
+
+        ambientPulse = Math.max(
+            0,
+            ambientPulse - 0.012
+        );
+    }
+
+    renderer.render(scene, camera);
+}
 
     function tween(duration, updater, easing = (p) => 1 - Math.pow(1 - p, 3)) {
         activeTween?.cancel?.();
@@ -730,10 +769,10 @@ window.CastleQuiz3D = (() => {
         }
         renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false, powerPreference: "high-performance" });
         renderer.shadowMap.enabled = true;
-        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        renderer.shadowMap.type = THREE.PCFShadowMap;
         renderer.outputColorSpace = THREE.SRGBColorSpace;
         renderer.toneMapping = THREE.ACESFilmicToneMapping;
-        renderer.toneMappingExposure = 1.08;
+        renderer.toneMappingExposure = 1.32;
         scene = new THREE.Scene();
         camera = new THREE.PerspectiveCamera(50, 16 / 9, 0.1, 60);
         camera.position.set(0, 2.35, 7.8);
@@ -832,24 +871,24 @@ window.CastleQuiz3D = (() => {
         if (leaf) leaf.scale.x = 1;
         hero.position.set(0, hero.userData?.baseY || 0, 4.2);
 
-        // travelling shot cinematic - mai lung, ca o secvență de film
+        // travelling shot cinematic - scurt și cursiv
         window.CastleQuizAudio?.steps?.(11, 0.34);
         camera.position.set(-1.55, 2.15, 8.0); camera.lookAt(0, 1.1, 1.0);
-        await tween(2100, (p) => {
+        await tween(1250, (p) => {
             hero.position.z = 4.2 - p * 1.65;
             camera.position.x = -1.55 + p * 0.75;
             camera.position.y = 2.15 + Math.sin(p * Math.PI) * 0.18;
             camera.position.z = 8.0 - p * 1.1;
             camera.lookAt(hero.position.x, 1.15, hero.position.z - 1.35);
         });
-        await tween(1500, (p) => {
+        await tween(850, (p) => {
             hero.position.z = 2.55 - p * 1.25;
             camera.position.x = -0.8 + p * 1.25;
             camera.position.z = 6.9 - p * 0.72;
             camera.lookAt(hero.position.x, 1.18, hero.position.z - 1.6);
         });
         heroState = "idle";
-        await tween(700, (p) => {
+        await tween(420, (p) => {
             camera.position.x = 0.45 - p * 0.45;
             camera.position.y = 2.32 + p * 0.20;
             camera.position.z = 6.18 - p * 0.28;
@@ -858,12 +897,12 @@ window.CastleQuiz3D = (() => {
 
         // reveal monster + dolly-in
         if (boss) {
-            pulseScene("castle-boss-awaken", 1450);
+            pulseScene("castle-boss-awaken", 900);
             ambientPulse = 1;
             magicRing(new THREE.Vector3(0, 0.18, -4.15), 0xff6f45, 1.05);
             burst(new THREE.Vector3(0, 1.15, -4.0), 0xff8a4b, 42, 2.0, 1.15, 0.065);
         }
-        await tween(boss ? 2300 : 1450, (p) => {
+        await tween(boss ? 1450 : 900, (p) => {
             monster.position.z = -8 + p * (boss ? 4.15 : 4.45);
             monster.rotation.y = Math.sin(p * Math.PI) * (boss ? 0.34 : 0.12);
             camera.position.x = Math.sin(p * Math.PI * (boss ? 1.5 : 1)) * (boss ? -0.78 : 0.34);
@@ -873,7 +912,7 @@ window.CastleQuiz3D = (() => {
         });
         await playMonsterEntrance(boss ? "dragon" : type, boss);
         monsterState = "taunt";
-        await tween(boss ? 850 : 620, (p) => {
+        await tween(boss ? 560 : 420, (p) => {
             camera.position.x = Math.sin(p * Math.PI * 2) * 0.09 * (1 - p);
         });
         camera.position.x = 0;
@@ -935,19 +974,19 @@ window.CastleQuiz3D = (() => {
         const leaf = door?.getObjectByName("doorLeaf");
         if (leaf) leaf.scale.x = 0.035;
         heroState = "run";
-        pulseScene("castle-speed-lines", 1800);
+        pulseScene("castle-speed-lines", 1100);
         magicRing(new THREE.Vector3(0, 1.15, -0.3), 0x9ac8ff, 0.8);
         window.CastleQuizAudio?.door?.();
         window.CastleQuizAudio?.steps?.(10, 0.30);
         const startZ = hero.position.z;
-        await tween(1650, (p) => {
+        await tween(980, (p) => {
             hero.position.z = startZ - p * 2.15;
             camera.position.x = Math.sin(p * Math.PI) * -0.72;
             camera.position.z = 6.15 - p * 1.2;
             camera.position.y = 2.2 + Math.sin(p * Math.PI) * 0.22;
             camera.lookAt(hero.position.x, 1.05, hero.position.z - 1.45);
         });
-        await tween(1350, (p) => {
+        await tween(780, (p) => {
             hero.position.z = startZ - 2.15 - p * 1.55;
             camera.position.x = -0.72 + p * 0.72;
             camera.position.z = 4.95 - p * 0.8;
@@ -985,7 +1024,7 @@ window.CastleQuiz3D = (() => {
         pulseScene("castle-gameover-fade", 1500);
         burst(new THREE.Vector3(0, 1.0, 1.0), 0x9a7280, 20, 1.0, 1.1, 0.04);
         await cameraShot([0, 2.25, 6.2], [1.2, 1.25, 6.9], [0, 1.2, 0.8], [0, 0.72, 1.2], 650);
-        await tween(700, (p) => {
+        await tween(420, (p) => {
             hero.rotation.z = -p * 0.72;
             hero.position.y = -p * 0.18;
         });
