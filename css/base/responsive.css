@@ -1,0 +1,45 @@
+/* ======================================================
+   RESPONSIVE
+====================================================== */
+
+@media(max-width:700px) {
+
+    nav {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .account-actions {
+        position: absolute;
+        right: 0;
+        top: calc(100% + 10px);
+        bottom: auto;
+    }
+
+    .quizuri {
+        grid-template-columns: 1fr;
+    }
+
+    .hero {
+        min-height: 500px;
+    }
+
+    .hero h1 {
+        font-size: 42px;
+    }
+
+    .hero p {
+        font-size: 18px;
+    }
+
+    section {
+        margin: 40px auto;
+    }
+
+    .pdf-item {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}
+

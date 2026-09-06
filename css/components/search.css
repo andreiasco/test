@@ -1,0 +1,162 @@
+/* ======================================================
+   BARA DE CĂUTARE
+====================================================== */
+.search-toggle {
+    min-height: 36px;
+    border: 1px solid rgba(255, 255, 255, .4);
+    background: transparent;
+    color: white;
+    padding: 0 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.search-toggle:hover {
+    background: #7b2450;
+}
+
+
+.search-container {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    width: min(20vw, 420px);
+    text-align: center;
+}
+
+.search-container.ascuns {
+    display: none !important;
+}
+
+
+.search-input {
+    width: 100%;
+    padding: 7px 34px 7px 11px;
+
+    border: 2px solid rgba(255, 255, 255, .3);
+    border-radius: 18px;
+
+    background: rgba(255, 255, 255, .12);
+    color: white;
+
+    font-size: 13px;
+    outline: none;
+
+    transition: .25s;
+}
+
+.search-input::placeholder {
+    color: rgba(255, 255, 255, .75);
+}
+
+.search-input:focus {
+    background: white;
+    color: #292329;
+    border-color: #f4b6d0;
+}
+
+.search-icon {
+    position: absolute;
+    right: 11px;
+    top: 50%;
+
+    transform: translateY(-50%);
+
+    color: white;
+    font-size: 13px;
+    pointer-events: none;
+}
+
+.search-results {
+    position: absolute;
+
+    top: calc(100% + 8px);
+    left: 0;
+    right: 0;
+
+    z-index: 5000;
+
+    background: white;
+    border-radius: 2px;
+
+    box-shadow: 0 10px 30px rgba(0, 0, 0, .25);
+
+    max-height: 400px;
+    overflow-y: auto;
+
+    display: none;
+
+    text-align: left;
+}
+
+.search-results.activ {
+    display: block;
+}
+
+.search-result {
+    padding: 13px 16px;
+
+    border-bottom: 1px solid #eee;
+
+    cursor: pointer;
+}
+
+.search-result:last-child {
+    border-bottom: none;
+}
+
+.search-result:hover {
+    background: #f8eef3;
+}
+
+.search-result strong {
+    display: block;
+    color: #7b2450;
+    margin-bottom: 4px;
+}
+
+.search-result small {
+    color: #777;
+}
+
+.search-no-results {
+    padding: 18px;
+    text-align: center;
+    color: #777;
+}
+
+body.dark .search-results {
+    background: #271f27;
+}
+
+body.dark .search-result {
+    border-bottom-color: #3b303b;
+}
+
+body.dark .search-result:hover {
+    background: #35152a;
+}
+
+body.dark .search-result small {
+    color: #bbb;
+}
+
+@media(max-width:700px) {
+
+    .nav-tools {
+        top: 50%;
+        right: 10px;
+        bottom: auto;
+    }
+
+    .search-container {
+        width: min(88vw, 420px);
+    }
+
+    .search-input {
+        font-size: 15px;
+    }
+
+}
+

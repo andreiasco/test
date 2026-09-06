@@ -1,0 +1,137 @@
+/* ======================================================
+   MENIU
+====================================================== */
+
+nav {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+
+    background: #35152a;
+
+    padding: 15px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.nav-tools {
+    position: absolute;
+    top: 50%;
+    right: 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    z-index: 2;
+    transform: translateY(-50%);
+}
+
+.account-menu {
+    position: relative;
+}
+
+.account-menu summary {
+    list-style: none;
+    min-height: 36px;
+    display: flex;
+    align-items: center;
+    padding: 0 11px;
+    border: 1px solid rgba(255, 255, 255, .4);
+    border-radius: 16px;
+    color: white;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: bold;
+}
+
+.account-menu summary::-webkit-details-marker {
+    display: none;
+}
+
+.account-menu summary:hover,
+.account-menu[open] summary {
+    background: #7b2450;
+}
+
+.account-actions {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    display: flex;
+    min-width: 190px;
+    margin-top: 0;
+    padding: 12px;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    background: #35152a;
+    border: 1px solid rgba(255, 255, 255, .25);
+    border-radius: 10px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, .25);
+}
+
+nav a {
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+nav a:hover {
+    color: #f4b6d0;
+}
+
+nav button {
+    border: none;
+    background: #7b2450;
+    color: white;
+
+    padding: 10px 15px;
+
+    border-radius: 20px;
+
+    cursor: pointer;
+    font-weight: bold;
+}
+
+nav button:hover {
+    background: #a8446c;
+}
+
+.auth-status {
+    color: white;
+    font-size: 14px;
+    font-weight: bold;
+    white-space: nowrap;
+}
+
+.auth-status.signed-in {
+    color: #b9f2c3;
+}
+
+.account-actions .auth-status {
+    padding: 3px 2px 7px;
+    border-bottom: 1px solid rgba(255, 255, 255, .2);
+}
+
+.theme-btn {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, .45);
+}
+
+.theme-btn:hover {
+    background: rgba(255, 255, 255, .12);
+}
+
+

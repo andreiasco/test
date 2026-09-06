@@ -1,0 +1,145 @@
+/* ======================================================
+   BUTOANE - SISTEM UNIFICAT
+====================================================== */
+
+button,
+.home-cta,
+.buton,
+.kahoot-link,
+.opera-link {
+    border-radius: 4px;
+    font-family: inherit;
+    transition: background-color .2s ease, border-color .2s ease, color .2s ease, transform .2s ease;
+}
+
+nav button {
+    background: var(--navy);
+    border: 1px solid rgba(255, 255, 255, .35);
+    color: #fffaf0;
+}
+
+.search-toggle {
+    min-height: 36px;
+    padding: 0 11px;
+    border: 1px solid rgba(255, 255, 255, .4);
+    border-radius: 2px;
+    background: transparent;
+    color: #fffaf0;
+    font-size: 13px;
+}
+
+nav button:hover,
+nav .search-toggle:hover {
+    background: var(--teal);
+}
+
+.theme-btn {
+    background: var(--paper-alt);
+    border-color: var(--paper-alt);
+    color: var(--navy);
+}
+
+.theme-btn:hover {
+    background: #f1c56c;
+    color: var(--navy-deep);
+}
+
+.account-actions button,
+.login-btn,
+.auth-tab,
+.inchide-login {
+    border-radius: 2px;
+}
+
+.home-cta,
+.login-btn,
+.admin-btn,
+.quiz-tab.wordwall {
+    background: var(--terracotta);
+    color: #fffaf0;
+}
+
+.home-cta:hover,
+.login-btn:hover,
+.admin-btn:hover,
+.quiz-tab.wordwall:hover {
+    background: #963b2d;
+    color: #fffaf0;
+    transform: translateY(-1px);
+}
+
+.quiz-tab.kahoot,
+.kahoot-link {
+    background: var(--navy);
+    color: #fffaf0;
+}
+
+.quiz-tab.kahoot:hover,
+.kahoot-link:hover {
+    background: var(--navy-deep);
+}
+
+.opera-btn,
+.opera-link {
+    background: var(--paper-alt);
+    border: 1px solid var(--navy);
+    border-radius: 2px;
+    color: var(--navy);
+}
+
+.opera-btn:hover,
+.opera-link:hover {
+    background: var(--navy);
+    border-color: var(--navy);
+    color: #fffaf0;
+}
+
+.personaje-instagram-btn {
+    background: #f1c56c;
+    border-color: #a36f12;
+    color: var(--navy-deep);
+}
+
+.personaje-instagram-btn:hover {
+    background: var(--gold);
+    border-color: var(--gold);
+    color: var(--navy-deep);
+}
+
+.reset-btn,
+.auth-tab {
+    background: var(--paper-alt);
+    border-color: var(--navy);
+    color: var(--navy);
+}
+
+.reset-btn:hover,
+.auth-tab:hover {
+    background: #ead8ae;
+    color: var(--navy-deep);
+}
+
+.auth-tab.activ {
+    background: var(--navy);
+    border-color: var(--navy);
+    color: #fffaf0;
+}
+
+.auth-tab.activ:hover {
+    background: var(--navy-deep);
+    color: #fffaf0;
+}
+
+.logout-btn,
+.sterge-opera-btn,
+.sterge-btn {
+    background: #8f382e;
+    color: #fffaf0;
+}
+
+.logout-btn:hover,
+.sterge-opera-btn:hover,
+.sterge-btn:hover {
+    background: #6e2822;
+}
+
