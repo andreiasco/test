@@ -133,19 +133,38 @@ window.CastleQuiz3D = (() => {
     }
 
     async function loadThree() {
-        if (THREE && GLTFLoaderClass) return THREE;
-        try {
-            THREE = THREE || await import("https://cdn.jsdelivr.net/npm/three@0.185.1/build/three.module.js");
-            if (!GLTFLoaderClass) {
-                const loaderModule = await import("https://cdn.jsdelivr.net/npm/three@0.185.1/examples/jsm/loaders/GLTFLoader.js");
-                GLTFLoaderClass = loaderModule.GLTFLoader;
-            }
-            return THREE;
-        } catch (error) {
-            console.error("Three.js / GLTFLoader nu a putut fi incarcat:", error);
-            return null;
-        }
+    if (THREE && GLTFLoaderClass) {
+        return THREE;
     }
+
+    try {
+        // Three.js este rezolvat prin importmap din index.html
+        if (!THREE) {
+            THREE = await import("three");
+        }
+
+        // GLTFLoader folosește aceeași versiune Three.js
+        if (!GLTFLoaderClass) {
+            const loaderModule = await import(
+                "three/addons/loaders/GLTFLoader.js"
+            );
+
+            GLTFLoaderClass = loaderModule.GLTFLoader;
+        }
+
+        console.log("Three.js și GLTFLoader încărcate cu succes.");
+
+        return THREE;
+
+    } catch (error) {
+        console.error(
+            "Three.js / GLTFLoader nu a putut fi incarcat:",
+            error
+        );
+
+        return null;
+    }
+}
 
     async function loadGlbModel(asset, kind = "monster", type = "goblin") {
         if (!asset?.path || !GLTFLoaderClass || !THREE) return null;
