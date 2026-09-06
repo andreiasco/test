@@ -148,7 +148,18 @@ async function inlocuiestePDF(
 
 
         // ==================================================
-        // 4. UPLOAD NOUL PDF
+        // 4. EXTRAGEM TEXTUL PENTRU PROFESORUL AI
+        // ==================================================
+
+        let continutAI = "";
+        try {
+            continutAI = await extrageTextDinFisierPDF(fisier);
+        } catch (eroareText) {
+            console.warn("PDF-ul a fost acceptat, dar textul nu a putut fi extras:", eroareText);
+        }
+
+        // ==================================================
+        // 5. UPLOAD NOUL PDF
         // ==================================================
 
         const {
@@ -179,17 +190,23 @@ async function inlocuiestePDF(
 
 
         // ==================================================
-        // 5. ACTUALIZĂM BAZA DE DATE
+        // 6. ACTUALIZĂM BAZA DE DATE + TEXTUL AI
         // ==================================================
+
+        const coloanaTextAI = MAPARE_TEXT_OPERA[coloana];
+        const valoriUpdate = {
+            [coloana]: valoareNoua
+        };
+
+        if (coloanaTextAI) {
+            valoriUpdate[coloanaTextAI] = continutAI || null;
+        }
 
         const {
             error: updateError
         } = await supabaseClient
             .from("opere")
-            .update({
-                [coloana]:
-                    valoareNoua
-            })
+            .update(valoriUpdate)
             .eq(
                 "id",
                 operaId

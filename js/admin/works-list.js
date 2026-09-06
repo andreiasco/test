@@ -75,6 +75,19 @@ async function incarcaOpereAdmin() {
                             </b>
                         </p>
 
+                        <p>
+                            Profesor AI:
+                            ${[opera.continut_rezumat, opera.continut_analiza_literara, opera.continut_valori_morale, opera.continut_caracterizare].some(Boolean)
+                                ? "🤖 Are text indexat"
+                                : "⚠ PDF-urile nu sunt încă indexate"}
+                        </p>
+
+                        <button
+                            class="admin-btn"
+                            type="button"
+                            onclick="indexeazaPDFuriOpera(${opera.id})">
+                            🤖 Indexează PDF-urile pentru AI
+                        </button>
 
                         <!-- =========================
                              REZUMAT

@@ -245,10 +245,18 @@ async function adaugaOpera() {
 
 
         status.textContent =
-            "Se încarcă PDF-urile...";
+            "Se citesc PDF-urile pentru Profesorul AI...";
 
         status.style.color =
             "#7b2450";
+
+        const continutRezumat = rezumat ? await extrageTextDinFisierPDF(rezumat) : "";
+        const continutAnalizaLiterara = analizaLiterara ? await extrageTextDinFisierPDF(analizaLiterara) : "";
+        const continutValoriMorale = valoriMorale ? await extrageTextDinFisierPDF(valoriMorale) : "";
+        const continutCaracterizare = caracterizare ? await extrageTextDinFisierPDF(caracterizare) : "";
+
+        status.textContent =
+            "Se încarcă PDF-urile...";
 
 
         const caleRezumat =
@@ -411,6 +419,18 @@ async function adaugaOpera() {
 
                         pdf_caracterizare:
                             pdfCaracterizare,
+
+                        continut_rezumat:
+                            continutRezumat || null,
+
+                        continut_analiza_literara:
+                            continutAnalizaLiterara || null,
+
+                        continut_valori_morale:
+                            continutValoriMorale || null,
+
+                        continut_caracterizare:
+                            continutCaracterizare || null,
 
                         rezumat_word:
                             caleRezumatWord

@@ -23,7 +23,7 @@ async function incarcaLimbaAdmin() {
         if (capitoleError) throw capitoleError;
 
         const { data: materiale, error: materialeError } = await supabaseClient
-            .from("limba_materiale").select("id, capitol_id, titlu, descriere, pdf, ordine")
+            .from("limba_materiale").select("id, capitol_id, titlu, descriere, pdf, ordine, continut_ai")
             .order("ordine").order("titlu");
         if (materialeError) throw materialeError;
 
@@ -47,8 +47,10 @@ async function incarcaLimbaAdmin() {
                         <p>${escapeHTML(capitol.descriere || "")}</p>
                         ${materialeCapitol.map(material => `<div>
                             <strong>${escapeHTML(material.titlu)}</strong> ${material.pdf ? "✔ PDF" : "✖ PDF lipsă"}
+                            <span>${material.continut_ai ? " • 🤖 AI indexat" : " • ⚠ AI neindexat"}</span>
                             <input type="file" id="limbaMaterialNou-${material.id}" accept="application/pdf">
                             <button class="admin-btn" type="button" onclick="inlocuiesteMaterialLimba(${material.id})">Înlocuiește PDF</button>
+                            <button class="admin-btn" type="button" onclick="indexeazaMaterialLimba(${material.id})">🤖 Indexează PDF pentru AI</button>
                             <button class="admin-btn sterge-opera-btn" type="button" onclick="stergeMaterialLimba(${material.id})">Șterge material</button>
                         </div>`).join("") || "<p>Nu există materiale.</p>"}
                         <button class="admin-btn sterge-opera-btn" type="button" onclick="stergeCapitolLimba(${capitol.id})">Șterge capitol</button>
@@ -112,12 +114,14 @@ async function adaugaMaterialLimba() {
     try {
         const user = await utilizatorAutentificat();
         if (!user) throw new Error("Trebuie să fii autentificat ca administrator.");
+        status.textContent = "Se citește PDF-ul pentru Profesorul AI...";
+        const continutAI = await extrageTextDinFisierPDF(fisier);
         const nume = fisier.name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9._-]/g, "_");
         cale = `limba/${capitolId}/${Date.now()}_${nume}`;
         const { error: uploadError } = await supabaseClient.storage.from(BUCKET).upload(cale, fisier, { contentType: "application/pdf", upsert: false });
         if (uploadError) throw uploadError;
         const { error } = await supabaseClient.from("limba_materiale").insert({
-            capitol_id: Number(capitolId), titlu, descriere: descriere || null, pdf: `storage://${BUCKET}/${cale}`, ordine
+            capitol_id: Number(capitolId), titlu, descriere: descriere || null, pdf: `storage://${BUCKET}/${cale}`, ordine, continut_ai: continutAI || null
         });
         if (error) throw error;
         status.textContent = "Materialul a fost încărcat.";
@@ -139,11 +143,12 @@ async function inlocuiesteMaterialLimba(materialId) {
     try {
         const { data: material, error } = await supabaseClient.from("limba_materiale").select("pdf, capitol_id").eq("id", materialId).single();
         if (error) throw error;
+        const continutAI = await extrageTextDinFisierPDF(fisier);
         const nume = fisier.name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9._-]/g, "_");
         caleNoua = `limba/${material.capitol_id}/${Date.now()}_${nume}`;
         const upload = await supabaseClient.storage.from(BUCKET).upload(caleNoua, fisier, { contentType: "application/pdf", upsert: false });
         if (upload.error) throw upload.error;
-        const update = await supabaseClient.from("limba_materiale").update({ pdf: `storage://${BUCKET}/${caleNoua}` }).eq("id", materialId);
+        const update = await supabaseClient.from("limba_materiale").update({ pdf: `storage://${BUCKET}/${caleNoua}`, continut_ai: continutAI || null }).eq("id", materialId);
         if (update.error) throw update.error;
         const veche = obtineCaleResursa(material.pdf, BUCKET);
         if (veche) await supabaseClient.storage.from(BUCKET).remove([veche]);

@@ -241,3 +241,13 @@ Panoul de administrator este împărțit acum în secțiuni independente, accesi
 - **Quiz-uri** – creatorul de quiz, generatorul AI și lista quiz-urilor existente.
 
 Navigarea este gestionată de `js/admin/panel-navigation.js`. Ultima secțiune deschisă este păstrată pe durata sesiunii browserului.
+
+## Profesor AI care citește PDF-uri (v9)
+
+1. Rulează `supabase/pdf-ai.sql` în Supabase SQL Editor.
+2. În Admin, deschide Opere sau Limba română și folosește butonul `🤖 Indexează PDF-urile pentru AI` pentru PDF-urile deja existente.
+3. PDF-urile noi sunt citite automat la încărcare și textul este salvat în coloanele `continut_*` / `continut_ai`.
+4. Înlocuiește funcția Supabase `ai-assistant` cu `supabase/functions/ai-assistant/index.ts` și apasă Deploy.
+5. Păstrează secretul `GEMINI_API_KEY`. Funcția caută întâi în materialele site-ului și nu apelează Gemini dacă nu găsește nicio sursă relevantă.
+
+Notă: extragerea folosește PDF.js și funcționează pentru PDF-uri cu text selectabil. PDF-urile scanate ca imagini necesită OCR și nu vor produce text prin această metodă.
