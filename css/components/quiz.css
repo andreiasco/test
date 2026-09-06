@@ -217,3 +217,66 @@
 .castle-transition-card { display:flex; flex-direction:column; gap:5px; }
 .castle-transition-card strong { color:#f1d79b; font-size:15px; letter-spacing:.02em; }
 .castle-transition-card span { color:#bdb9c7; font-size:13px; }
+
+/* Castel 3D v4 - efecte cinematice */
+.castle-scene { isolation:isolate; }
+.castle-scene::after { z-index:3; }
+.castle-scene.castle-correct-flash { animation:castleCorrectFlash .76s ease-out; }
+.castle-scene.castle-wrong-impact { animation:castleWrongImpact .65s ease-out; }
+.castle-scene.castle-boss-awaken { animation:castleBossAwaken 1.45s ease-in-out; }
+.castle-scene.castle-victory-glow { animation:castleVictoryGlow 1.8s ease-out; }
+.castle-scene.castle-gameover-fade { animation:castleGameOverFade 1.5s ease-out; }
+.castle-scene.castle-speed-lines canvas { animation:castleSpeedPush .9s cubic-bezier(.2,.8,.2,1); }
+@keyframes castleCorrectFlash {
+    0%,100% { box-shadow:inset 0 0 0 rgba(118,232,165,0); }
+    20% { box-shadow:inset 0 0 85px rgba(118,232,165,.38); }
+}
+@keyframes castleWrongImpact {
+    0%,100% { filter:none; }
+    12% { filter:brightness(1.32) saturate(1.45); }
+    28% { filter:brightness(.84) saturate(.88); }
+}
+@keyframes castleBossAwaken {
+    0% { box-shadow:inset 0 0 90px rgba(0,0,0,.72), 0 0 0 rgba(255,92,43,0); }
+    28% { box-shadow:inset 0 0 110px rgba(117,27,13,.55), 0 0 34px rgba(255,92,43,.32); }
+    52% { box-shadow:inset 0 0 75px rgba(255,92,43,.20), 0 0 16px rgba(255,92,43,.16); }
+    100% { box-shadow:inset 0 0 90px rgba(0,0,0,.72), 0 0 0 rgba(255,92,43,0); }
+}
+@keyframes castleVictoryGlow {
+    0% { filter:brightness(1); }
+    35% { filter:brightness(1.35) saturate(1.25); }
+    100% { filter:brightness(1); }
+}
+@keyframes castleGameOverFade {
+    0% { filter:brightness(1) saturate(1); }
+    55% { filter:brightness(.72) saturate(.55); }
+    100% { filter:brightness(.9) saturate(.72); }
+}
+@keyframes castleSpeedPush {
+    0% { transform:scale(1); filter:blur(0) saturate(1.08) contrast(1.035); }
+    45% { transform:scale(1.035); filter:blur(.45px) saturate(1.18) contrast(1.08); }
+    100% { transform:scale(1); filter:blur(0) saturate(1.08) contrast(1.035); }
+}
+@media (prefers-reduced-motion: reduce) {
+    .castle-scene.castle-correct-flash,
+    .castle-scene.castle-wrong-impact,
+    .castle-scene.castle-boss-awaken,
+    .castle-scene.castle-victory-glow,
+    .castle-scene.castle-gameover-fade,
+    .castle-scene.castle-speed-lines canvas { animation:none !important; }
+}
+
+/* ===== Quiz animat v5: moduri, sunet, spânzurătoare, ordonare ===== */
+.castle-topbar-actions{display:flex;align-items:center;gap:.7rem;flex-wrap:wrap;justify-content:flex-end}.quiz-player-title-wrap{display:flex;flex-direction:column;gap:.1rem;min-width:0}.quiz-player-title-wrap small{opacity:.75;font-size:.76rem}.quiz-sound-btn{border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:inherit;border-radius:999px;padding:.5rem .72rem;cursor:pointer;min-height:40px}.quiz-sound-btn:hover{background:rgba(255,255,255,.14)}
+.cinematic-travel{position:relative;overflow:hidden}.cinematic-dots{display:flex;gap:.35rem;margin-top:.8rem;justify-content:center}.cinematic-dots i{width:.42rem;height:.42rem;border-radius:50%;background:currentColor;opacity:.35;animation:cinematicDot 1s infinite ease-in-out}.cinematic-dots i:nth-child(2){animation-delay:.16s}.cinematic-dots i:nth-child(3){animation-delay:.32s}@keyframes cinematicDot{0%,100%{transform:translateY(0);opacity:.25}50%{transform:translateY(-6px);opacity:1}}
+.hangman-word{font-size:clamp(1.35rem,4vw,2.5rem);letter-spacing:.14em;text-align:center;font-weight:800;padding:1.2rem .7rem;border-radius:16px;background:rgba(255,255,255,.07);margin:1rem 0;line-height:1.65;word-break:break-word}.hangman-keyboard{display:flex;flex-wrap:wrap;justify-content:center;gap:.42rem}.hangman-keyboard button{min-width:42px;min-height:42px;border:1px solid rgba(255,255,255,.18);border-radius:10px;background:rgba(255,255,255,.08);color:inherit;font-weight:800;cursor:pointer}.hangman-keyboard button:hover:not(:disabled){transform:translateY(-2px);background:rgba(255,255,255,.14)}.hangman-keyboard button:disabled{opacity:.28;cursor:not-allowed}.hangman-note{text-align:center;opacity:.72;font-size:.9rem;margin:.8rem 0 0}
+.ordering-game{display:grid;gap:1rem}.ordering-pool,.ordering-answer{display:flex;flex-wrap:wrap;gap:.55rem;align-items:center;min-height:76px;padding:.85rem;border-radius:16px;border:1px dashed rgba(255,255,255,.22);background:rgba(255,255,255,.045)}.ordering-answer{border-style:solid;background:rgba(255,255,255,.075)}.ordering-answer>span{opacity:.58}.ordering-chip{border:0;border-radius:999px;padding:.72rem 1rem;min-height:44px;background:var(--quiz-accent,#e9b872);color:#20160f;font-weight:800;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.18)}.ordering-actions{display:flex;justify-content:flex-end;gap:.6rem;flex-wrap:wrap}.ordering-actions button{min-height:44px;padding:.65rem 1rem;border-radius:12px;border:0;cursor:pointer;font-weight:800}.ordering-actions .secondary{background:rgba(255,255,255,.1);color:inherit}
+@media(max-width:640px){.castle-topbar-actions{width:100%;justify-content:space-between}.hangman-keyboard button{min-width:38px;min-height:40px}.ordering-actions button{flex:1}}
+@media(prefers-reduced-motion:reduce){.cinematic-dots i{animation:none}.ordering-chip,.hangman-keyboard button{transition:none!important}}
+
+/* ======================================================
+   ASISTENT AI + AJUTOR AI ÎN QUIZ
+   ====================================================== */
+.ai-assistant{position:fixed;right:18px;bottom:18px;z-index:1200;width:min(390px,calc(100vw - 24px));max-height:min(680px,calc(100vh - 32px));display:flex;flex-direction:column;gap:12px;padding:16px;border:1px solid rgba(255,255,255,.14);border-radius:22px;background:rgba(20,18,30,.96);color:#fff;box-shadow:0 24px 70px rgba(0,0,0,.38);backdrop-filter:blur(16px)}
+.ai-assistant.ascuns{display:none}.ai-assistant-close{position:absolute;right:10px;top:10px;width:38px;height:38px;border:0;border-radius:50%;font-size:24px;cursor:pointer}.ai-assistant-head{display:flex;align-items:center;gap:10px;padding-right:42px}.ai-assistant-avatar{display:grid;place-items:center;width:46px;height:46px;border-radius:15px;background:rgba(255,255,255,.1);font-size:26px}.ai-assistant-head strong,.ai-assistant-head small{display:block}.ai-assistant-head small{opacity:.7;margin-top:2px}.ai-assistant-messages{min-height:180px;max-height:330px;overflow:auto;display:flex;flex-direction:column;gap:9px;padding:8px 3px}.ai-message{max-width:88%;padding:10px 12px;border-radius:16px;line-height:1.45;font-size:.94rem}.ai-message-bot{align-self:flex-start;background:rgba(255,255,255,.09);border-bottom-left-radius:5px}.ai-message-user{align-self:flex-end;background:#6e3cd2;border-bottom-right-radius:5px}.ai-quick-actions{display:flex;gap:7px;overflow-x:auto;padding-bottom:2px}.ai-quick-actions button{flex:0 0 auto;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.06);color:inherit;border-radius:999px;padding:8px 10px;cursor:pointer}.ai-assistant-form{display:flex;gap:8px;align-items:flex-end}.ai-assistant-form textarea{flex:1;resize:none;min-height:52px;max-height:110px;border-radius:14px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.08);color:inherit;padding:11px;font:inherit}.ai-assistant-form button{min-height:52px;border:0;border-radius:14px;padding:0 14px;font-weight:700;cursor:pointer}.ai-assistant-status{min-height:18px;margin:0;font-size:.8rem;opacity:.72}.quiz-ai-explain{margin-top:9px}.quiz-ai-explanation{margin-top:9px;padding:10px 12px;border-radius:12px;background:rgba(91,62,154,.12);line-height:1.45}.quiz-ai-explanation.loading{opacity:.7}.sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
+@media(max-width:600px){.ai-assistant{right:12px;bottom:12px;width:calc(100vw - 24px);max-height:calc(100vh - 24px)}}

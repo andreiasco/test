@@ -24,8 +24,8 @@ const QUIZ_HTML = `
         <div id="quizPlayer" class="quiz-player castle-player ascuns">
             <div class="quiz-player-topbar castle-topbar">
                 <button type="button" id="quizCloseButton" class="quiz-close-btn" aria-label="Ieși din quiz">← Ieși din castel</button>
-                <strong id="quizPlayerTitle">Aventura din castel</strong>
-                <span id="quizLiveScore">Scor: 0</span>
+                <div class="quiz-player-title-wrap"><strong id="quizPlayerTitle">Aventura din castel</strong><small id="quizModeLabel">Quiz animat</small></div>
+                <div class="castle-topbar-actions"><button type="button" id="quizSoundToggle" class="quiz-sound-btn" aria-pressed="true">🔊 Sunet</button><span id="quizLiveScore">Scor: 0</span></div>
             </div>
 
             <div class="castle-hud" aria-live="polite">

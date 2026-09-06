@@ -1,324 +1,42 @@
 // ======================================================
-// QUIZ AVENTURĂ - LISTARE + PLAYER CU 3 VIEȚI
+// QUIZ ANIMAT - 4 MODURI + CASTEL 3D + 3 VIEȚI
 // ======================================================
-
-let quizuriPublice = [];
-let quizActiv = null;
-let quizIndexIntrebare = 0;
-let quizScor = 0;
-let quizVieti = 3;
-let quizCorecte = 0;
-let quizTimerId = null;
-let quizTimpRamas = 0;
-let quizRaspunsBlocat = false;
-let quizEstePreview = false;
-
-const QUIZ_MONSTERS = {
-    goblin: { name: "Goblinul", icon: "👹" },
-    bat: { name: "Liliacul uriaș", icon: "🦇" },
-    skeleton: { name: "Scheletul", icon: "💀" },
-    spider: { name: "Păianjenul uriaș", icon: "🕷️" },
-    knight: { name: "Cavalerul blestemat", icon: "🛡️" },
-    ghost: { name: "Fantoma", icon: "👻" },
-    golem: { name: "Golemul", icon: "🪨" },
-    wizard: { name: "Vrăjitorul întunecat", icon: "🧙" },
-    demon: { name: "Demonul castelului", icon: "😈" },
-    dragon: { name: "Dragonul", icon: "🐉" }
-};
-
-function escapeQuizHtml(value) {
-    return String(value ?? "")
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
-}
-
-function normalizeazaIntrebariQuiz(raw) {
-    if (!Array.isArray(raw)) return [];
-    return raw.map((item, index) => {
-        const type = item?.type === "true_false" ? "true_false" : "multiple_choice";
-        let answers = Array.isArray(item?.answers) ? item.answers.map((a) => String(a || "").trim()).filter(Boolean) : [];
-        if (type === "true_false" && answers.length < 2) answers = ["Adevărat", "Fals"];
-        return {
-            type,
-            text: String(item?.text || "").trim(),
-            answers,
-            correctIndex: Number(item?.correctIndex),
-            explanation: String(item?.explanation || "").trim(),
-            monster: String(item?.monster || "goblin"),
-            correctMessage: String(item?.correctMessage || "Corect! Poți trece mai departe.").trim(),
-            wrongMessage: String(item?.wrongMessage || "De data aceasta te iert. Te las să treci mai departe.").trim(),
-            boss: Boolean(item?.boss)
-        };
-    }).filter((item) => item.text && item.answers.length >= 2 && Number.isInteger(item.correctIndex) && item.correctIndex >= 0 && item.correctIndex < item.answers.length);
-}
-
-function normalizeazaQuiz(quiz) {
-    const questions = normalizeazaIntrebariQuiz(quiz?.questions);
-    if (questions.length) questions[questions.length - 1].boss = true;
-    return {
-        ...quiz,
-        game_mode: quiz?.game_mode || "castle_adventure",
-        difficulty: quiz?.difficulty || "medium",
-        lives: 3,
-        questions
-    };
-}
-
-async function incarcaQuizuri() {
-    const lista = document.getElementById("quizInteractiveLista");
-    if (!lista) return;
-    lista.innerHTML = '<p class="quiz-empty">Se încarcă quiz-urile...</p>';
-    try {
-        const { data, error } = await supabaseClient
-            .from("quizzes")
-            .select("id,title,description,grade,seconds_per_question,questions,published,created_at,game_mode,difficulty,lives")
-            .eq("published", true)
-            .order("created_at", { ascending: false });
-        if (error) throw error;
-        quizuriPublice = (data || []).map(normalizeazaQuiz).filter((quiz) => quiz.questions.length > 0);
-        randareListaQuizuri();
-    } catch (error) {
-        console.error("Eroare încărcare quiz-uri:", error);
-        lista.innerHTML = '<p class="quiz-empty quiz-error">Quiz-urile nu au putut fi încărcate. Dacă ai actualizat site-ul, rulează și noul supabase/quizzes.sql.</p>';
-    }
-}
-
-function randareListaQuizuri() {
-    const lista = document.getElementById("quizInteractiveLista");
-    if (!lista) return;
-    if (!quizuriPublice.length) {
-        lista.innerHTML = `<div class="quiz-empty-state"><span>🏰</span><h3>Castelul așteaptă primul quiz</h3><p>Administratorul nu a publicat încă o aventură.</p></div>`;
-        return;
-    }
-    const difficultyLabel = { easy: "Ușor", medium: "Mediu", hard: "Greu" };
-    lista.innerHTML = quizuriPublice.map((quiz, index) => {
-        const grade = quiz.grade === "general" ? "General" : `Clasa a ${quiz.grade}-a`;
-        return `<article class="interactive-quiz-card castle-quiz-card" style="--quiz-delay:${Math.min(index * 70, 420)}ms">
-            <div class="interactive-quiz-icon">🏰</div>
-            <div class="interactive-quiz-copy">
-                <div class="interactive-quiz-meta"><span>${escapeQuizHtml(grade)}</span><span>${quiz.questions.length} monștri</span><span>❤️ 3 vieți</span><span>${difficultyLabel[quiz.difficulty] || "Mediu"}</span></div>
-                <h3>${escapeQuizHtml(quiz.title)}</h3>
-                <p>${escapeQuizHtml(quiz.description || "Traversează castelul și răspunde corect ca să ajungi la boss-ul final.")}</p>
-            </div>
-            <button type="button" class="quiz-start-btn" data-quiz-id="${escapeQuizHtml(quiz.id)}">⚔️ Intră în castel</button>
-        </article>`;
-    }).join("");
-    lista.querySelectorAll("[data-quiz-id]").forEach((button) => button.addEventListener("click", () => pornesteQuiz(button.dataset.quizId)));
-}
-
-function pornesteQuiz(id) {
-    const quiz = quizuriPublice.find((item) => String(item.id) === String(id));
-    if (quiz) pornesteQuizCuDate(quiz, false);
-}
-
-async function pornesteQuizCuDate(rawQuiz, preview = false) {
-    const quiz = normalizeazaQuiz(rawQuiz);
-    if (!quiz.questions.length) return;
-    opresteTimerQuiz();
-    quizActiv = quiz;
-    quizEstePreview = preview;
-    quizIndexIntrebare = 0;
-    quizScor = 0;
-    quizVieti = 3;
-    quizCorecte = 0;
-    quizRaspunsBlocat = true;
-
-    document.getElementById("quizInteractiveLista")?.classList.add("ascuns");
-    document.getElementById("quizPlayer")?.classList.remove("ascuns");
-    document.getElementById("quizRezultat")?.classList.add("ascuns");
-    document.getElementById("quizQuestionStage")?.classList.remove("ascuns");
-    const title = document.getElementById("quizPlayerTitle");
-    if (title) title.textContent = preview ? `PREVIEW · ${quiz.title}` : quiz.title;
-    actualizeazaHudQuiz();
-    const canvas = document.getElementById("castleCanvas");
-    if (window.CastleQuiz3D && canvas) await CastleQuiz3D.init(canvas);
-    await afiseazaDialogCastel("🏰", "Intră în castel. Ai 3 vieți. Fiecare răspuns greșit te costă o viață.", 1300);
-    await randareIntrebareQuiz();
-}
-
-function actualizeazaHudQuiz() {
-    const lives = document.getElementById("quizLives");
-    if (lives) {
-        const text = `${"❤️ ".repeat(Math.max(0, quizVieti))}${"🖤 ".repeat(Math.max(0, 3 - quizVieti))}`.trim();
-        lives.textContent = text;
-        lives.setAttribute("aria-label", `${quizVieti} vieți rămase`);
-    }
-    const score = document.getElementById("quizLiveScore");
-    if (score) score.textContent = `Scor: ${quizScor}`;
-    if (quizActiv) {
-        const counter = document.getElementById("quizCounter");
-        if (counter) counter.textContent = `Monstrul ${Math.min(quizIndexIntrebare + 1, quizActiv.questions.length)} / ${quizActiv.questions.length}`;
-        const progressBar = document.getElementById("quizProgressBar");
-        if (progressBar) progressBar.style.width = `${(quizIndexIntrebare / quizActiv.questions.length) * 100}%`;
-    }
-}
-
-async function afiseazaDialogCastel(icon, text, duration = 0) {
-    const box = document.getElementById("castleDialogue");
-    if (!box) return;
-    box.innerHTML = `<span class="castle-dialogue-icon">${escapeQuizHtml(icon)}</span><p>${escapeQuizHtml(text)}</p>`;
-    box.classList.remove("ascuns");
-    if (duration > 0) {
-        await new Promise((resolve) => setTimeout(resolve, duration));
-        box.classList.add("ascuns");
-    }
-}
-
-async function randareIntrebareQuiz() {
-    if (!quizActiv || quizVieti <= 0) return;
-    const question = quizActiv.questions[quizIndexIntrebare];
-    if (!question) return finalizeazaQuiz(true);
-    quizRaspunsBlocat = true;
-    actualizeazaHudQuiz();
-
-    const stage = document.getElementById("quizQuestionStage");
-    const info = QUIZ_MONSTERS[question.monster] || QUIZ_MONSTERS.goblin;
-    const boss = quizIndexIntrebare === quizActiv.questions.length - 1 || question.boss;
-    const roomName = window.CastleQuiz3D?.getRoomName?.(quizIndexIntrebare, boss) || (boss ? "Sala Dragonului" : "Castel");
-    if (stage) stage.innerHTML = `<div class="castle-transition-card"><strong>🚪 ${escapeQuizHtml(roomName)}</strong><span>Personajul înaintează spre următoarea confruntare...</span></div>`;
-    const skip = document.getElementById("castleSkipAnimation");
-    skip?.classList.remove("ascuns");
-    if (window.CastleQuiz3D) await CastleQuiz3D.encounter(boss ? "dragon" : question.monster, boss, quizIndexIntrebare);
-    skip?.classList.add("ascuns");
-
-    await afiseazaDialogCastel(boss ? "🐉" : info.icon, boss ? "Ai ajuns la boss-ul final! Răspunde corect ca să cucerești castelul." : `${info.name}: „Ca să treci mai departe, răspunde la întrebarea mea!”`, 1100);
-    randareCardIntrebare(question, boss, info);
-    quizRaspunsBlocat = false;
-    pornesteTimerQuiz(Number(quizActiv.seconds_per_question) || 20);
-}
-
-function randareCardIntrebare(question, boss, info) {
-    const stage = document.getElementById("quizQuestionStage");
-    if (!stage) return;
-    const letters = ["A", "B", "C", "D"];
-    stage.innerHTML = `<div class="quiz-question-card castle-question-card quiz-enter">
-        <div class="castle-monster-title"><span>${boss ? "🐉" : info.icon}</span><div><small>${boss ? "BOSS FINAL" : escapeQuizHtml(info.name)}</small><strong>${question.type === "true_false" ? "Adevărat sau fals?" : "Alege răspunsul corect"}</strong></div></div>
-        <h3>${escapeQuizHtml(question.text)}</h3>
-        <div class="quiz-answer-grid">${question.answers.map((answer, index) => `<button type="button" class="quiz-answer-btn" data-answer-index="${index}"><span>${question.type === "true_false" ? (index === 0 ? "✓" : "✕") : letters[index]}</span><strong>${escapeQuizHtml(answer)}</strong></button>`).join("")}</div>
-        <div id="quizFeedback" class="quiz-feedback" aria-live="polite"></div>
-    </div>`;
-    stage.querySelectorAll("[data-answer-index]").forEach((button) => button.addEventListener("click", () => raspundeQuiz(Number(button.dataset.answerIndex))));
-}
-
-function pornesteTimerQuiz(seconds) {
-    opresteTimerQuiz();
-    quizTimpRamas = Math.max(5, Math.min(120, Number(seconds) || 20));
-    actualizeazaTimerQuiz();
-    quizTimerId = window.setInterval(() => {
-        quizTimpRamas -= 1;
-        actualizeazaTimerQuiz();
-        if (quizTimpRamas <= 0) { opresteTimerQuiz(); raspundeQuiz(-1, true); }
-    }, 1000);
-}
-
-function actualizeazaTimerQuiz() {
-    const timer = document.getElementById("quizTimer");
-    if (!timer) return;
-    timer.textContent = `${quizTimpRamas}s`;
-    timer.classList.toggle("quiz-timer-warning", quizTimpRamas <= 5);
-}
-
-function opresteTimerQuiz() {
-    if (quizTimerId) window.clearInterval(quizTimerId);
-    quizTimerId = null;
-}
-
-async function raspundeQuiz(index, expirat = false) {
-    if (quizRaspunsBlocat || !quizActiv) return;
-    quizRaspunsBlocat = true;
-    opresteTimerQuiz();
-    const question = quizActiv.questions[quizIndexIntrebare];
-    const corect = index === question.correctIndex;
-    const buttons = document.querySelectorAll("#quizQuestionStage .quiz-answer-btn");
-    buttons.forEach((button, buttonIndex) => {
-        button.disabled = true;
-        if (buttonIndex === question.correctIndex) button.classList.add("corect");
-        if (buttonIndex === index && !corect) button.classList.add("gresit");
-    });
-
-    if (corect) {
-        quizScor += 100;
-        quizCorecte += 1;
-        actualizeazaHudQuiz();
-        if (window.CastleQuiz3D) await CastleQuiz3D.correct();
-        await afiseazaFeedbackAventura(true, question, expirat);
-    } else {
-        quizVieti -= 1;
-        actualizeazaHudQuiz();
-        document.getElementById("quizLives")?.classList.add("castle-life-hit");
-        setTimeout(() => document.getElementById("quizLives")?.classList.remove("castle-life-hit"), 600);
-        if (window.CastleQuiz3D) await CastleQuiz3D.wrong();
-        if (quizVieti <= 0) {
-            await afiseazaDialogCastel("💀", "Ai rămas fără vieți. Aventura se încheie aici.", 900);
-            return finalizeazaQuiz(false, true);
-        }
-        await afiseazaDialogCastel("👹", question.wrongMessage || "De data aceasta te iert. Te las să treci mai departe.", 1100);
-        await afiseazaFeedbackAventura(false, question, expirat);
-    }
-}
-
-async function afiseazaFeedbackAventura(corect, question, expirat) {
-    const feedback = document.getElementById("quizFeedback");
-    if (!feedback) return;
-    const titlu = corect ? (question.correctMessage || "Corect! Poți trece.") : (expirat ? "Timpul a expirat — pierzi o viață." : "Răspuns greșit — pierzi o viață.");
-    const explicatie = question.explanation ? `<p>${escapeQuizHtml(question.explanation)}</p>` : "";
-    feedback.innerHTML = `<div class="quiz-feedback-box ${corect ? "corect" : "gresit"}"><strong>${escapeQuizHtml(titlu)}</strong>${explicatie}<button type="button" id="quizNextButton">${quizIndexIntrebare + 1 < quizActiv.questions.length ? "🚪 Continuă aventura" : "🏆 Vezi finalul"}</button></div>`;
-    document.getElementById("quizNextButton")?.addEventListener("click", urmatoareaIntrebareQuiz);
-}
-
-async function urmatoareaIntrebareQuiz() {
-    quizRaspunsBlocat = true;
-    if (window.CastleQuiz3D) await CastleQuiz3D.nextRoom();
-    quizIndexIntrebare += 1;
-    if (quizIndexIntrebare >= quizActiv.questions.length) finalizeazaQuiz(true);
-    else randareIntrebareQuiz();
-}
-
-async function finalizeazaQuiz(victorie = true, gameOver = false) {
-    opresteTimerQuiz();
-    if (!quizActiv) return;
-    quizRaspunsBlocat = true;
-    const total = quizActiv.questions.length;
-    const stage = document.getElementById("quizQuestionStage");
-    const rezultat = document.getElementById("quizRezultat");
-    const progressBar = document.getElementById("quizProgressBar");
-    if (victorie && progressBar) progressBar.style.width = "100%";
-    if (stage) stage.classList.add("ascuns");
-    if (!rezultat) return;
-    if (gameOver) await window.CastleQuiz3D?.gameOver?.();
-    else await window.CastleQuiz3D?.victory?.();
-    const bonus = victorie ? quizVieti * 200 + 300 : 0;
-    const totalScore = quizScor + bonus;
-    quizScor = totalScore;
-    actualizeazaHudQuiz();
-    rezultat.innerHTML = `<div class="quiz-result-card quiz-result-pop castle-result ${gameOver ? "game-over" : "victory"}">
-        <div class="quiz-result-medal">${gameOver ? "💀" : "🏆"}</div>
-        <p>${gameOver ? "GAME OVER" : "CASTEL CUCERIT!"}</p>
-        <h3>${escapeQuizHtml(quizActiv.title)}</h3>
-        <div class="quiz-result-score">${totalScore} <small>puncte</small></div>
-        <div class="castle-result-stats"><span>✅ ${quizCorecte} / ${total} corecte</span><span>❤️ ${quizVieti} vieți rămase</span>${victorie ? `<span>🎁 +${bonus} bonus final</span>` : ""}</div>
-        <p>${gameOver ? "Monștrii castelului te-au oprit. Încearcă din nou și vezi dacă poți ajunge mai departe!" : "Ai trecut de toți monștrii și ai învins boss-ul final!"}</p>
-        <div class="quiz-result-actions"><button type="button" id="quizRetryButton">↻ Încearcă din nou</button><button type="button" id="quizBackButton" class="secondary">← Ieși din castel</button></div>
-    </div>`;
-    rezultat.classList.remove("ascuns");
-    document.getElementById("quizRetryButton")?.addEventListener("click", () => pornesteQuizCuDate(quizActiv, quizEstePreview));
-    document.getElementById("quizBackButton")?.addEventListener("click", inchideQuizPlayer);
-}
-
-function inchideQuizPlayer() {
-    opresteTimerQuiz();
-    window.CastleQuiz3D?.dispose?.();
-    quizActiv = null;
-    document.getElementById("quizPlayer")?.classList.add("ascuns");
-    document.getElementById("quizInteractiveLista")?.classList.remove("ascuns");
-    document.getElementById("quizQuestionStage")?.classList.remove("ascuns");
-    document.getElementById("quizRezultat")?.classList.add("ascuns");
-}
-
-function initializeazaQuizPlayer() {
-    document.getElementById("quizCloseButton")?.addEventListener("click", inchideQuizPlayer);
-    document.getElementById("castleSkipAnimation")?.addEventListener("click", () => CastleQuiz3D?.skip?.());
-}
+let quizuriPublice=[];let quizActiv=null;let quizIndexIntrebare=0;let quizScor=0;let quizVieti=3;let quizCorecte=0;let quizTimerId=null;let quizTimpRamas=0;let quizRaspunsBlocat=false;let quizEstePreview=false;let quizSoundEnabled=true;let hangmanState=null;
+const QUIZ_MONSTERS={goblin:{name:"Goblinul",icon:"👹"},bat:{name:"Liliacul uriaș",icon:"🦇"},skeleton:{name:"Scheletul",icon:"💀"},spider:{name:"Păianjenul uriaș",icon:"🕷️"},knight:{name:"Cavalerul blestemat",icon:"🛡️"},ghost:{name:"Fantoma",icon:"👻"},golem:{name:"Golemul",icon:"🪨"},wizard:{name:"Vrăjitorul întunecat",icon:"🧙"},demon:{name:"Demonul castelului",icon:"😈"},dragon:{name:"Dragonul",icon:"🐉"}};
+const QUIZ_MODES={castle_choice:{label:"Alege răspunsul",icon:"🎯",type:"multiple_choice"},castle_true_false:{label:"Adevărat / Fals",icon:"✅",type:"true_false"},castle_hangman:{label:"Spânzurătoarea",icon:"🪢",type:"hangman"},castle_ordering:{label:"Pune în ordine",icon:"🔀",type:"ordering"},castle_adventure:{label:"Alege răspunsul",icon:"🎯",type:"multiple_choice"}};
+function escapeQuizHtml(v){return String(v??"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;");}
+function stripDiacritics(s){return String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toUpperCase();}
+function shuffle(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function modeMeta(q=quizActiv){return QUIZ_MODES[q?.game_mode]||QUIZ_MODES.castle_choice;}
+function normalizeazaIntrebariQuiz(raw,gameMode){if(!Array.isArray(raw))return[];const forced=QUIZ_MODES[gameMode]?.type;return raw.map((item,index)=>{const type=forced||item?.type||"multiple_choice";const base={type,text:String(item?.text||"").trim(),explanation:String(item?.explanation||"").trim(),monster:String(item?.monster||"goblin"),correctMessage:String(item?.correctMessage||"Corect! Poți trece mai departe.").trim(),wrongMessage:String(item?.wrongMessage||"De data aceasta te iert. Te las să treci mai departe.").trim(),boss:Boolean(item?.boss)};if(type==="multiple_choice"||type==="true_false"){base.answers=Array.isArray(item?.answers)?item.answers.map(a=>String(a||"").trim()).filter(Boolean):[];if(type==="true_false"&&base.answers.length<2)base.answers=["Adevărat","Fals"];base.correctIndex=Number(item?.correctIndex);}else if(type==="hangman")base.target=String(item?.target||item?.answer||"").trim();else if(type==="ordering")base.items=Array.isArray(item?.items)?item.items.map(x=>String(x||"").trim()).filter(Boolean):(Array.isArray(item?.answers)?item.answers.map(x=>String(x||"").trim()).filter(Boolean):[]);return base;}).filter(q=>{if(!q.text)return false;if(q.type==="hangman")return q.target.length>=2;if(q.type==="ordering")return q.items.length>=2;return q.answers?.length>=2&&Number.isInteger(q.correctIndex)&&q.correctIndex>=0&&q.correctIndex<q.answers.length;});}
+function normalizeazaQuiz(q){const game_mode=QUIZ_MODES[q?.game_mode]?q.game_mode:(q?.game_mode==="castle_adventure"?"castle_choice":"castle_choice");const questions=normalizeazaIntrebariQuiz(q?.questions,game_mode);if(questions.length)questions[questions.length-1].boss=true;return{...q,game_mode,difficulty:q?.difficulty||"medium",lives:3,questions};}
+async function incarcaQuizuri(){const lista=document.getElementById("quizInteractiveLista");if(!lista)return;lista.innerHTML='<p class="quiz-empty">Se încarcă quiz-urile...</p>';try{const{data,error}=await supabaseClient.from("quizzes").select("id,title,description,grade,seconds_per_question,questions,published,created_at,game_mode,difficulty,lives").eq("published",true).order("created_at",{ascending:false});if(error)throw error;quizuriPublice=(data||[]).map(normalizeazaQuiz).filter(q=>q.questions.length);randareListaQuizuri();}catch(e){console.error(e);lista.innerHTML='<p class="quiz-empty quiz-error">Quiz-urile nu au putut fi încărcate.</p>';}}
+function randareListaQuizuri(){const lista=document.getElementById("quizInteractiveLista");if(!lista)return;if(!quizuriPublice.length){lista.innerHTML='<div class="quiz-empty-state"><span>🏰</span><h3>Castelul așteaptă primul quiz</h3><p>Administratorul nu a publicat încă un quiz.</p></div>';return;}const diff={easy:"Ușor",medium:"Mediu",hard:"Greu"};lista.innerHTML=quizuriPublice.map((q,i)=>{const m=modeMeta(q),grade=q.grade==="general"?"General":`Clasa a ${q.grade}-a`;return`<article class="interactive-quiz-card castle-quiz-card" style="--quiz-delay:${Math.min(i*70,420)}ms"><div class="interactive-quiz-icon">${m.icon}</div><div class="interactive-quiz-copy"><div class="interactive-quiz-meta"><span>${escapeQuizHtml(grade)}</span><span>${m.label}</span><span>${q.questions.length} provocări</span><span>❤️ 3 vieți</span><span>${diff[q.difficulty]||"Mediu"}</span></div><h3>${escapeQuizHtml(q.title)}</h3><p>${escapeQuizHtml(q.description||"Traversează castelul și treci de toate provocările.")}</p></div><button type="button" class="quiz-start-btn" data-quiz-id="${escapeQuizHtml(q.id)}">🎬 Începe aventura</button></article>`}).join("");lista.querySelectorAll("[data-quiz-id]").forEach(b=>b.addEventListener("click",()=>pornesteQuiz(b.dataset.quizId)));}
+function pornesteQuiz(id){const q=quizuriPublice.find(x=>String(x.id)===String(id));if(q)pornesteQuizCuDate(q,false);}
+async function pornesteQuizCuDate(raw,preview=false){const q=normalizeazaQuiz(raw);if(!q.questions.length)return;opresteTimerQuiz();CastleQuizAudio?.ensure?.();CastleQuizAudio?.ambience?.(quizSoundEnabled);quizActiv=q;quizEstePreview=preview;quizIndexIntrebare=0;quizScor=0;quizVieti=3;quizCorecte=0;quizRaspunsBlocat=true;hangmanState=null;document.getElementById("quizInteractiveLista")?.classList.add("ascuns");document.getElementById("quizPlayer")?.classList.remove("ascuns");document.getElementById("quizRezultat")?.classList.add("ascuns");document.getElementById("quizQuestionStage")?.classList.remove("ascuns");const title=document.getElementById("quizPlayerTitle");if(title)title.textContent=preview?`PREVIEW · ${q.title}`:q.title;const label=document.getElementById("quizModeLabel");if(label)label.textContent=`${modeMeta(q).icon} ${modeMeta(q).label}`;actualizeazaHudQuiz();const canvas=document.getElementById("castleCanvas");if(window.CastleQuiz3D&&canvas)await CastleQuiz3D.init(canvas);await afiseazaDialogCastel("🏰",`Aventura începe. Ai 3 vieți. Modul: ${modeMeta(q).label}.`,1700);await randareIntrebareQuiz();}
+function actualizeazaHudQuiz(){const lives=document.getElementById("quizLives");if(lives){lives.textContent=`${"❤️ ".repeat(Math.max(0,quizVieti))}${"🖤 ".repeat(Math.max(0,3-quizVieti))}`.trim();lives.setAttribute("aria-label",`${quizVieti} vieți rămase`);}const score=document.getElementById("quizLiveScore");if(score)score.textContent=`Scor: ${quizScor}`;if(quizActiv){const counter=document.getElementById("quizCounter");if(counter)counter.textContent=`Provocarea ${Math.min(quizIndexIntrebare+1,quizActiv.questions.length)} / ${quizActiv.questions.length}`;const bar=document.getElementById("quizProgressBar");if(bar)bar.style.width=`${(quizIndexIntrebare/quizActiv.questions.length)*100}%`;}}
+async function afiseazaDialogCastel(icon,text,duration=0){const box=document.getElementById("castleDialogue");if(!box)return;box.innerHTML=`<span class="castle-dialogue-icon">${escapeQuizHtml(icon)}</span><p>${escapeQuizHtml(text)}</p>`;box.classList.remove("ascuns");if(duration>0){await new Promise(r=>setTimeout(r,duration));box.classList.add("ascuns");}}
+async function randareIntrebareQuiz(){if(!quizActiv||quizVieti<=0)return;const q=quizActiv.questions[quizIndexIntrebare];if(!q)return finalizeazaQuiz(true);quizRaspunsBlocat=true;actualizeazaHudQuiz();const stage=document.getElementById("quizQuestionStage"),info=QUIZ_MONSTERS[q.monster]||QUIZ_MONSTERS.goblin,boss=quizIndexIntrebare===quizActiv.questions.length-1||q.boss,room=window.CastleQuiz3D?.getRoomName?.(quizIndexIntrebare,boss)||(boss?"Sala Dragonului":"Castel");if(stage)stage.innerHTML=`<div class="castle-transition-card cinematic-travel"><strong>🎬 ${escapeQuizHtml(room)}</strong><span>Personajul traversează castelul spre următoarea confruntare...</span><div class="cinematic-dots"><i></i><i></i><i></i></div></div>`;const skip=document.getElementById("castleSkipAnimation");skip?.classList.remove("ascuns");if(window.CastleQuiz3D)await CastleQuiz3D.encounter(boss?"dragon":q.monster,boss,quizIndexIntrebare);skip?.classList.add("ascuns");CastleQuizAudio?.monster?.(boss);await afiseazaDialogCastel(boss?"🐉":info.icon,boss?"Ai ajuns la boss-ul final! Treci de ultima provocare ca să cucerești castelul.":`${info.name}: „Dovedește că meriți să treci!”`,1500);randareProvocare(q,boss,info);quizRaspunsBlocat=false;pornesteTimerQuiz(Number(quizActiv.seconds_per_question)||30);}
+function shellCard(q,boss,info,body){const meta=modeMeta();return`<div class="quiz-question-card castle-question-card quiz-enter"><div class="castle-monster-title"><span>${boss?"🐉":info.icon}</span><div><small>${boss?"BOSS FINAL":escapeQuizHtml(info.name)}</small><strong>${meta.icon} ${meta.label}</strong></div></div><h3>${escapeQuizHtml(q.text)}</h3>${body}<div id="quizFeedback" class="quiz-feedback" aria-live="polite"></div></div>`;}
+function randareProvocare(q,boss,info){const stage=document.getElementById("quizQuestionStage");if(!stage)return;if(q.type==="multiple_choice"||q.type==="true_false"){const letters=["A","B","C","D"];stage.innerHTML=shellCard(q,boss,info,`<div class="quiz-answer-grid">${q.answers.map((a,i)=>`<button type="button" class="quiz-answer-btn" data-answer-index="${i}"><span>${q.type==="true_false"?(i===0?"✓":"✕"):letters[i]}</span><strong>${escapeQuizHtml(a)}</strong></button>`).join("")}</div>`);stage.querySelectorAll("[data-answer-index]").forEach(b=>b.addEventListener("click",()=>raspundeQuiz(Number(b.dataset.answerIndex))));}
+else if(q.type==="hangman"){hangmanState={guessed:new Set(),target:q.target};renderHangman(q,boss,info);}
+else renderOrdering(q,boss,info);}
+function hangmanMask(target,guessed){return [...target].map(ch=>{if(/[\s\-–—']/u.test(ch))return ch;return guessed.has(stripDiacritics(ch))?ch:"_";}).join(" ");}
+function hangmanSolved(target,guessed){return [...target].every(ch=>/[\s\-–—']/u.test(ch)||guessed.has(stripDiacritics(ch)));}
+function renderHangman(q,boss,info){const stage=document.getElementById("quizQuestionStage");if(!stage||!hangmanState)return;const alphabet="AĂÂBCDEFGHIÎJKLMNOPQRSȘTȚUVWXYZ";const mask=hangmanMask(q.target,hangmanState.guessed);stage.innerHTML=shellCard(q,boss,info,`<div class="hangman-word" aria-label="Cuvânt de ghicit">${escapeQuizHtml(mask)}</div><div class="hangman-keyboard">${[...alphabet].map(l=>`<button type="button" data-letter="${l}" ${hangmanState.guessed.has(stripDiacritics(l))?"disabled":""}>${l}</button>`).join("")}</div><p class="hangman-note">O literă greșită costă o viață.</p>`);stage.querySelectorAll("[data-letter]").forEach(b=>b.addEventListener("click",()=>ghicesteLitera(b.dataset.letter,q,boss,info)));}
+async function ghicesteLitera(letter,q,boss,info){if(quizRaspunsBlocat)return;CastleQuizAudio?.click?.();const key=stripDiacritics(letter);hangmanState.guessed.add(key);const targetNorm=stripDiacritics(q.target);if(targetNorm.includes(key)){if(hangmanSolved(q.target,hangmanState.guessed)){quizRaspunsBlocat=true;opresteTimerQuiz();quizScor+=100;quizCorecte++;actualizeazaHudQuiz();CastleQuizAudio?.correct?.();await CastleQuiz3D?.correct?.();renderHangman(q,boss,info);return afiseazaFeedbackAventura(true,q,false);}renderHangman(q,boss,info);}else{quizRaspunsBlocat=true;quizVieti--;actualizeazaHudQuiz();CastleQuizAudio?.wrong?.();document.getElementById("quizLives")?.classList.add("castle-life-hit");setTimeout(()=>document.getElementById("quizLives")?.classList.remove("castle-life-hit"),600);await CastleQuiz3D?.wrong?.();if(quizVieti<=0)return finalizeazaQuiz(false,true);await afiseazaDialogCastel(info.icon,q.wrongMessage||"Ai pierdut o viață, dar poți continua să ghicești.",900);renderHangman(q,boss,info);quizRaspunsBlocat=false;}}
+function renderOrdering(q,boss,info){const stage=document.getElementById("quizQuestionStage");if(!stage)return;const shuffled=shuffle(q.items).map((text,i)=>({id:`${i}-${Math.random()}`,text}));stage.innerHTML=shellCard(q,boss,info,`<div class="ordering-game"><div id="orderingPool" class="ordering-pool">${shuffled.map(x=>`<button type="button" class="ordering-chip" data-order-id="${escapeQuizHtml(x.id)}" data-text="${escapeQuizHtml(x.text)}">${escapeQuizHtml(x.text)}</button>`).join("")}</div><div id="orderingAnswer" class="ordering-answer" aria-label="Ordinea aleasă"><span>Atinge cuvintele în ordinea corectă</span></div><div class="ordering-actions"><button type="button" id="orderingReset" class="secondary">↺ Resetează</button><button type="button" id="orderingSubmit">✓ Verifică ordinea</button></div></div>`);const pool=stage.querySelector("#orderingPool"),answer=stage.querySelector("#orderingAnswer");function move(btn,to){if(to===answer&&answer.querySelector("span"))answer.innerHTML="";to.appendChild(btn);}stage.querySelectorAll(".ordering-chip").forEach(b=>b.addEventListener("click",()=>{CastleQuizAudio?.click?.();move(b,b.parentElement===pool?answer:pool);}));stage.querySelector("#orderingReset")?.addEventListener("click",()=>{[...answer.querySelectorAll(".ordering-chip")].forEach(b=>pool.appendChild(b));answer.innerHTML='<span>Atinge cuvintele în ordinea corectă</span>';});stage.querySelector("#orderingSubmit")?.addEventListener("click",()=>verificaOrdine(q));}
+async function verificaOrdine(q){if(quizRaspunsBlocat)return;const chosen=[...document.querySelectorAll("#orderingAnswer .ordering-chip")].map(b=>b.dataset.text);if(chosen.length!==q.items.length){const f=document.getElementById("quizFeedback");if(f)f.innerHTML='<div class="quiz-feedback-box gresit"><strong>Așază toate elementele înainte să verifici.</strong></div>';return;}const ok=chosen.every((x,i)=>x===q.items[i]);await raspundeRezultatGeneric(ok,q,false);}
+function pornesteTimerQuiz(seconds){opresteTimerQuiz();quizTimpRamas=Math.max(10,Math.min(120,Number(seconds)||30));actualizeazaTimerQuiz();quizTimerId=setInterval(()=>{quizTimpRamas--;actualizeazaTimerQuiz();if(quizTimpRamas<=5&&quizTimpRamas>0)CastleQuizAudio?.tick?.();if(quizTimpRamas<=0){opresteTimerQuiz();expiraProvocare();}},1000);}
+function actualizeazaTimerQuiz(){const t=document.getElementById("quizTimer");if(!t)return;t.textContent=`${quizTimpRamas}s`;t.classList.toggle("quiz-timer-warning",quizTimpRamas<=5);}
+function opresteTimerQuiz(){if(quizTimerId)clearInterval(quizTimerId);quizTimerId=null;}
+async function expiraProvocare(){if(quizRaspunsBlocat||!quizActiv)return;const q=quizActiv.questions[quizIndexIntrebare];quizRaspunsBlocat=true;if(q.type==="hangman")return raspundeRezultatGeneric(false,q,true,true);if(q.type==="ordering")return raspundeRezultatGeneric(false,q,true);return raspundeQuiz(-1,true);}
+async function raspundeQuiz(index,expirat=false){if(quizRaspunsBlocat||!quizActiv)return;quizRaspunsBlocat=true;opresteTimerQuiz();const q=quizActiv.questions[quizIndexIntrebare],ok=index===q.correctIndex;document.querySelectorAll("#quizQuestionStage .quiz-answer-btn").forEach((b,i)=>{b.disabled=true;if(i===q.correctIndex)b.classList.add("corect");if(i===index&&!ok)b.classList.add("gresit");});await raspundeRezultatGeneric(ok,q,expirat);}
+async function raspundeRezultatGeneric(ok,q,expirat=false,hangmanTimeout=false){quizRaspunsBlocat=true;opresteTimerQuiz();if(ok){quizScor+=100;quizCorecte++;actualizeazaHudQuiz();CastleQuizAudio?.correct?.();await CastleQuiz3D?.correct?.();return afiseazaFeedbackAventura(true,q,expirat);}quizVieti--;actualizeazaHudQuiz();CastleQuizAudio?.wrong?.();document.getElementById("quizLives")?.classList.add("castle-life-hit");setTimeout(()=>document.getElementById("quizLives")?.classList.remove("castle-life-hit"),600);await CastleQuiz3D?.wrong?.();if(quizVieti<=0){await afiseazaDialogCastel("💀","Ai rămas fără vieți. Aventura se încheie aici.",1000);return finalizeazaQuiz(false,true);}await afiseazaDialogCastel("👹",q.wrongMessage||"De data aceasta te iert. Te las să treci mai departe.",1200);return afiseazaFeedbackAventura(false,q,expirat);}
+async function quizExpectedAnswer(q){if(q.type==="ordering")return q.items.join(" → ");if(q.type==="hangman")return q.target;if((q.type==="multiple_choice"||q.type==="true_false")&&q.answers?.length)return q.answers[q.correctIndex]||"";return "";}
+async function explicaQuizCuAI(q){const box=document.getElementById("quizAiExplanation");const btn=document.getElementById("quizAiExplainButton");if(!box)return;const{data}=await supabaseClient.auth.getSession();if(!data?.session){box.className="quiz-ai-explanation";box.textContent="Conectează-te pentru a folosi explicațiile AI.";afiseazaLogin();return;}if(btn)btn.disabled=true;box.className="quiz-ai-explanation loading";box.textContent="Profesorul AI pregătește explicația...";try{const prompt=`Am greșit această provocare dintr-un quiz de limba și literatura română. Cerință: ${q.text}. Răspunsul corect este: ${quizExpectedAnswer(q)}. Explicația profesorului din quiz este: ${q.explanation||"nu există"}. Explică-mi pe înțelesul meu de ce acesta este răspunsul corect și dă-mi o regulă scurtă de ținut minte. Nu îmi pune o altă întrebare.`;const{data:result,error}=await supabaseClient.functions.invoke("ai-assistant",{body:{messages:[{role:"user",content:prompt}]}});if(error)throw error;box.className="quiz-ai-explanation";box.textContent=result?.answer||"Nu am primit explicația.";}catch(error){console.error(error);box.className="quiz-ai-explanation";box.textContent="Explicația AI nu este disponibilă momentan.";}finally{if(btn)btn.disabled=false;}}
+function afiseazaFeedbackAventura(ok,q,expirat){const f=document.getElementById("quizFeedback");if(!f)return;let answerHint="";if(!ok&&q.type==="ordering")answerHint=`<p><b>Ordinea corectă:</b> ${escapeQuizHtml(q.items.join(" → "))}</p>`;if(!ok&&q.type==="hangman")answerHint=`<p><b>Răspuns:</b> ${escapeQuizHtml(q.target)}</p>`;if(!ok&&(q.type==="multiple_choice"||q.type==="true_false"))answerHint=`<p><b>Răspuns corect:</b> ${escapeQuizHtml(quizExpectedAnswer(q))}</p>`;const title=ok?(q.correctMessage||"Corect! Poți trece."):(expirat?"Timpul a expirat — pierzi o viață.":"Greșit — pierzi o viață.");f.innerHTML=`<div class="quiz-feedback-box ${ok?"corect":"gresit"}"><strong>${escapeQuizHtml(title)}</strong>${answerHint}${q.explanation?`<p>${escapeQuizHtml(q.explanation)}</p>`:""}${!ok?`<button type="button" id="quizAiExplainButton" class="quiz-ai-explain">💡 Explică-mi cu AI</button><div id="quizAiExplanation" class="quiz-ai-explanation ascuns"></div>`:""}<button type="button" id="quizNextButton">${quizIndexIntrebare+1<quizActiv.questions.length?"🚪 Continuă filmul":"🏆 Vezi finalul"}</button></div>`;document.getElementById("quizAiExplainButton")?.addEventListener("click",()=>{document.getElementById("quizAiExplanation")?.classList.remove("ascuns");explicaQuizCuAI(q);});document.getElementById("quizNextButton")?.addEventListener("click",urmatoareaIntrebareQuiz);}
+async function urmatoareaIntrebareQuiz(){quizRaspunsBlocat=true;CastleQuizAudio?.door?.();if(window.CastleQuiz3D)await CastleQuiz3D.nextRoom();quizIndexIntrebare++;hangmanState=null;if(quizIndexIntrebare>=quizActiv.questions.length)finalizeazaQuiz(true);else randareIntrebareQuiz();}
+async function finalizeazaQuiz(victorie=true,gameOver=false){opresteTimerQuiz();if(!quizActiv)return;quizRaspunsBlocat=true;CastleQuizAudio?.ambience?.(false);gameOver?CastleQuizAudio?.gameOver?.():CastleQuizAudio?.victory?.();const total=quizActiv.questions.length,stage=document.getElementById("quizQuestionStage"),rez=document.getElementById("quizRezultat"),bar=document.getElementById("quizProgressBar");if(victorie&&bar)bar.style.width="100%";stage?.classList.add("ascuns");if(!rez)return;if(gameOver)await CastleQuiz3D?.gameOver?.();else await CastleQuiz3D?.victory?.();const bonus=victorie?quizVieti*200+300:0,totalScore=quizScor+bonus;quizScor=totalScore;actualizeazaHudQuiz();rez.innerHTML=`<div class="quiz-result-card quiz-result-pop castle-result ${gameOver?"game-over":"victory"}"><div class="quiz-result-medal">${gameOver?"💀":"🏆"}</div><p>${gameOver?"GAME OVER":"CASTEL CUCERIT!"}</p><h3>${escapeQuizHtml(quizActiv.title)}</h3><div class="quiz-result-score">${totalScore} <small>puncte</small></div><div class="castle-result-stats"><span>✅ ${quizCorecte} / ${total} provocări câștigate</span><span>❤️ ${quizVieti} vieți rămase</span>${victorie?`<span>🎁 +${bonus} bonus final</span>`:""}</div><div class="quiz-result-actions"><button type="button" id="quizRetryButton">↻ Încearcă din nou</button><button type="button" id="quizBackButton" class="secondary">← Ieși din castel</button></div></div>`;rez.classList.remove("ascuns");document.getElementById("quizRetryButton")?.addEventListener("click",()=>pornesteQuizCuDate(quizActiv,quizEstePreview));document.getElementById("quizBackButton")?.addEventListener("click",inchideQuizPlayer);}
+function inchideQuizPlayer(){opresteTimerQuiz();CastleQuizAudio?.dispose?.();CastleQuiz3D?.dispose?.();quizActiv=null;document.getElementById("quizPlayer")?.classList.add("ascuns");document.getElementById("quizInteractiveLista")?.classList.remove("ascuns");document.getElementById("quizQuestionStage")?.classList.remove("ascuns");document.getElementById("quizRezultat")?.classList.add("ascuns");}
+function initializeazaQuizPlayer(){document.getElementById("quizCloseButton")?.addEventListener("click",inchideQuizPlayer);document.getElementById("castleSkipAnimation")?.addEventListener("click",()=>CastleQuiz3D?.skip?.());document.getElementById("quizSoundToggle")?.addEventListener("click",e=>{quizSoundEnabled=!quizSoundEnabled;CastleQuizAudio?.setEnabled?.(quizSoundEnabled);CastleQuizAudio?.ambience?.(quizSoundEnabled&&Boolean(quizActiv));e.currentTarget.textContent=quizSoundEnabled?"🔊 Sunet":"🔇 Sunet";e.currentTarget.setAttribute("aria-pressed",String(quizSoundEnabled));});}

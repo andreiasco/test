@@ -14,6 +14,7 @@ site.innerHTML = [
     LOGIN_MODAL_HTML,
     PDF_MODAL_HTML,
     AUTHOR_MODAL_HTML,
+    AI_ASSISTANT_HTML,
     FOOTER_HTML,
 ].join("");
 

@@ -339,6 +339,7 @@ function actualizeazaStareAutentificare(user) {
     status.textContent = "Signed in: " + (user.email || "utilizator");
     status.classList.add("signed-in");
     logoutButton.classList.remove("ascuns");
+    if (typeof setAiAccess === "function") setAiAccess(true);
 
 }
 
@@ -354,6 +355,7 @@ function actualizeazaStareDelogata() {
     status.textContent = "Signed out";
     status.classList.remove("signed-in");
     logoutButton.classList.add("ascuns");
+    if (typeof setAiAccess === "function") setAiAccess(false);
 
 }
 

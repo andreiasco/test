@@ -57,6 +57,7 @@ afiseazaPagina();
 incarcaAutori();
 incarcaMaterialeLimba();
 if (typeof initializeazaQuizPlayer === "function") initializeazaQuizPlayer();
+if (typeof initializeazaAiAssistant === "function") initializeazaAiAssistant();
 if (typeof incarcaQuizuri === "function") incarcaQuizuri();
 
 verificaSesiunea();

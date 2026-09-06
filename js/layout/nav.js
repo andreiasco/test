@@ -32,6 +32,10 @@ const NAV_HTML = `
                 🔐 Logare / Register
             </button>
 
+            <button id="aiAssistantButton" class="ascuns" type="button">
+                🤖 Profesor AI
+            </button>
+
             <button id="logoutButton" class="ascuns" onclick="logoutUtilizator()">
                 🚪 Deconectare
             </button>

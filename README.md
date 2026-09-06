@@ -152,3 +152,92 @@ Motorul `js/site/castle-3d.js` a fost extins cu camere procedurale distincte pen
 - Sala Dragonului – cameră specială pentru boss-ul final, cu podium, tron, coloane, braziere și iluminare proprie.
 
 Camerele sunt selectate automat după numărul întrebării. Ultima întrebare folosește întotdeauna Sala Dragonului. Logica de quiz și editorul Admin rămân compatibile cu versiunea anterioară.
+
+## Etapa 4 – animație cinematică extinsă
+- efecte de particule pentru răspuns corect/greșit;
+- inele magice și impulsuri de lumină;
+- intrare specială pentru boss-ul Dragon;
+- tranziții de cameră mai dramatice și efect de viteză între camere;
+- efecte distincte pentru victorie și Game Over;
+- respectă `prefers-reduced-motion`.
+
+
+## Etapa 5 – quiz cinematic multi-mod
+
+- Deplasarea prin castel este mai lungă și are mai multe cadre de cameră.
+- `js/site/quiz-audio.js` generează procedural pași, uși, atmosferă, răspuns corect/greșit, boss, victorie și game over prin Web Audio API.
+- Administratorul poate crea patru tipuri de quiz: `castle_choice`, `castle_true_false`, `castle_hangman`, `castle_ordering`.
+- Spânzurătoarea pierde o viață la fiecare literă greșită; 0 vieți încheie jocul.
+- Ordonarea folosește elemente selectabile prin tap/click și verifică ordinea exactă.
+- Toate modurile folosesc aventura 3D, 3 vieți și boss final.
+
+## Etapa 6 – personaje GLB + animații cinematice
+
+Quiz-ul Castel folosește acum modele 3D locale `.glb` pentru erou și toate tipurile de monștri. Fișierele sunt în `assets/quiz3d/`, iar configurarea lor este în `js/site/castle-assets.js`.
+
+Modele incluse: erou, goblin, liliac, schelet, păianjen, cavaler, fantomă, golem, vrăjitor, demon și dragon. Modelele sunt construite din piese separate, astfel încât motorul poate anima brațe, picioare, aripi, maxilar și alte componente.
+
+`js/site/castle-3d.js` încarcă modelele prin GLTFLoader. Dacă un model nu se poate încărca, quiz-ul revine automat la modelul procedural, fără să blocheze întrebarea.
+
+Au fost adăugate intrări cinematice diferite: fantoma apare de jos și se rotește, liliacul coboară în zbor, păianjenul coboară de sus, vrăjitorul apare printr-un efect de portal, iar dragonul are o secvență specială pentru boss.
+
+Modelele din `assets/quiz3d/` au fost generate special pentru acest proiect și nu necesită descărcări externe de asset-uri 3D.
+
+## Etapa 7 – AI pentru utilizatori autentificați și administrator
+
+Versiunea include două integrări AI separate:
+
+1. **Profesor AI pentru utilizatori autentificați**
+   - butonul `🤖 Profesor AI` apare în meniul Cont numai după autentificare;
+   - poate explica noțiuni de limba și literatura română și poate propune exerciții;
+   - în quiz, după un răspuns greșit apare `💡 Explică-mi cu AI`;
+   - utilizatorii obișnuiți au implicit maximum 30 de cereri AI/zi; administratorul 80/zi.
+
+2. **Generator AI pentru administrator**
+   - în Creatorul de quiz apare `✨ Generează cu AI`;
+   - administratorul alege tipul quiz-ului, clasa, dificultatea, tema și numărul de provocări;
+   - sunt suportate toate cele patru moduri: alegere multiplă, adevărat/fals, spânzurătoarea și ordonarea;
+   - AI-ul completează editorul, dar NU salvează și NU publică automat. Administratorul verifică rezultatul și apasă manual Salvează.
+
+### Configurare Supabase + OpenAI
+
+1. Rulează `supabase/ai.sql` în **Supabase > SQL Editor**.
+2. În **Supabase > Edge Functions > Secrets** adaugă:
+   - `OPENAI_API_KEY` = cheia ta OpenAI;
+   - opțional `OPENAI_MODEL` = modelul dorit. Dacă lipsește, funcțiile folosesc `gpt-5-mini`.
+3. Publică cele două Edge Functions:
+   - `supabase/functions/ai-assistant/index.ts`
+   - `supabase/functions/ai-generate-quiz/index.ts`
+4. Funcțiile validează explicit sesiunea Supabase în backend. Dacă folosești CLI și gateway-ul proiectului nu acceptă tokenul utilizatorului, le poți publica cu `--no-verify-jwt`; verificarea utilizatorului rămâne făcută în cod prin `admin.auth.getUser(token)`.
+5. Nu introduce niciodată `OPENAI_API_KEY` în `index.html`, `admin.html`, `config.js` sau alte fișiere livrate browserului.
+
+Exemplu CLI:
+
+```bash
+supabase functions deploy ai-assistant --no-verify-jwt
+supabase functions deploy ai-generate-quiz --no-verify-jwt
+supabase secrets set OPENAI_API_KEY=CHEIA_TA
+```
+
+### Fișiere AI adăugate
+
+- `js/layout/ai-assistant.js` – interfața Profesorului AI;
+- `js/site/ai-assistant.js` – logica browserului;
+- `supabase/functions/_shared/ai-common.ts` – autentificare, limite și apel OpenAI;
+- `supabase/functions/ai-assistant/index.ts` – profesorul AI;
+- `supabase/functions/ai-generate-quiz/index.ts` – generatorul de quiz;
+- `supabase/ai.sql` – tabel privat pentru limitarea utilizării.
+
+Cheia OpenAI rămâne exclusiv în secretele Edge Functions. Tabelul `ai_usage` are RLS activ și nu are politici pentru browser; este accesat doar de backend cu service role.
+
+## Panou administrator separat pe obiecte
+
+Panoul de administrator este împărțit acum în secțiuni independente, accesibile din meniul intern:
+
+- **Autori** – adăugare și administrare autori;
+- **Opere** – adăugare și administrare opere și resurse asociate;
+- **Limba română** – capitole și materiale;
+- **PDF-uri** – fișierele PDF din storage;
+- **Quiz-uri** – creatorul de quiz, generatorul AI și lista quiz-urilor existente.
+
+Navigarea este gestionată de `js/admin/panel-navigation.js`. Ultima secțiune deschisă este păstrată pe durata sesiunii browserului.
