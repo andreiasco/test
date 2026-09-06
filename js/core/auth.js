@@ -46,6 +46,19 @@ function inchideLogin() {
 // LOGIN ȘI REGISTER
 // ======================================================
 
+const LUNGIME_MINIMA_PAROLA = 12;
+
+function normalizeazaEmail(email) {
+    return email.trim().toLowerCase();
+}
+
+function parolaEstePuternica(password) {
+    return password.length >= LUNGIME_MINIMA_PAROLA &&
+        /[a-z]/.test(password) &&
+        /[A-Z]/.test(password) &&
+        /\d/.test(password);
+}
+
 function schimbaAuthForm(formular) {
 
     const esteRegister = formular === "register";
@@ -60,13 +73,15 @@ function schimbaAuthForm(formular) {
 
 async function loginUtilizator() {
 
-    const email =
+    let email =
         document
             .getElementById(
                 "loginEmail"
             )
             .value
             .trim();
+
+    email = normalizeazaEmail(email);
 
 
     const password =
@@ -164,7 +179,7 @@ async function loginUtilizator() {
 
 async function inregistreazaUtilizator() {
 
-    const email = document.getElementById("registerEmail").value.trim();
+    const email = normalizeazaEmail(document.getElementById("registerEmail").value);
     const password = document.getElementById("registerPassword").value;
     const role = document.getElementById("registerRole").value;
     const mesaj = document.getElementById("loginMesaj");
@@ -175,8 +190,8 @@ async function inregistreazaUtilizator() {
         return;
     }
 
-    if (password.length < 6) {
-        mesaj.textContent = "Parola trebuie să aibă minimum 6 caractere.";
+    if (!parolaEstePuternica(password)) {
+        mesaj.textContent = "Parola trebuie să aibă minimum 12 caractere, o literă mare, o literă mică și o cifră.";
         mesaj.style.color = "#c62828";
         return;
     }
@@ -208,7 +223,7 @@ async function inregistreazaUtilizator() {
         }
     } catch (error) {
         console.error("Register error:", error);
-        mesaj.textContent = "Nu am putut crea contul: " + error.message;
+        mesaj.textContent = "Nu am putut crea contul. Verifică datele și încearcă din nou.";
         mesaj.style.color = "#c62828";
     }
 }
@@ -224,13 +239,15 @@ function loginAdmin() {
 
 async function reseteazaParola() {
 
-    const email =
+    let email =
         document
             .getElementById(
                 "loginEmail"
             )
             .value
             .trim();
+
+    email = normalizeazaEmail(email);
 
 
     const mesaj =
@@ -297,8 +314,7 @@ async function reseteazaParola() {
         );
 
         mesaj.textContent =
-            "Nu am putut trimite emailul: " +
-            error.message;
+            "Dacă adresa este validă, vei primi instrucțiunile de resetare pe email.";
 
         mesaj.style.color =
             "#c62828";
@@ -484,7 +500,7 @@ async function utilizatorAutentificat() {
         error
     } =
         await supabaseClient.auth
-            .getSession();
+            .getUser();
 
 
     if (error) {
@@ -500,7 +516,7 @@ async function utilizatorAutentificat() {
 
     if (
         !data ||
-        !data.session
+        !data.user
     ) {
 
         return null;
@@ -508,7 +524,7 @@ async function utilizatorAutentificat() {
     }
 
 
-    const user = data.session.user;
+    const user = data.user;
     const role = await obtineRolUtilizator(user);
 
     if (role !== "admin") {
