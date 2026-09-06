@@ -1,0 +1,177 @@
+/* ======================================================
+   ADMIN
+====================================================== */
+
+.admin-panel {
+    max-width: 1100px;
+
+    margin: 40px auto;
+
+    padding: 25px;
+
+    background: #f4dce7;
+
+    border: 3px solid #7b2450;
+
+    border-radius: 20px;
+
+    box-shadow:
+        0 10px 35px rgba(0, 0, 0, .15);
+}
+
+.admin-panel.ascuns {
+    display: none;
+}
+
+.admin-header {
+    display: flex;
+
+    justify-content: space-between;
+    align-items: center;
+
+    gap: 20px;
+
+    flex-wrap: wrap;
+}
+
+.admin-header h2 {
+    color: #7b2450;
+}
+
+.admin-box {
+    background: white;
+
+    padding: 25px;
+
+    border-radius: 15px;
+
+    box-shadow:
+        0 5px 20px rgba(0, 0, 0, .08);
+}
+
+.admin-box h3 {
+    color: #7b2450;
+}
+
+.admin-box input,
+.admin-box textarea,
+.admin-box select {
+    width: 100%;
+
+    padding: 12px;
+
+    margin: 7px 0 12px;
+
+    border: 2px solid #ddd;
+
+    border-radius: 10px;
+
+    font-size: 16px;
+}
+
+.admin-box textarea {
+    resize: vertical;
+}
+
+.admin-box label {
+    display: block;
+
+    margin-top: 12px;
+    margin-bottom: 5px;
+
+    font-weight: bold;
+    color: #7b2450;
+}
+
+.admin-autor,
+.admin-opera {
+    padding: 15px;
+    margin-top: 15px;
+
+    background: #f8eef3;
+
+    border-radius: 10px;
+
+    border-left: 5px solid #7b2450;
+}
+
+.pdf-exista {
+    color: #2e7d32;
+    font-weight: bold;
+}
+
+.pdf-lipsa {
+    color: #c62828;
+}
+
+.admin-btn {
+    margin-top: 12px;
+
+    border: none;
+
+    padding: 12px 20px;
+
+    border-radius: 10px;
+
+    background: #7b2450;
+
+    color: white;
+
+    font-weight: bold;
+
+    cursor: pointer;
+}
+
+.admin-btn:hover {
+    background: #a8446c;
+}
+
+.logout-btn,
+.sterge-opera-btn {
+    background: #c62828;
+}
+
+.admin-status {
+    margin-top: 15px;
+
+    font-weight: bold;
+
+    min-height: 20px;
+}
+
+.lista-pdf {
+    margin-top: 20px;
+}
+
+.pdf-item {
+    display: flex;
+
+    justify-content: space-between;
+    align-items: center;
+
+    gap: 10px;
+
+    padding: 10px;
+
+    margin-bottom: 8px;
+
+    background: #f8eef3;
+
+    border-radius: 8px;
+}
+
+.sterge-btn {
+    border: none;
+
+    background: #c62828;
+
+    color: white;
+
+    padding: 7px 10px;
+
+    border-radius: 7px;
+
+    cursor: pointer;
+}
+
+

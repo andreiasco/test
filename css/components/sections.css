@@ -1,0 +1,140 @@
+/* ======================================================
+   SECTIUNI
+====================================================== */
+
+section {
+    max-width: 1100px;
+    margin: 70px auto;
+    padding: 20px;
+}
+
+.titlu {
+    text-align: center;
+    color: #7b2450;
+    font-size: 38px;
+}
+
+.subtitlu {
+    text-align: center;
+    color: #666;
+    margin-bottom: 40px;
+}
+
+.intro-grid,
+.roluri-grid,
+.howto-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 25px;
+}
+
+.intro-box,
+.rol-card,
+.howto-card {
+    background: white;
+    padding: 28px;
+    border-radius: 16px;
+    box-shadow: 0 7px 25px rgba(0, 0, 0, .08);
+}
+
+.intro-box {
+    border-left: 5px solid #008c95;
+}
+
+.intro-box h3,
+.rol-card h3,
+.howto-card h3 {
+    margin-top: 0;
+    color: #7b2450;
+}
+
+.intro-box p,
+.rol-card p,
+.howto-card p {
+    line-height: 1.7;
+    color: #555;
+}
+
+.rol-card {
+    border-top: 5px solid #7b2450;
+}
+
+.rol-card.elev {
+    border-top-color: #008c95;
+}
+
+.rol-card.profesor {
+    border-top-color: #d17a00;
+}
+
+.rol-eticheta {
+    display: inline-block;
+    margin-bottom: 15px;
+    padding: 6px 10px;
+    border-radius: 15px;
+    background: #f4dce7;
+    color: #7b2450;
+    font-size: 13px;
+    font-weight: bold;
+}
+
+.rol-card.elev .rol-eticheta {
+    background: #d9f0f1;
+    color: #006b72;
+}
+
+.rol-card.profesor .rol-eticheta {
+    background: #fff0d2;
+    color: #9a5b00;
+}
+
+.rol-card details,
+.howto-card details {
+    margin-top: 18px;
+    border-top: 1px solid #eee;
+    padding-top: 14px;
+}
+
+.rol-card summary,
+.howto-card summary {
+    color: #7b2450;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.rol-card details p,
+.howto-card details p {
+    margin-bottom: 0;
+}
+
+.status-cont {
+    margin: 0 auto 30px;
+    width: fit-content;
+    max-width: 100%;
+    padding: 10px 16px;
+    border: 1px solid #e0bfd0;
+    border-radius: 20px;
+    background: #fff8fb;
+    color: #7b2450;
+    font-weight: bold;
+    text-align: center;
+}
+
+body.dark .intro-box,
+body.dark .rol-card,
+body.dark .howto-card {
+    background: #271f27;
+}
+
+body.dark .intro-box p,
+body.dark .rol-card p,
+body.dark .howto-card p {
+    color: #ddd;
+}
+
+body.dark .status-cont {
+    background: #35152a;
+    border-color: #7b2450;
+}
+
+

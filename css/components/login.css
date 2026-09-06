@@ -1,0 +1,400 @@
+/* ======================================================
+   LOGIN
+====================================================== */
+
+.login-modal {
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 9999;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    background: rgba(0, 0, 0, .75);
+}
+
+.login-modal.ascuns {
+    display: none;
+}
+
+.pdf-preview-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: rgba(14, 35, 67, .82);
+}
+
+.pdf-preview-modal.ascuns {
+    display: none;
+}
+
+.pdf-preview-box {
+    display: flex;
+    flex-direction: column;
+    width: min(100%, 980px);
+    height: min(90vh, 760px);
+    overflow: hidden;
+    background: #fffdf8;
+    border: 1px solid var(--line);
+    border-top: 4px solid var(--terracotta);
+    border-radius: 2px;
+    box-shadow: 0 18px 45px rgba(0, 0, 0, .3);
+}
+
+.pdf-preview-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--line);
+}
+
+.pdf-preview-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.pdf-preview-header h2 {
+    min-width: 0;
+    margin: 0;
+    color: var(--navy);
+    font-family: Georgia, serif;
+    font-size: 20px;
+}
+
+.pdf-preview-inchide {
+    width: 30px;
+    height: 30px;
+    flex: 0 0 30px;
+    border: 1px solid var(--navy);
+    border-radius: 2px;
+    background: transparent;
+    color: var(--navy);
+    cursor: pointer;
+    font-size: 20px;
+    line-height: 1;
+}
+
+.pdf-preview-inchide:hover {
+    background: var(--navy);
+    color: #fffaf0;
+}
+
+.pdf-preview-download {
+    padding: 7px 12px;
+    border: 1px solid var(--teal);
+    border-radius: 2px;
+    background: var(--teal);
+    color: #fffaf0;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.pdf-preview-download:hover {
+    background: var(--navy);
+    border-color: var(--navy);
+}
+
+.pdf-preview-pages {
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+    overflow-y: auto;
+    padding: 16px;
+    background: #e6e1d7;
+}
+
+.pdf-preview-page {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    margin: 0 auto 16px;
+    background: #fff;
+    box-shadow: 0 3px 12px rgba(20, 44, 84, .16);
+}
+
+.pdf-preview-page-wrapper {
+    width: min(100%, 760px);
+    margin: 0 auto;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: 2px;
+    background: #fff;
+}
+
+.pdf-preview-page-wrapper .pdf-preview-page {
+    margin-bottom: 0;
+}
+
+.pdf-preview-notice {
+    display: grid;
+    gap: 8px;
+    width: min(100%, 760px);
+    margin: 0 auto;
+    padding: 18px;
+    border-top: 3px solid var(--terracotta);
+    background: #fffdf8;
+    color: var(--navy);
+    text-align: center;
+}
+
+.pdf-preview-notice span {
+    color: var(--ink-soft);
+    font-size: 14px;
+}
+
+.pdf-preview-notice button {
+    justify-self: center;
+    padding: 9px 16px;
+    border: 1px solid var(--navy);
+    border-radius: 2px;
+    background: var(--navy);
+    color: #fffaf0;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.pdf-preview-notice button:hover {
+    background: var(--terracotta);
+    border-color: var(--terracotta);
+}
+
+.pdf-preview-loading,
+.pdf-preview-error {
+    margin: 24px auto;
+    color: var(--ink-soft);
+    text-align: center;
+}
+
+@media(max-width:700px) {
+    .pdf-preview-modal {
+        padding: 12px;
+    }
+
+    .pdf-preview-box {
+        width: 100%;
+        height: calc(100vh - 24px);
+    }
+
+    .pdf-preview-header {
+        gap: 8px;
+        padding: 10px 12px;
+    }
+
+    .pdf-preview-header h2 {
+        overflow-wrap: anywhere;
+        font-size: 18px;
+    }
+
+    .pdf-preview-download {
+        padding: 7px 9px;
+        font-size: 13px;
+    }
+
+    .pdf-preview-pages {
+        padding: 8px;
+    }
+
+    .pdf-preview-page-wrapper,
+    .pdf-preview-notice {
+        width: 100%;
+    }
+}
+
+.autor-popup-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 9998;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow-y: auto;
+    padding: 70px 24px 32px;
+    background: rgba(14, 35, 67, .72);
+}
+
+.autor-popup-modal.ascuns {
+    display: none;
+}
+
+.autor-popup-box {
+    position: relative;
+    width: min(100%, 550px);
+    max-height: 100%;
+    overflow-y: auto;
+    padding: 26px 32px 30px;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-top: 4px solid var(--terracotta);
+    border-radius: 2px;
+    box-shadow: 0 18px 45px rgba(0, 0, 0, .3);
+}
+
+.autor-popup-box .card.autor {
+    padding: 0;
+    border: 0;
+    box-shadow: none;
+    transform: none;
+}
+
+.autor-popup-inchide {
+    position: absolute;
+    top: 8px;
+    right: 9px;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    border: 1px solid var(--navy);
+    border-radius: 2px;
+    background: transparent;
+    color: var(--navy);
+    cursor: pointer;
+    font-size: 18px;
+    line-height: 20px;
+}
+
+.autor-popup-inchide:hover {
+    background: var(--navy);
+    color: #fffaf0;
+}
+
+@media(max-width:700px) {
+    .autor-popup-modal {
+        padding: 150px 12px 20px;
+    }
+}
+
+.login-box {
+    position: relative;
+
+    width: min(90%, 420px);
+
+    padding: 35px;
+
+    background: white;
+
+    border-radius: 20px;
+
+    box-shadow:
+        0 15px 50px rgba(0, 0, 0, .4);
+
+    text-align: center;
+}
+
+.login-box h2 {
+    color: #7b2450;
+}
+
+.login-box input {
+    width: 100%;
+
+    padding: 13px;
+
+    margin: 7px 0;
+
+    border: 2px solid #ddd;
+
+    border-radius: 10px;
+
+    font-size: 16px;
+}
+
+.login-btn {
+    width: 100%;
+
+    margin-top: 10px;
+
+    padding: 13px;
+
+    border: none;
+
+    border-radius: 10px;
+
+    background: #7b2450;
+
+    color: white;
+
+    font-weight: bold;
+
+    cursor: pointer;
+}
+
+.login-btn:hover {
+    background: #a8446c;
+}
+
+.reset-btn {
+    background: #555;
+}
+
+.reset-btn:hover {
+    background: #333;
+}
+
+.inchide-login {
+    position: absolute;
+
+    right: 15px;
+    top: 10px;
+
+    border: none;
+
+    background: none;
+
+    font-size: 22px;
+
+    cursor: pointer;
+}
+
+#loginMesaj {
+    min-height: 20px;
+    font-weight: bold;
+}
+
+.auth-tabs {
+    display: flex;
+    gap: 8px;
+    margin: 20px 0;
+}
+
+.auth-tab {
+    flex: 1;
+    padding: 10px;
+    border: 2px solid #7b2450;
+    border-radius: 8px;
+    background: white;
+    color: #7b2450;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.auth-tab.activ {
+    background: #7b2450;
+    color: white;
+}
+
+.auth-form.ascuns {
+    display: none;
+}
+
+.auth-form select {
+    width: 100%;
+    padding: 13px;
+    margin: 7px 0;
+    border: 2px solid #ddd;
+    border-radius: 10px;
+    font-size: 16px;
+}
+
+
