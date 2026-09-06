@@ -1,0 +1,425 @@
+/* ======================================================
+   ADMIN
+====================================================== */
+
+.admin-panel {
+    max-width: 1100px;
+
+    margin: 40px auto;
+
+    padding: 25px;
+
+    background: #f4dce7;
+
+    border: 3px solid #7b2450;
+
+    border-radius: 20px;
+
+    box-shadow:
+        0 10px 35px rgba(0, 0, 0, .15);
+}
+
+.admin-panel.ascuns {
+    display: none;
+}
+
+.admin-header {
+    display: flex;
+
+    justify-content: space-between;
+    align-items: center;
+
+    gap: 20px;
+
+    flex-wrap: wrap;
+}
+
+.admin-header h2 {
+    color: #7b2450;
+}
+
+.admin-box {
+    background: white;
+
+    padding: 25px;
+
+    border-radius: 15px;
+
+    box-shadow:
+        0 5px 20px rgba(0, 0, 0, .08);
+}
+
+.admin-box h3 {
+    color: #7b2450;
+}
+
+.admin-box input,
+.admin-box textarea,
+.admin-box select {
+    width: 100%;
+
+    padding: 12px;
+
+    margin: 7px 0 12px;
+
+    border: 2px solid #ddd;
+
+    border-radius: 10px;
+
+    font-size: 16px;
+}
+
+.admin-box textarea {
+    resize: vertical;
+}
+
+.admin-box label {
+    display: block;
+
+    margin-top: 12px;
+    margin-bottom: 5px;
+
+    font-weight: bold;
+    color: #7b2450;
+}
+
+.admin-autor,
+.admin-opera {
+    padding: 15px;
+    margin-top: 15px;
+
+    background: #f8eef3;
+
+    border-radius: 10px;
+
+    border-left: 5px solid #7b2450;
+}
+
+.pdf-exista {
+    color: #2e7d32;
+    font-weight: bold;
+}
+
+.pdf-lipsa {
+    color: #c62828;
+}
+
+.admin-btn {
+    margin-top: 12px;
+
+    border: none;
+
+    padding: 12px 20px;
+
+    border-radius: 10px;
+
+    background: #7b2450;
+
+    color: white;
+
+    font-weight: bold;
+
+    cursor: pointer;
+}
+
+.admin-btn:hover {
+    background: #a8446c;
+}
+
+.logout-btn,
+.sterge-opera-btn {
+    background: #c62828;
+}
+
+.admin-status {
+    margin-top: 15px;
+
+    font-weight: bold;
+
+    min-height: 20px;
+}
+
+.lista-pdf {
+    margin-top: 20px;
+}
+
+.pdf-item {
+    display: flex;
+
+    justify-content: space-between;
+    align-items: center;
+
+    gap: 10px;
+
+    padding: 10px;
+
+    margin-bottom: 8px;
+
+    background: #f8eef3;
+
+    border-radius: 8px;
+}
+
+.sterge-btn {
+    border: none;
+
+    background: #c62828;
+
+    color: white;
+
+    padding: 7px 10px;
+
+    border-radius: 7px;
+
+    cursor: pointer;
+}
+
+
+
+/* ===== Creator quiz multi-mod ===== */
+.quiz-mode-picker{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.8rem;margin:1rem 0 1.25rem}.quiz-mode-option{position:relative;cursor:pointer}.quiz-mode-option input{position:absolute;opacity:0;pointer-events:none}.quiz-mode-option span{display:flex;min-height:110px;flex-direction:column;justify-content:center;gap:.35rem;padding:1rem;border:1px solid var(--border-color,#d8d8d8);border-radius:16px;background:var(--card-bg,#fff);transition:.18s ease}.quiz-mode-option b{font-size:1rem}.quiz-mode-option small{opacity:.72;line-height:1.35}.quiz-mode-option input:checked+span{outline:3px solid color-mix(in srgb,var(--accent-color,#8a5a2b) 35%,transparent);border-color:var(--accent-color,#8a5a2b);transform:translateY(-2px)}.quiz-mode-option input:focus-visible+span{outline:3px solid var(--accent-color,#8a5a2b)}.quiz-mode-badge{display:flex;align-items:center;justify-content:center;padding:.7rem 1rem;border-radius:12px;background:rgba(127,127,127,.09);font-weight:700}.quiz-tf-admin{display:flex;gap:.8rem;flex-wrap:wrap;margin:.6rem 0}.quiz-tf-admin label{display:flex;flex-direction:row!important;align-items:center;gap:.45rem;padding:.7rem 1rem;border:1px solid var(--border-color,#ddd);border-radius:12px}.quiz-admin-hint{display:block;margin-top:-.35rem;margin-bottom:.75rem;opacity:.7}
+@media(max-width:900px){.quiz-mode-picker{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:520px){.quiz-mode-picker{grid-template-columns:1fr}.quiz-mode-option span{min-height:auto}}
+
+/* Generator AI pentru creatorul de quiz */
+.quiz-ai-generator{margin:18px 0;padding:18px;border-radius:18px;border:1px solid rgba(116,78,184,.22);background:linear-gradient(135deg,rgba(116,78,184,.08),rgba(255,255,255,.02))}.quiz-ai-generator-head{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;flex-wrap:wrap}.quiz-ai-generator-head h4{margin:0 0 5px}.quiz-ai-generator-head p{margin:0;opacity:.75}.quiz-ai-generator-grid{display:grid;grid-template-columns:minmax(220px,2fr) minmax(120px,.7fr);gap:12px;margin-top:14px}.quiz-ai-generator input,.quiz-ai-generator select{width:100%}.quiz-ai-generator-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:12px}.quiz-ai-generator-status{margin:0;min-height:20px;font-size:.9rem}.quiz-ai-generator-status.error{color:#b42318}.quiz-ai-generator-status.success{color:#18794e}@media(max-width:650px){.quiz-ai-generator-grid{grid-template-columns:1fr}}
+
+/* ======================================================
+   ADMIN - NAVIGARE SEPARATĂ PE OBIECTE
+====================================================== */
+.admin-eyebrow,
+.admin-object-kicker {
+    display: inline-block;
+    margin-bottom: 6px;
+    font-size: .78rem;
+    font-weight: 800;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: #7b2450;
+    opacity: .78;
+}
+
+.admin-object-nav {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 10px;
+    margin: 24px 0;
+    padding: 10px;
+    background: rgba(255,255,255,.58);
+    border: 1px solid rgba(123,36,80,.14);
+    border-radius: 18px;
+}
+
+.admin-object-tab {
+    min-width: 0;
+    min-height: 78px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px;
+    border: 1px solid transparent;
+    border-radius: 14px;
+    background: transparent;
+    color: #5f2343;
+    text-align: left;
+    cursor: pointer;
+    transition: transform .18s ease, background .18s ease, border-color .18s ease;
+}
+
+.admin-object-tab:hover {
+    background: rgba(255,255,255,.86);
+    transform: translateY(-1px);
+}
+
+.admin-object-tab.is-active {
+    background: #fff;
+    border-color: rgba(123,36,80,.28);
+    box-shadow: 0 6px 18px rgba(68,23,45,.08);
+}
+
+.admin-object-tab:focus-visible {
+    outline: 3px solid rgba(123,36,80,.28);
+    outline-offset: 2px;
+}
+
+.admin-object-tab-icon {
+    width: 38px;
+    height: 38px;
+    flex: 0 0 38px;
+    display: grid;
+    place-items: center;
+    border-radius: 11px;
+    background: #f8eef3;
+    font-size: 1.25rem;
+}
+
+.admin-object-tab span:last-child {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.admin-object-tab b,
+.admin-object-tab small {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.admin-object-tab small {
+    color: #765b69;
+    font-size: .75rem;
+    line-height: 1.25;
+}
+
+.admin-object-page[hidden] {
+    display: none !important;
+}
+
+.admin-object-page {
+    animation: adminPageIn .24s ease both;
+}
+
+.admin-object-page-heading {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin: 4px 0 16px;
+    padding: 18px 20px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, rgba(255,255,255,.9), rgba(255,255,255,.58));
+    border-left: 5px solid #7b2450;
+}
+
+.admin-object-page-heading h3 {
+    margin: 0 0 5px;
+    color: #7b2450;
+    font-size: 1.35rem;
+}
+
+.admin-object-page-heading p {
+    margin: 0;
+    color: #6d5963;
+}
+
+.admin-object-page > .admin-box + .admin-box,
+.admin-object-page > .admin-section + .admin-section,
+.admin-object-page > .admin-box + .admin-section,
+.admin-object-page > .admin-section + .admin-box {
+    margin-top: 20px;
+}
+
+@keyframes adminPageIn {
+    from { opacity: 0; transform: translateY(7px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 900px) {
+    .admin-object-nav {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 560px) {
+    .admin-panel {
+        padding: 14px;
+        margin: 16px auto;
+        border-radius: 14px;
+    }
+
+    .admin-object-nav {
+        grid-template-columns: 1fr;
+        padding: 7px;
+        gap: 6px;
+    }
+
+    .admin-object-tab {
+        min-height: 60px;
+    }
+
+    .admin-object-page-heading {
+        padding: 14px 15px;
+    }
+}
+
+/* Dark mode / temă întunecată */
+body.dark-mode .admin-object-nav,
+.dark .admin-object-nav {
+    background: rgba(20,20,26,.45);
+    border-color: rgba(255,255,255,.12);
+}
+
+body.dark-mode .admin-object-tab,
+.dark .admin-object-tab {
+    color: inherit;
+}
+
+body.dark-mode .admin-object-tab.is-active,
+.dark .admin-object-tab.is-active,
+body.dark-mode .admin-object-page-heading,
+.dark .admin-object-page-heading {
+    background: rgba(30,30,38,.9);
+    border-color: rgba(255,255,255,.14);
+}
+/* ======================================================
+   OPERE ADMIN - ACCORDION
+====================================================== */
+
+.admin-opera-acordeon {
+    margin-bottom: 10px;
+}
+
+.admin-opera-titlu {
+    width: 100%;
+
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    padding: 14px 16px;
+
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 10px;
+
+    background: rgba(255, 255, 255, 0.06);
+    color: inherit;
+
+    font-size: 16px;
+    text-align: left;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease;
+}
+
+.admin-opera-titlu:hover {
+    background: rgba(255, 255, 255, 0.12);
+    transform: translateY(-1px);
+}
+
+.admin-opera-titlu[aria-expanded="true"] {
+    border-radius: 10px 10px 0 0;
+    background: rgba(255, 255, 255, 0.12);
+}
+
+.admin-opera-sageata {
+    width: 20px;
+    flex-shrink: 0;
+
+    font-size: 13px;
+}
+
+.admin-opera-detalii {
+    padding: 18px;
+
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-top: 0;
+
+    border-radius: 0 0 10px 10px;
+}
+
+.admin-opera-detalii[hidden] {
+    display: none !important;
+}

@@ -1,0 +1,52 @@
+/* ======================================================
+   HERO
+====================================================== */
+
+.hero {
+    min-height: 550px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    text-align: center;
+
+    color: white;
+
+    padding: 30px;
+
+    background:
+        linear-gradient(rgba(53, 21, 42, .8),
+            rgba(123, 36, 80, .8)),
+        radial-gradient(circle,
+            #c76c91,
+            #35152a);
+}
+
+.hero h1 {
+    font-size: clamp(40px, 7vw, 75px);
+    margin-bottom: 20px;
+}
+
+.hero p {
+    font-size: 21px;
+    line-height: 1.6;
+}
+
+.buton {
+    display: inline-block;
+
+    margin-top: 25px;
+
+    padding: 14px 25px;
+
+    background: white;
+    color: #7b2450;
+
+    border-radius: 25px;
+
+    text-decoration: none;
+    font-weight: bold;
+}
+
+
