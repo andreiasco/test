@@ -15,20 +15,21 @@ async function deschidePDF(pdfUrl) {
 
     try {
 
+        const { data: sesiuneData, error: sesiuneError } =
+            await supabaseClient.auth.getSession();
+
+        if (sesiuneError) {
+            throw sesiuneError;
+        }
+
+        if (!sesiuneData.session) {
+            alert("Autentifică-te pentru a deschide materialul.");
+            afiseazaLogin();
+            return;
+        }
+
         const cale =
             obtineCalePDF(pdfUrl);
-
-
-        console.log(
-            "Referință PDF:",
-            pdfUrl
-        );
-
-        console.log(
-            "Cale PDF în Storage:",
-            cale
-        );
-
 
         if (!cale) {
 
@@ -49,7 +50,7 @@ async function deschidePDF(pdfUrl) {
                 .from(BUCKET)
                 .createSignedUrl(
                     cale,
-                    60 * 60
+                    5 * 60
                 );
 
 
@@ -87,18 +88,7 @@ async function deschidePDF(pdfUrl) {
         }
 
 
-        console.log(
-            "URL PDF semnat:",
-            data.signedUrl
-        );
-
-
-        const { data: sesiuneData, error: sesiuneError } = await supabaseClient.auth.getSession();
-        if (sesiuneError) {
-            throw sesiuneError;
-        }
-
-        await deschidePrevizualizarePDF(data.signedUrl, Boolean(sesiuneData.session));
+        await deschidePrevizualizarePDF(data.signedUrl, true);
 
 
     } catch (error) {
@@ -235,6 +225,18 @@ async function descarcaPDFPrevizualizat() {
 
 async function obtineURLSemnat(valoare, optiuni = {}) {
 
+    const { data: sesiuneData, error: sesiuneError } =
+        await supabaseClient.auth.getSession();
+
+    if (sesiuneError) {
+        throw sesiuneError;
+    }
+
+    if (!sesiuneData.session) {
+        afiseazaLogin();
+        throw new Error("Autentificarea este necesară pentru descărcare.");
+    }
+
     const cale = obtineCalePDF(valoare);
 
     if (!cale) {
@@ -245,7 +247,7 @@ async function obtineURLSemnat(valoare, optiuni = {}) {
         await supabaseClient
             .storage
             .from(BUCKET)
-            .createSignedUrl(cale, 60 * 60, optiuni);
+            .createSignedUrl(cale, 5 * 60, optiuni);
 
     if (error) {
         throw error;
