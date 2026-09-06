@@ -417,6 +417,8 @@ async function afiseazaAdmin(user) {
     incarcaOpereAdmin();
     incarcaListaAutoriSelect();
     incarcaLimbaAdmin();
+    if (typeof initializeazaQuizAdmin === "function") initializeazaQuizAdmin();
+    if (typeof incarcaQuizuriAdmin === "function") incarcaQuizuriAdmin();
 
 }
 

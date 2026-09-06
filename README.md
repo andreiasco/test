@@ -80,3 +80,75 @@ Markup-ul panoului de administrare a fost separat în `js/layout/admin-panel/`:
 - `shell.js` – cadrul panoului.
 
 `index.html` și `admin.html` au fost actualizate cu ordinea corectă de încărcare. Fișierul vechi de layout din prima etapă este păstrat ca backup în `_original/layout-stage1.js`.
+
+## Quiz-uri interactive animate
+
+Versiunea include un sistem nativ de quiz-uri administrabile din panoul de administrator.
+
+### Activare în Supabase
+1. Deschide proiectul Supabase > SQL Editor.
+2. Rulează `supabase/quizzes.sql` o singură dată.
+3. Verifică faptul că utilizatorul administrator are `role = 'admin'` în tabelul `profiles` (site-ul folosește deja această verificare pentru panoul admin).
+
+### Pentru administrator
+În `admin.html` există secțiunea **Quiz-uri interactive**. Administratorul poate:
+- crea titlul, descrierea și clasa;
+- alege timpul pe întrebare;
+- adăuga oricâte întrebări;
+- introduce 2–4 variante și marca răspunsul corect;
+- adăuga o explicație opțională;
+- salva ca publicat sau ciornă;
+- edita, publica/ascunde și șterge quiz-uri existente.
+
+### Pentru utilizator
+În pagina `#quiz`, fila **Quiz interactiv** încarcă quiz-urile publicate din Supabase. Player-ul include progres, cronometru, punctaj cu bonus de timp, feedback animat și ecran final. Kahoot și Wordwall au fost păstrate ca file separate.
+
+## Quiz aventură 3D în castel
+
+Versiunea actuală include un creator de quiz pentru administrator și un player tip aventură:
+
+- elevul începe cu exact 3 vieți;
+- fiecare întrebare este o întâlnire cu un monstru;
+- răspuns greșit = pierderea unei vieți;
+- după greșeală monstrul poate spune „De data aceasta te iert. Te las să treci mai departe.”;
+- la 0 vieți quiz-ul se termină imediat (Game Over);
+- ultima întrebare este tratată automat ca boss final (dragon);
+- la final se calculează scorul și bonusul pentru viețile rămase;
+- administratorul poate alege tipul întrebării (alegere multiplă / adevărat-fals), monstrul, replicile și explicația;
+- există previzualizare înainte de publicare.
+
+### Activare Supabase
+
+Rulează `supabase/quizzes.sql` în Supabase > SQL Editor. Scriptul poate fi rulat și dacă tabela `quizzes` exista deja; adaugă noile coloane `game_mode`, `difficulty` și `lives`.
+
+### 3D
+
+Motorul este în `js/site/castle-3d.js` și creează procedural castelul, personajul și monștrii. Three.js este încărcat ca modul din CDN. Dacă WebGL/Three.js nu se poate încărca, întrebările rămân utilizabile, doar scena 3D nu este randată.
+
+## Castel Quiz 3D v2 – animație cinematică
+
+Motorul `js/site/castle-3d.js` a fost actualizat cu riguri 3D articulate și animații procedurale:
+
+- personaj cu animații idle / mers / alergare;
+- animații distincte pentru goblin, liliac, schelet, păianjen, cavaler, fantomă, golem, vrăjitor, demon și dragon;
+- boss dragon cu aripi, coadă și maxilar animate;
+- mișcări cinematice de cameră la întâlnirea cu monstrul, răspuns corect/greșit, trecerea în camera următoare, victorie și game over;
+- torțe, particule de praf, ceață și coridor cu arcade pentru mai multă profunzime;
+- fallback complet procedural: quiz-ul nu depinde de fișiere 3D externe pentru a funcționa.
+
+### Asset-uri 3D opționale
+
+Arhitectura poate fi extinsă ulterior cu modele `.glb`/`.gltf`. Pentru asset-uri externe se recomandă numai modele cu licență clară (de exemplu CC0). Pachetele Kenney Mini Dungeon și Animated Characters sunt CC0 și pot fi folosite ca punct de plecare.
+
+## Etapa 3 – Castel 3D cu camere tematice
+
+Motorul `js/site/castle-3d.js` a fost extins cu camere procedurale distincte pentru întâlnirile din quiz:
+
+- Biblioteca blestemată – rafturi, cărți și masă;
+- Temnița – lanțuri și gratii;
+- Sala armelor – săbii și scut;
+- Laboratorul vrăjitorului – recipiente luminoase și cazan;
+- Cripta – sarcofage și decor funerar stilizat;
+- Sala Dragonului – cameră specială pentru boss-ul final, cu podium, tron, coloane, braziere și iluminare proprie.
+
+Camerele sunt selectate automat după numărul întrebării. Ultima întrebare folosește întotdeauna Sala Dragonului. Logica de quiz și editorul Admin rămân compatibile cu versiunea anterioară.

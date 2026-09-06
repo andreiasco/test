@@ -1,77 +1,31 @@
 // ======================================================
 // DARK MODE
 // ======================================================
-
 function schimbaTema() {
-
-    document.body.classList.toggle(
-        "dark"
-    );
-
+    document.body.classList.toggle("dark");
 }
 
-
 // ======================================================
-// QUIZ
+// QUIZ - TABURI
 // ======================================================
-
 function arataQuiz(tip) {
+    const tipValid = ["interactive", "kahoot", "wordwall"].includes(tip) ? tip : "interactive";
 
-    const kahoot =
-        document.getElementById(
-            "kahoot"
-        );
+    document.querySelectorAll("#quiz .quizuri").forEach((panel) => {
+        panel.classList.toggle("ascuns", panel.id !== tipValid);
+    });
 
-
-    const wordwall =
-        document.getElementById(
-            "wordwall"
-        );
-
-
-    const butoane =
-        document.querySelectorAll(
-            ".quiz-tab"
-        );
-
-
-    if (tip === "kahoot") {
-
-        kahoot.classList.remove(
-            "ascuns"
-        );
-
-        wordwall.classList.add(
-            "ascuns"
-        );
-
-        butoane[0].classList.add(
-            "activ"
-        );
-
-        butoane[1].classList.remove(
-            "activ"
-        );
-
-    } else {
-
-        kahoot.classList.add(
-            "ascuns"
-        );
-
-        wordwall.classList.remove(
-            "ascuns"
-        );
-
-        butoane[0].classList.remove(
-            "activ"
-        );
-
-        butoane[1].classList.add(
-            "activ"
-        );
-
-    }
+    document.querySelectorAll("#quiz .quiz-tab").forEach((button) => {
+        const active = button.dataset.quizTab === tipValid;
+        button.classList.toggle("activ", active);
+        button.setAttribute("aria-selected", String(active));
+    });
 }
 
+function initializeazaTaburiQuiz() {
+    document.querySelectorAll("#quiz [data-quiz-tab]").forEach((button) => {
+        button.addEventListener("click", () => arataQuiz(button.dataset.quizTab));
+    });
+}
 
+initializeazaTaburiQuiz();

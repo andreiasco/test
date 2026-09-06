@@ -3,15 +3,15 @@ const QUIZ_HTML = `
 <div id="pagina-quiz" class="pagina">
 <section id="quiz">
     <div class="quiz-page-heading">
-        <span class="quiz-page-icon" aria-hidden="true">🏰</span>
+        <span class="quiz-page-icon" aria-hidden="true">🎮</span>
         <div>
-            <h2 class="titlu">Quiz-uri aventură</h2>
-            <p class="subtitlu">Intră în castel, înfruntă monștrii și păstrează-ți cele 3 vieți până la final.</p>
+            <h2 class="titlu">Quiz-uri</h2>
+            <p class="subtitlu">Învață prin joc, răspunde contra-cronometru și strânge cât mai multe puncte.</p>
         </div>
     </div>
 
     <div class="quiz-selectie" role="tablist" aria-label="Tipuri de quiz">
-        <button class="quiz-tab interactive activ" type="button" data-quiz-tab="interactive">🏰 Aventură 3D</button>
+        <button class="quiz-tab interactive activ" type="button" data-quiz-tab="interactive">✨ Quiz interactiv</button>
         <button class="quiz-tab kahoot" type="button" data-quiz-tab="kahoot">🎯 Kahoot</button>
         <button class="quiz-tab wordwall" type="button" data-quiz-tab="wordwall">🧩 Wordwall</button>
     </div>
@@ -21,37 +21,20 @@ const QUIZ_HTML = `
             <p class="quiz-empty">Se încarcă quiz-urile...</p>
         </div>
 
-        <div id="quizPlayer" class="quiz-player castle-player ascuns">
-            <div class="quiz-player-topbar castle-topbar">
-                <button type="button" id="quizCloseButton" class="quiz-close-btn" aria-label="Ieși din quiz">← Ieși din castel</button>
-                <strong id="quizPlayerTitle">Aventura din castel</strong>
+        <div id="quizPlayer" class="quiz-player ascuns">
+            <div class="quiz-player-topbar">
+                <button type="button" id="quizCloseButton" class="quiz-close-btn" aria-label="Închide quiz-ul">← Înapoi</button>
+                <strong id="quizPlayerTitle">Quiz</strong>
                 <span id="quizLiveScore">Scor: 0</span>
             </div>
 
-            <div class="castle-hud" aria-live="polite">
-                <div class="castle-lives-wrap">
-                    <span class="castle-hud-label">Vieți</span>
-                    <div id="quizLives" class="castle-lives" aria-label="3 vieți">❤️ ❤️ ❤️</div>
-                </div>
-                <div class="castle-progress-wrap">
-                    <div class="quiz-progress-track"><div id="quizProgressBar"></div></div>
-                    <span id="quizCounter">Monstrul 1</span>
-                </div>
-                <div class="castle-timer-wrap">
-                    <span class="castle-hud-label">Timp</span>
-                    <span id="quizTimer" class="quiz-timer">20s</span>
-                </div>
+            <div class="quiz-progress-track" aria-hidden="true"><div id="quizProgressBar"></div></div>
+            <div class="quiz-player-info">
+                <span id="quizCounter">Întrebarea 1</span>
+                <span id="quizTimer" class="quiz-timer">20s</span>
             </div>
 
-            <div id="castleScene" class="castle-scene" aria-label="Scenă 3D într-un castel">
-                <canvas id="castleCanvas"></canvas>
-                <div class="castle-vignette" aria-hidden="true"></div>
-                <div id="castleLoading" class="castle-loading">Se pregătește castelul...</div>
-                <div id="castleDialogue" class="castle-dialogue ascuns" aria-live="polite"></div>
-                <button type="button" id="castleSkipAnimation" class="castle-skip ascuns">Sari animația »</button>
-            </div>
-
-            <div id="quizQuestionStage" class="castle-question-stage"></div>
+            <div id="quizQuestionStage"></div>
             <div id="quizRezultat" class="quiz-result ascuns"></div>
         </div>
     </div>
