@@ -91,6 +91,8 @@ async function stergeOpera(operaId) {
 
         }
 
+        await stergeDocumenteAISursa("opera", operaId);
+
 
         if (
             fisiere.length > 0

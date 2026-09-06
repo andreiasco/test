@@ -120,10 +120,21 @@ async function adaugaMaterialLimba() {
         cale = `limba/${capitolId}/${Date.now()}_${nume}`;
         const { error: uploadError } = await supabaseClient.storage.from(BUCKET).upload(cale, fisier, { contentType: "application/pdf", upsert: false });
         if (uploadError) throw uploadError;
-        const { error } = await supabaseClient.from("limba_materiale").insert({
+        const { data: materialNou, error } = await supabaseClient.from("limba_materiale").insert({
             capitol_id: Number(capitolId), titlu, descriere: descriere || null, pdf: `storage://${BUCKET}/${cale}`, ordine, continut_ai: continutAI || null
-        });
+        }).select("id").single();
         if (error) throw error;
+        await salveazaDocumentAI({
+            sourceKey: `limba_material:${materialNou.id}:pdf`,
+            sourceType: "limba_material",
+            sourceId: materialNou.id,
+            title: titlu,
+            category: "Limba română",
+            file: fisier,
+            storageRef: `storage://${BUCKET}/${cale}`,
+            text: continutAI,
+            metadata: { capitol_id: Number(capitolId), descriere: descriere || null }
+        });
         status.textContent = "Materialul a fost încărcat.";
         status.style.color = "#2e7d32";
         golesteCampuri("limbaMaterialTitlu", "limbaMaterialDescriere", "limbaMaterialOrdine", "limbaMaterialPDF");
@@ -141,7 +152,7 @@ async function inlocuiesteMaterialLimba(materialId) {
     if (!fisier || (fisier.type !== "application/pdf" && !/\.pdf$/i.test(fisier.name))) return alert("Selectează un PDF valid.");
     let caleNoua = null;
     try {
-        const { data: material, error } = await supabaseClient.from("limba_materiale").select("pdf, capitol_id").eq("id", materialId).single();
+        const { data: material, error } = await supabaseClient.from("limba_materiale").select("pdf, capitol_id, titlu, descriere").eq("id", materialId).single();
         if (error) throw error;
         const continutAI = await extrageTextDinFisierPDF(fisier);
         const nume = fisier.name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9._-]/g, "_");
@@ -150,6 +161,17 @@ async function inlocuiesteMaterialLimba(materialId) {
         if (upload.error) throw upload.error;
         const update = await supabaseClient.from("limba_materiale").update({ pdf: `storage://${BUCKET}/${caleNoua}`, continut_ai: continutAI || null }).eq("id", materialId);
         if (update.error) throw update.error;
+        await salveazaDocumentAI({
+            sourceKey: `limba_material:${materialId}:pdf`,
+            sourceType: "limba_material",
+            sourceId: materialId,
+            title: material.titlu || fisier.name,
+            category: "Limba română",
+            file: fisier,
+            storageRef: `storage://${BUCKET}/${caleNoua}`,
+            text: continutAI,
+            metadata: { capitol_id: Number(material.capitol_id), descriere: material.descriere || null }
+        });
         const veche = obtineCaleResursa(material.pdf, BUCKET);
         if (veche) await supabaseClient.storage.from(BUCKET).remove([veche]);
         await incarcaLimbaAdmin();
@@ -165,6 +187,7 @@ async function stergeMaterialLimba(materialId) {
     if (error) return alert(error.message);
     const result = await supabaseClient.from("limba_materiale").delete().eq("id", materialId);
     if (result.error) return alert(result.error.message);
+    await stergeDocumenteAISursa("limba_material", materialId);
     const cale = obtineCaleResursa(material.pdf, BUCKET);
     if (cale) await supabaseClient.storage.from(BUCKET).remove([cale]);
     await incarcaLimbaAdmin();
@@ -172,9 +195,10 @@ async function stergeMaterialLimba(materialId) {
 
 async function stergeCapitolLimba(capitolId) {
     if (!confirm("Sigur vrei să ștergi capitolul și materialele lui?")) return;
-    const { data: materiale } = await supabaseClient.from("limba_materiale").select("pdf").eq("capitol_id", capitolId);
+    const { data: materiale } = await supabaseClient.from("limba_materiale").select("id, pdf").eq("capitol_id", capitolId);
     const result = await supabaseClient.from("limba_capitole").delete().eq("id", capitolId);
     if (result.error) return alert(result.error.message);
+    for (const material of materiale || []) await stergeDocumenteAISursa("limba_material", material.id);
     const cai = (materiale || []).map(material => obtineCaleResursa(material.pdf, BUCKET)).filter(Boolean);
     if (cai.length) await supabaseClient.storage.from(BUCKET).remove(cai);
     await incarcaLimbaAdmin();

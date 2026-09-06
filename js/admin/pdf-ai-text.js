@@ -818,3 +818,189 @@ window.PDFAI = {
 
     indexeazaMaterialLimba
 };
+
+
+// ======================================================
+// INDEX GENERAL DOCUMENTE PENTRU PROFESORUL AI
+// ======================================================
+// Salvează textul extras din orice PDF/DOCX încărcat în tabelul
+// documente_ai. Dacă tabelul nu a fost creat încă, upload-ul normal
+// continuă, iar în consolă apare doar un avertisment.
+
+function tipDocumentAI(fisierSauNume) {
+    const nume = typeof fisierSauNume === "string"
+        ? fisierSauNume
+        : String(fisierSauNume?.name || "");
+    const lower = nume.toLowerCase().split("?")[0];
+    if (lower.endsWith(".pdf")) return "pdf";
+    if (lower.endsWith(".docx")) return "docx";
+    if (lower.endsWith(".doc")) return "doc";
+    if (lower.endsWith(".txt")) return "txt";
+    return "";
+}
+
+async function extrageTextDinFisierAI(fisier) {
+    if (!fisier) return "";
+    const tip = tipDocumentAI(fisier);
+
+    if (tip === "pdf") return extrageTextDinFisierPDF(fisier);
+    if (tip === "docx") return extrageTextDinFisierDOCX(fisier);
+    if (tip === "txt") return normalizeazaTextAI(await fisier.text());
+    if (tip === "doc") {
+        throw new Error("Formatul .doc vechi nu poate fi citit. Convertește documentul în .docx.");
+    }
+    return "";
+}
+
+async function salveazaDocumentAI({
+    sourceKey,
+    sourceType,
+    sourceId,
+    title,
+    category,
+    file,
+    storageRef,
+    text,
+    metadata = {}
+}) {
+    const continut = normalizeazaTextAI(text || "");
+    if (!sourceKey || !continut) return { skipped: true };
+
+    const payload = {
+        source_key: String(sourceKey),
+        source_type: String(sourceType || "document"),
+        source_id: sourceId == null ? null : String(sourceId),
+        titlu: String(title || file?.name || "Document"),
+        categorie: category ? String(category) : null,
+        nume_fisier: file?.name ? String(file.name) : null,
+        tip_fisier: tipDocumentAI(file || storageRef) || null,
+        storage_ref: storageRef ? String(storageRef) : null,
+        text_extras: continut,
+        metadata: metadata || {},
+        updated_at: new Date().toISOString()
+    };
+
+    const { error } = await supabaseClient
+        .rpc("upsert_document_ai", { p_document: payload });
+
+    if (error) {
+        console.warn("Documentul a fost salvat, dar indexul general AI nu a putut fi actualizat:", error);
+        return { error };
+    }
+
+    return { ok: true };
+}
+
+async function stergeDocumenteAISursa(sourceType, sourceId) {
+    if (!sourceType || sourceId == null) return;
+    const { error } = await supabaseClient
+        .rpc("delete_documente_ai_source", {
+            p_source_type: String(sourceType),
+            p_source_id: String(sourceId)
+        });
+    if (error) console.warn("Nu am putut curăța indexul AI:", error);
+}
+
+
+// ======================================================
+// BACKFILL: DOCUMENTELE DEJA ÎNCĂRCATE
+// ======================================================
+
+async function extrageTextDinReferintaAI(valoare) {
+    const tip = extensieDinReferinta(valoare);
+    if (tip === "pdf") return extrageTextDinReferintaPDF(valoare);
+    if (tip === "docx") return extrageTextDinReferintaDOCX(valoare);
+    if (tip === "doc") return "";
+    return "";
+}
+
+async function indexeazaToateDocumenteleAI() {
+    const status = document.getElementById("aiDocumenteStatus");
+    const scrieStatus = (mesaj, eroare = false) => {
+        if (status) {
+            status.textContent = mesaj;
+            status.style.color = eroare ? "#c62828" : "#2e7d32";
+        }
+    };
+
+    try {
+        scrieStatus("Se indexează documentele existente...");
+        let indexate = 0;
+        let sarite = 0;
+
+        const { data: opere, error: opereError } = await supabaseClient
+            .from("opere")
+            .select("id, autor_id, titlu, pdf, pdf_analiza_literara, pdf_valori_morale, pdf_caracterizare, rezumat_word, personaje_instagram, continut_rezumat, continut_analiza_literara, continut_valori_morale, continut_caracterizare")
+            .limit(1000);
+        if (opereError) throw opereError;
+
+        const configurariOpera = [
+            ["pdf", "Rezumat", "continut_rezumat"],
+            ["pdf_analiza_literara", "Analiză literară", "continut_analiza_literara"],
+            ["pdf_valori_morale", "Valori morale", "continut_valori_morale"],
+            ["pdf_caracterizare", "Caracterizare", "continut_caracterizare"],
+            ["rezumat_word", "Rezumat scris", null],
+            ["personaje_instagram", "Personaje", null]
+        ];
+
+        for (const opera of opere || []) {
+            for (const [coloana, categorie, coloanaText] of configurariOpera) {
+                const ref = opera[coloana];
+                if (!ref) continue;
+                let text = coloanaText ? String(opera[coloanaText] || "") : "";
+                if (!text) {
+                    try { text = await extrageTextDinReferintaAI(ref); }
+                    catch (e) { console.warn(`Nu am putut citi ${coloana} pentru opera ${opera.id}:`, e); }
+                }
+                if (!text) { sarite += 1; continue; }
+                const rezultat = await salveazaDocumentAI({
+                    sourceKey: `opera:${opera.id}:${coloana}`,
+                    sourceType: "opera",
+                    sourceId: opera.id,
+                    title: `${opera.titlu || "Operă"} — ${categorie}`,
+                    category: categorie,
+                    storageRef: ref,
+                    text,
+                    metadata: { opera_titlu: opera.titlu || null, autor_id: opera.autor_id }
+                });
+                if (rezultat?.ok) indexate += 1; else sarite += 1;
+            }
+        }
+
+        const { data: materiale, error: materialeError } = await supabaseClient
+            .from("limba_materiale")
+            .select("id, capitol_id, titlu, descriere, pdf, continut_ai")
+            .limit(1000);
+        if (materialeError) throw materialeError;
+
+        for (const material of materiale || []) {
+            if (!material.pdf) continue;
+            let text = String(material.continut_ai || "");
+            if (!text) {
+                try { text = await extrageTextDinReferintaAI(material.pdf); }
+                catch (e) { console.warn(`Nu am putut citi materialul ${material.id}:`, e); }
+            }
+            if (!text) { sarite += 1; continue; }
+            const rezultat = await salveazaDocumentAI({
+                sourceKey: `limba_material:${material.id}:pdf`,
+                sourceType: "limba_material",
+                sourceId: material.id,
+                title: material.titlu || "Material Limba română",
+                category: "Limba română",
+                storageRef: material.pdf,
+                text,
+                metadata: { capitol_id: material.capitol_id, descriere: material.descriere || null }
+            });
+            if (rezultat?.ok) indexate += 1; else sarite += 1;
+        }
+
+        scrieStatus(`Indexare terminată: ${indexate} documente disponibile pentru Profesorul AI${sarite ? `, ${sarite} fără text citibil` : ""}.`);
+        return { indexate, sarite };
+    } catch (error) {
+        console.error("Indexare generală AI:", error);
+        scrieStatus("Indexarea documentelor a eșuat: " + (error?.message || error), true);
+        return { error };
+    }
+}
+
+window.indexeazaToateDocumenteleAI = indexeazaToateDocumenteleAI;

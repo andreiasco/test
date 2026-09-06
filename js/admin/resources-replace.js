@@ -227,6 +227,24 @@ async function inlocuiestePDF(
             throw updateError;
         }
 
+        const categoriiAI = {
+            pdf: "Rezumat",
+            pdf_analiza_literara: "Analiză literară",
+            pdf_valori_morale: "Valori morale",
+            pdf_caracterizare: "Caracterizare"
+        };
+        await salveazaDocumentAI({
+            sourceKey: `opera:${operaId}:${coloana}`,
+            sourceType: "opera",
+            sourceId: operaId,
+            title: `${opera.titlu || "Operă"} — ${categoriiAI[coloana] || "Document"}`,
+            category: categoriiAI[coloana] || "Operă",
+            file: fisier,
+            storageRef: valoareNoua,
+            text: continutAI,
+            metadata: { opera_titlu: opera.titlu || null, autor_id: opera.autor_id }
+        });
+
 
         // ==================================================
         // 6. ȘTERGEM VECHIUL PDF
@@ -388,12 +406,21 @@ async function inlocuiesteFisierOpera(
         const { data: opera, error: operaError } =
             await supabaseClient
                 .from("opere")
-                .select(coloana + ", autor_id")
+                .select(coloana + ", autor_id, titlu")
                 .eq("id", operaId)
                 .single();
 
         if (operaError) {
             throw operaError;
+        }
+
+        let continutDocumentAI = "";
+        if (esteRezumatScris || esteDocumentPDF) {
+            try {
+                continutDocumentAI = await extrageTextDinFisierAI(fisier);
+            } catch (e) {
+                console.warn("Fișierul a fost încărcat, dar textul nu a putut fi extras pentru AI:", e);
+            }
         }
 
         const numeCurat = fisier.name
@@ -446,6 +473,20 @@ async function inlocuiesteFisierOpera(
         if (updateError) {
             await supabaseClient.storage.from(bucket).remove([caleNoua]);
             throw updateError;
+        }
+
+        if ((esteRezumatScris || esteDocumentPDF) && continutDocumentAI) {
+            await salveazaDocumentAI({
+                sourceKey: `opera:${operaId}:${coloana}`,
+                sourceType: "opera",
+                sourceId: operaId,
+                title: `${opera.titlu || "Operă"} — ${coloana === "rezumat_word" ? "Rezumat scris" : "Personaje"}`,
+                category: coloana === "rezumat_word" ? "Rezumat scris" : "Personaje",
+                file: fisier,
+                storageRef: valoareNoua,
+                text: continutDocumentAI,
+                metadata: { opera_titlu: opera.titlu || null, autor_id: opera.autor_id }
+            });
         }
 
         const caleVeche = obtineCaleResursa(opera[coloana], bucket);
