@@ -10,11 +10,16 @@ function afiseazaPagina(hash = window.location.hash) {
         functionalitati: "pagina-acasa",
         "how-to": "pagina-acasa",
         limba: "pagina-limba",
+        "limba-clasa-5": "pagina-limba",
+        "limba-clasa-6": "pagina-limba",
+        "limba-clasa-7": "pagina-limba",
+        "limba-clasa-8": "pagina-limba",
         literatura: "pagina-literatura",
         poezie: "pagina-literatura",
         proza: "pagina-literatura",
         teatru: "pagina-literatura",
         quiz: "pagina-quiz",
+        harta: "pagina-harta",
         revista: "pagina-revista"
     };
 
@@ -24,6 +29,7 @@ function afiseazaPagina(hash = window.location.hash) {
         "limba",
         "literatura",
         "quiz",
+        "harta",
         "revista"
     ].includes(ancora);
 
@@ -49,6 +55,9 @@ window.addEventListener("hashchange", () => afiseazaPagina());
 afiseazaPagina();
 
 incarcaAutori();
+incarcaMaterialeLimba();
+if (typeof initializeazaQuizPlayer === "function") initializeazaQuizPlayer();
+if (typeof incarcaQuizuri === "function") incarcaQuizuri();
 
 verificaSesiunea();
 
@@ -92,17 +101,34 @@ document.addEventListener(
                 "searchResults"
             );
 
+        const accountMenu =
+            document.querySelector(
+                ".account-menu"
+            );
+
 
         if (
             container &&
             results &&
-            !container.contains(event.target)
+            !container.contains(event.target) &&
+            !searchToggle.contains(event.target)
         ) {
+
+            container.classList.add(
+                "ascuns"
+            );
 
             results.classList.remove(
                 "activ"
             );
 
+        }
+
+        if (
+            accountMenu &&
+            !accountMenu.contains(event.target)
+        ) {
+            accountMenu.removeAttribute("open");
         }
 
     }

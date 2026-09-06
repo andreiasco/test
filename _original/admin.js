@@ -22,6 +22,14 @@ async function adaugaAutor() {
             .getElementById("autorCategorie")
             .value;
 
+    const loculNasteriiSelect = document
+        .getElementById("autorLoculNasterii");
+    const loculNasteriiOther = document
+        .getElementById("autorLocNastereOther");
+    const loculNasterii = loculNasteriiSelect.value === "other"
+        ? loculNasteriiOther.value.trim()
+        : loculNasteriiSelect.value;
+
 
     const pozaInput =
         document.getElementById(
@@ -69,6 +77,12 @@ async function adaugaAutor() {
 
         return;
 
+    }
+
+    if (!loculNasterii) {
+        status.textContent = "Selectează regiunea sau completează locul internațional al nașterii.";
+        status.style.color = "#c62828";
+        return;
     }
 
 
@@ -214,6 +228,9 @@ async function adaugaAutor() {
                         categorie:
                             categorie,
 
+                        locul_nasterii:
+                            loculNasterii,
+
                         poza:
                             urlImagine,
 
@@ -264,6 +281,10 @@ async function adaugaAutor() {
                 "autorCategorie"
             )
             .value = "";
+
+        document.getElementById("autorLoculNasterii").value = "";
+        document.getElementById("autorLocNastereOther").value = "";
+        document.getElementById("autorLocNastereOther").classList.add("ascuns");
 
 
         document
@@ -408,6 +429,11 @@ async function adaugaOpera() {
             .getElementById("operaRezumat")
             .files[0];
 
+    const analizaLiterara =
+        document
+            .getElementById("operaAnalizaLiterara")
+            .files[0];
+
 
     const valoriMorale =
         document
@@ -483,6 +509,7 @@ async function adaugaOpera() {
 
     const areResursa = [
         rezumat,
+        analizaLiterara,
         valoriMorale,
         caracterizare,
         rezumatWord,
@@ -637,6 +664,12 @@ async function adaugaOpera() {
                 "rezumat"
             );
 
+        const caleAnalizaLiterara =
+            await incarcaFisier(
+                analizaLiterara,
+                "analiza_literara"
+            );
+
 
         const caleValori =
             await incarcaFisier(
@@ -656,24 +689,19 @@ async function adaugaOpera() {
         if (rezumatWord) {
 
             if (
-                !rezumatWord.name
-                    .toLowerCase()
-                    .endsWith(".docx") &&
-                !rezumatWord.name
-                    .toLowerCase()
-                    .endsWith(".doc")
+                !/\.(doc|docx|pdf)$/i.test(rezumatWord.name)
             ) {
-                throw new Error("Rezumatul Word trebuie să fie .doc sau .docx.");
+                throw new Error("Rezumatul scris trebuie să fie .doc, .docx sau .pdf.");
             }
 
-            const numeWord =
+            const numeRezumat =
                 rezumatWord.name
                     .normalize("NFD")
                     .replace(/[\u0300-\u036f]/g, "")
                     .replace(/[^a-zA-Z0-9._-]/g, "_");
 
             caleRezumatWord =
-                `${autorId}/${Date.now()}_rezumat_word_${numeWord}`;
+                `${autorId}/${Date.now()}_rezumat_scris_${numeRezumat}`;
 
             const { error: wordError } =
                 await supabaseClient
@@ -684,8 +712,10 @@ async function adaugaOpera() {
                         rezumatWord,
                         {
                             contentType:
-                                rezumatWord.type ||
-                                "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                                rezumatWord.name.toLowerCase().endsWith(".pdf")
+                                    ? "application/pdf"
+                                    : rezumatWord.type ||
+                                    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
                             upsert: false
                         }
                     );
@@ -697,49 +727,45 @@ async function adaugaOpera() {
             fisiereIncarcate.push(caleRezumatWord);
         }
 
-        let pozaPersonajeUrl = null;
+        let documentPersonajeUrl = null;
 
         if (personajeInstagram) {
 
-            if (!personajeInstagram.type.startsWith("image/")) {
-                throw new Error("Imaginea personajelor nu este validă.");
+            if (
+                personajeInstagram.type !== "application/pdf" &&
+                !/\.pdf$/i.test(personajeInstagram.name)
+            ) {
+                throw new Error("Documentul personajelor trebuie să fie PDF.");
             }
 
-            const extensieImagine =
-                personajeInstagram.name
-                    .split(".")
-                    .pop()
-                    .toLowerCase();
+            const numeDocument = personajeInstagram.name
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "")
+                .replace(/[^a-zA-Z0-9._-]/g, "_");
 
-            const caleImaginePersonaje =
-                `personaje/${Date.now()}_${autorId}.${extensieImagine}`;
+            const caleDocumentPersonaje =
+                `${autorId}/${Date.now()}_personaje_instagram_${numeDocument}`;
 
-            const { error: imagineError } =
+            const { error: documentError } =
                 await supabaseClient
                     .storage
-                    .from(IMAGINI_BUCKET)
+                    .from(BUCKET)
                     .upload(
-                        caleImaginePersonaje,
+                        caleDocumentPersonaje,
                         personajeInstagram,
                         {
-                            contentType: personajeInstagram.type,
+                            contentType: "application/pdf",
                             upsert: false
                         }
                     );
 
-            if (imagineError) {
-                throw imagineError;
+            if (documentError) {
+                throw documentError;
             }
 
-            imaginiIncarcate.push(caleImaginePersonaje);
-
-            const { data: imagineData } =
-                supabaseClient
-                    .storage
-                    .from(IMAGINI_BUCKET)
-                    .getPublicUrl(caleImaginePersonaje);
-
-            pozaPersonajeUrl = imagineData.publicUrl;
+            fisiereIncarcate.push(caleDocumentPersonaje);
+            documentPersonajeUrl =
+                `storage://${BUCKET}/${caleDocumentPersonaje}`;
         }
 
 
@@ -754,6 +780,11 @@ async function adaugaOpera() {
         const pdfValoriMorale =
             caleValori
                 ? `storage://${BUCKET}/${caleValori}`
+                : null;
+
+        const pdfAnalizaLiterara =
+            caleAnalizaLiterara
+                ? `storage://${BUCKET}/${caleAnalizaLiterara}`
                 : null;
 
 
@@ -779,6 +810,9 @@ async function adaugaOpera() {
                         pdf:
                             pdf,
 
+                        pdf_analiza_literara:
+                            pdfAnalizaLiterara,
+
                         pdf_valori_morale:
                             pdfValoriMorale,
 
@@ -800,7 +834,7 @@ async function adaugaOpera() {
                             linkTestLectura || null,
 
                         personaje_instagram:
-                            pozaPersonajeUrl
+                            documentPersonajeUrl
                     }
                 ]);
 
@@ -823,6 +857,7 @@ async function adaugaOpera() {
             "operaAutor",
             "operaTitlu",
             "operaRezumat",
+            "operaAnalizaLiterara",
             "operaValoriMorale",
             "operaCaracterizare",
             "operaRezumatWord",
@@ -1030,6 +1065,40 @@ async function incarcaAutoriAdmin() {
             )}</b>
                     </p>
 
+                    <label for="autorLocNastereEdit-${autor.id}">Locul nașterii</label>
+                    <select id="autorLocNastereEdit-${autor.id}"
+                        onchange="this.nextElementSibling.classList.toggle('ascuns', this.value !== 'other')">
+                        <option value="">Neselectat</option>
+                        <option value="banat" ${autor.locul_nasterii === "banat" ? "selected" : ""}>Banat</option>
+                        <option value="crisana" ${autor.locul_nasterii === "crisana" ? "selected" : ""}>Crișana</option>
+                        <option value="maramures" ${autor.locul_nasterii === "maramures" ? "selected" : ""}>Maramureș</option>
+                        <option value="transilvania" ${autor.locul_nasterii === "transilvania" ? "selected" : ""}>Transilvania</option>
+                        <option value="oltenia" ${autor.locul_nasterii === "oltenia" ? "selected" : ""}>Oltenia</option>
+                        <option value="muntenia" ${autor.locul_nasterii === "muntenia" ? "selected" : ""}>Muntenia</option>
+                        <option value="dobrogea" ${autor.locul_nasterii === "dobrogea" ? "selected" : ""}>Dobrogea</option>
+                        <option value="moldova" ${autor.locul_nasterii === "moldova" ? "selected" : ""}>Moldova</option>
+                        <option value="bucovina" ${autor.locul_nasterii === "bucovina" ? "selected" : ""}>Bucovina</option>
+                        <option value="tara-romaneasca" ${autor.locul_nasterii === "tara-romaneasca" ? "selected" : ""}>Țara Românească</option>
+                        <option value="other" ${autor.locul_nasterii && !["banat", "crisana", "maramures", "transilvania", "oltenia", "muntenia", "dobrogea", "moldova", "bucovina", "tara-romaneasca"].includes(autor.locul_nasterii) ? "selected" : ""}>Other / internațional</option>
+                    </select>
+                    <input type="text" id="autorLocNastereOtherEdit-${autor.id}"
+                        class="${autor.locul_nasterii && !["banat", "crisana", "maramures", "transilvania", "oltenia", "muntenia", "dobrogea", "moldova", "bucovina", "tara-romaneasca"].includes(autor.locul_nasterii) ? "" : "ascuns"}"
+                        value="${escapeHTML(autor.locul_nasterii && !["banat", "crisana", "maramures", "transilvania", "oltenia", "muntenia", "dobrogea", "moldova", "bucovina", "tara-romaneasca"].includes(autor.locul_nasterii) ? autor.locul_nasterii : "")}"
+                        placeholder="Locul nașterii (internațional)">
+
+                    <button class="admin-btn" type="button" onclick="actualizeazaLocNastereAutor(${autor.id})">
+                        Salvează locul nașterii
+                    </button>
+
+                    <label for="autorLocalitatNastereEdit-${autor.id}">Localitatea de naștere</label>
+                    <input type="text" id="autorLocalitatNastereEdit-${autor.id}"
+                        placeholder="Ex: Constanța, București, Lancrăm, Alba"
+                        value="${escapeHTML(autor.localitate_nastere || "")}">
+
+                    <button class="admin-btn" type="button" onclick="actualizeazaLocalitatNastereAutor(${autor.id})">
+                        Salvează localitatea
+                    </button>
+
                     <p>
                         ${escapeHTML(
                 autor.descriere
@@ -1071,6 +1140,53 @@ async function incarcaAutoriAdmin() {
 
 }
 
+async function actualizeazaLocNastereAutor(autorId) {
+    const select = document.getElementById(`autorLocNastereEdit-${autorId}`);
+    const other = document.getElementById(`autorLocNastereOtherEdit-${autorId}`);
+    const locatie = select.value === "other" ? other.value.trim() : select.value;
+
+    if (!locatie) {
+        alert("Selectează regiunea sau completează locul internațional al nașterii.");
+        return;
+    }
+
+    const { error } = await supabaseClient
+        .from("autori")
+        .update({ locul_nasterii: locatie })
+        .eq("id", autorId);
+
+    if (error) {
+        alert("Nu am putut actualiza locul nașterii: " + error.message);
+        return;
+    }
+
+    await incarcaAutoriAdmin();
+    await incarcaAutori();
+}
+
+async function actualizeazaLocalitatNastereAutor(autorId) {
+    const input = document.getElementById(`autorLocalitatNastereEdit-${autorId}`);
+    const localitate = input.value.trim();
+
+    if (!localitate) {
+        alert("Completează localitatea de naștere.");
+        return;
+    }
+
+    const { error } = await supabaseClient
+        .from("autori")
+        .update({ localitate_nastere: localitate })
+        .eq("id", autorId);
+
+    if (error) {
+        alert("Nu am putut actualiza localitatea: " + error.message);
+        return;
+    }
+
+    alert("Localitatea a fost salvată cu succes!");
+    await incarcaAutoriAdmin();
+    await incarcaAutori();
+}
 
 // ======================================================
 // ACTUALIZEAZĂ DESCRIEREA AUTORULUI
@@ -1164,6 +1280,184 @@ async function actualizeazaDescriereAutor(autorId) {
             "#c62828";
 
     }
+}
+
+
+// ======================================================
+// ADMIN LIMBA ROMÂNĂ
+// ======================================================
+
+async function incarcaLimbaAdmin() {
+    const lista = document.getElementById("listaLimbaAdmin");
+    const select = document.getElementById("limbaMaterialCapitol");
+
+    if (!lista) {
+        return;
+    }
+
+    lista.innerHTML = "<p>Se încarcă...</p>";
+
+    try {
+        const { data: clase, error: claseError } = await supabaseClient
+            .from("limba_clase").select("id, numar, titlu").order("numar");
+        if (claseError) throw claseError;
+
+        const { data: capitole, error: capitoleError } = await supabaseClient
+            .from("limba_capitole").select("id, clasa_id, titlu, descriere, ordine")
+            .order("ordine").order("titlu");
+        if (capitoleError) throw capitoleError;
+
+        const { data: materiale, error: materialeError } = await supabaseClient
+            .from("limba_materiale").select("id, capitol_id, titlu, descriere, pdf, ordine")
+            .order("ordine").order("titlu");
+        if (materialeError) throw materialeError;
+
+        if (select) {
+            select.innerHTML = '<option value="">Selectează capitolul</option>';
+            (capitole || []).forEach(capitol => {
+                const clasa = (clase || []).find(item => String(item.id) === String(capitol.clasa_id));
+                const option = document.createElement("option");
+                option.value = capitol.id;
+                option.textContent = `${clasa ? clasa.titlu : "Clasă"} - ${capitol.titlu}`;
+                select.appendChild(option);
+            });
+        }
+
+        lista.innerHTML = (clase || []).map(clasa => {
+            const capitoleClasa = (capitole || []).filter(item => String(item.clasa_id) === String(clasa.id));
+            return `<div class="admin-opera"><strong>${escapeHTML(clasa.titlu)}</strong>
+                ${capitoleClasa.length ? capitoleClasa.map(capitol => {
+                const materialeCapitol = (materiale || []).filter(item => String(item.capitol_id) === String(capitol.id));
+                return `<div class="admin-autor"><h4>${escapeHTML(capitol.titlu)}</h4>
+                        <p>${escapeHTML(capitol.descriere || "")}</p>
+                        ${materialeCapitol.map(material => `<div>
+                            <strong>${escapeHTML(material.titlu)}</strong> ${material.pdf ? "✔ PDF" : "✖ PDF lipsă"}
+                            <input type="file" id="limbaMaterialNou-${material.id}" accept="application/pdf">
+                            <button class="admin-btn" type="button" onclick="inlocuiesteMaterialLimba(${material.id})">Înlocuiește PDF</button>
+                            <button class="admin-btn sterge-opera-btn" type="button" onclick="stergeMaterialLimba(${material.id})">Șterge material</button>
+                        </div>`).join("") || "<p>Nu există materiale.</p>"}
+                        <button class="admin-btn sterge-opera-btn" type="button" onclick="stergeCapitolLimba(${capitol.id})">Șterge capitol</button>
+                    </div>`;
+            }).join("") : "<p>Nu există capitole.</p>"}
+            </div>`;
+        }).join("") || "<p>Nu există clase configurate.</p>";
+    } catch (error) {
+        console.error("Eroare încărcare admin Limba română:", error);
+        lista.innerHTML = `<p style="color:#c62828">${escapeHTML(error.message)}</p>`;
+    }
+}
+
+async function adaugaCapitolLimba() {
+    const clasaNumar = document.getElementById("limbaCapitolClasa").value;
+    const titlu = document.getElementById("limbaCapitolTitlu").value.trim();
+    const descriere = document.getElementById("limbaCapitolDescriere").value.trim();
+    const ordine = Number(document.getElementById("limbaCapitolOrdine").value) || 0;
+    const status = document.getElementById("limbaCapitolStatus");
+
+    if (!clasaNumar || !titlu) {
+        status.textContent = "Selectează clasa și completează titlul capitolului.";
+        status.style.color = "#c62828";
+        return;
+    }
+
+    try {
+        const { data: clasa, error: clasaError } = await supabaseClient
+            .from("limba_clase").select("id").eq("numar", Number(clasaNumar)).single();
+        if (clasaError) throw clasaError;
+
+        const { error } = await supabaseClient.from("limba_capitole").insert({
+            clasa_id: clasa.id, titlu, descriere: descriere || null, ordine
+        });
+        if (error) throw error;
+        status.textContent = "Capitolul a fost adăugat.";
+        status.style.color = "#2e7d32";
+        golesteCampuri("limbaCapitolTitlu", "limbaCapitolDescriere", "limbaCapitolOrdine");
+        await incarcaLimbaAdmin();
+    } catch (error) {
+        status.textContent = "Nu am putut adăuga capitolul: " + error.message;
+        status.style.color = "#c62828";
+    }
+}
+
+async function adaugaMaterialLimba() {
+    const capitolId = document.getElementById("limbaMaterialCapitol").value;
+    const titlu = document.getElementById("limbaMaterialTitlu").value.trim();
+    const descriere = document.getElementById("limbaMaterialDescriere").value.trim();
+    const ordine = Number(document.getElementById("limbaMaterialOrdine").value) || 0;
+    const fisier = document.getElementById("limbaMaterialPDF").files[0];
+    const status = document.getElementById("limbaMaterialStatus");
+
+    if (!capitolId || !titlu || !fisier || (fisier.type !== "application/pdf" && !/\.pdf$/i.test(fisier.name))) {
+        status.textContent = "Selectează capitolul, titlul și un fișier PDF valid.";
+        status.style.color = "#c62828";
+        return;
+    }
+
+    let cale = null;
+    try {
+        const user = await utilizatorAutentificat();
+        if (!user) throw new Error("Trebuie să fii autentificat ca administrator.");
+        const nume = fisier.name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9._-]/g, "_");
+        cale = `limba/${capitolId}/${Date.now()}_${nume}`;
+        const { error: uploadError } = await supabaseClient.storage.from(BUCKET).upload(cale, fisier, { contentType: "application/pdf", upsert: false });
+        if (uploadError) throw uploadError;
+        const { error } = await supabaseClient.from("limba_materiale").insert({
+            capitol_id: Number(capitolId), titlu, descriere: descriere || null, pdf: `storage://${BUCKET}/${cale}`, ordine
+        });
+        if (error) throw error;
+        status.textContent = "Materialul a fost încărcat.";
+        status.style.color = "#2e7d32";
+        golesteCampuri("limbaMaterialTitlu", "limbaMaterialDescriere", "limbaMaterialOrdine", "limbaMaterialPDF");
+        await incarcaLimbaAdmin();
+    } catch (error) {
+        if (cale) await supabaseClient.storage.from(BUCKET).remove([cale]);
+        status.textContent = "Nu am putut încărca materialul: " + error.message;
+        status.style.color = "#c62828";
+    }
+}
+
+async function inlocuiesteMaterialLimba(materialId) {
+    const input = document.getElementById(`limbaMaterialNou-${materialId}`);
+    const fisier = input && input.files[0];
+    if (!fisier || (fisier.type !== "application/pdf" && !/\.pdf$/i.test(fisier.name))) return alert("Selectează un PDF valid.");
+    let caleNoua = null;
+    try {
+        const { data: material, error } = await supabaseClient.from("limba_materiale").select("pdf, capitol_id").eq("id", materialId).single();
+        if (error) throw error;
+        const nume = fisier.name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9._-]/g, "_");
+        caleNoua = `limba/${material.capitol_id}/${Date.now()}_${nume}`;
+        const upload = await supabaseClient.storage.from(BUCKET).upload(caleNoua, fisier, { contentType: "application/pdf", upsert: false });
+        if (upload.error) throw upload.error;
+        const update = await supabaseClient.from("limba_materiale").update({ pdf: `storage://${BUCKET}/${caleNoua}` }).eq("id", materialId);
+        if (update.error) throw update.error;
+        const veche = obtineCaleResursa(material.pdf, BUCKET);
+        if (veche) await supabaseClient.storage.from(BUCKET).remove([veche]);
+        await incarcaLimbaAdmin();
+    } catch (error) {
+        if (caleNoua) await supabaseClient.storage.from(BUCKET).remove([caleNoua]);
+        alert("Nu am putut înlocui PDF-ul: " + error.message);
+    }
+}
+
+async function stergeMaterialLimba(materialId) {
+    if (!confirm("Sigur vrei să ștergi materialul?")) return;
+    const { data: material, error } = await supabaseClient.from("limba_materiale").select("pdf").eq("id", materialId).single();
+    if (error) return alert(error.message);
+    const result = await supabaseClient.from("limba_materiale").delete().eq("id", materialId);
+    if (result.error) return alert(result.error.message);
+    const cale = obtineCaleResursa(material.pdf, BUCKET);
+    if (cale) await supabaseClient.storage.from(BUCKET).remove([cale]);
+    await incarcaLimbaAdmin();
+}
+
+async function stergeCapitolLimba(capitolId) {
+    if (!confirm("Sigur vrei să ștergi capitolul și materialele lui?")) return;
+    const { data: materiale } = await supabaseClient.from("limba_materiale").select("pdf").eq("capitol_id", capitolId);
+    const result = await supabaseClient.from("limba_capitole").delete().eq("id", capitolId);
+    if (result.error) return alert(result.error.message);
+    const cai = (materiale || []).map(material => obtineCaleResursa(material.pdf, BUCKET)).filter(Boolean);
+    if (cai.length) await supabaseClient.storage.from(BUCKET).remove(cai);
+    await incarcaLimbaAdmin();
 }
 
 
@@ -1275,6 +1569,32 @@ async function incarcaOpereAdmin() {
 
                         </button>
 
+                        <p>
+                            Analiză literară:
+                            ${opera.pdf_analiza_literara
+                        ? "✔ Există"
+                        : "✖ Lipsește"
+                    }
+                        </p>
+
+                        <input
+                            type="file"
+                            id="pdfAnalizaLiterara-${opera.id}"
+                            accept="application/pdf">
+
+                        <button
+                            class="admin-btn"
+                            type="button"
+                            onclick="inlocuiestePDF(
+                                ${opera.id},
+                                'pdf_analiza_literara',
+                                'pdfAnalizaLiterara-${opera.id}'
+                            )">
+
+                            📚 Înlocuiește analiza literară
+
+                        </button>
+
 
                         <!-- =========================
                              VALORI MORALE
@@ -1338,7 +1658,7 @@ async function incarcaOpereAdmin() {
                         </button>
 
                         <p>
-                            Rezumat Word:
+                            Rezumat scris:
                             ${opera.rezumat_word
                         ? "✔ Există"
                         : "✖ Lipsește"
@@ -1348,7 +1668,7 @@ async function incarcaOpereAdmin() {
                         <input
                             type="file"
                             id="rezumatWord-${opera.id}"
-                            accept=".doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
+                            accept=".doc,.docx,.pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf">
 
                         <button
                             class="admin-btn"
@@ -1361,7 +1681,7 @@ async function incarcaOpereAdmin() {
                                 'word'
                             )">
 
-                            📄 Înlocuiește rezumatul Word
+                            📄 Înlocuiește rezumatul scris
 
                         </button>
 
@@ -1423,14 +1743,14 @@ async function incarcaOpereAdmin() {
                         </button>
 
                         <p>
-                            Imagine Instagram personaje:
+                            Document personaje Instagram:
                             ${opera.personaje_instagram ? "✔ Există" : "✖ Lipsește"}
                         </p>
 
                         <input
                             type="file"
                             id="personajeInstagram-${opera.id}"
-                            accept="image/*">
+                            accept="application/pdf">
 
                         <button
                             class="admin-btn"
@@ -1439,11 +1759,11 @@ async function incarcaOpereAdmin() {
                                 ${opera.id},
                                 'personaje_instagram',
                                 'personajeInstagram-${opera.id}',
-                                'Imagini',
-                                'personaje'
+                                'Pdf',
+                                'pdf'
                             )">
 
-                            📸 Înlocuiește imaginea Instagram
+                            📄 Înlocuiește documentul Instagram
 
                         </button>
 
@@ -1496,6 +1816,7 @@ async function inlocuiestePDF(
 
     const coloanePermise = [
         "pdf",
+        "pdf_analiza_literara",
         "pdf_valori_morale",
         "pdf_caracterizare"
     ];
@@ -1820,15 +2141,20 @@ async function inlocuiesteFisierOpera(
         return;
     }
 
-    const esteWord = tipFisier === "word";
-    const extensieValida = esteWord
-        ? /\.(doc|docx)$/i.test(fisier.name)
-        : fisier.type.startsWith("image/");
+    const esteRezumatScris = tipFisier === "word";
+    const esteDocumentPDF = tipFisier === "pdf";
+    const extensieValida = esteRezumatScris
+        ? /\.(doc|docx|pdf)$/i.test(fisier.name)
+        : esteDocumentPDF
+            ? /\.pdf$/i.test(fisier.name) || fisier.type === "application/pdf"
+            : fisier.type.startsWith("image/");
 
     if (!extensieValida) {
-        status.textContent = esteWord
-            ? "Fișierul trebuie să fie .doc sau .docx."
-            : "Fișierul selectat nu este o imagine validă.";
+        status.textContent = esteRezumatScris
+            ? "Fișierul trebuie să fie .doc, .docx sau .pdf."
+            : esteDocumentPDF
+                ? "Fișierul selectat nu este un PDF valid."
+                : "Fișierul selectat nu este o imagine validă.";
         status.style.color = "#c62828";
         return;
     }
@@ -1866,7 +2192,9 @@ async function inlocuiesteFisierOpera(
 
         caleNoua = tipFisier === "word"
             ? `${opera.autor_id}/${Date.now()}_rezumat_word_${numeCurat}`
-            : `personaje/${Date.now()}_${opera.autor_id}_${numeCurat}`;
+            : esteDocumentPDF
+                ? `${opera.autor_id}/${Date.now()}_personaje_instagram_${numeCurat}`
+                : `personaje/${Date.now()}_${opera.autor_id}_${numeCurat}`;
 
         const { error: uploadError } =
             await supabaseClient
@@ -1874,9 +2202,13 @@ async function inlocuiesteFisierOpera(
                 .from(bucket)
                 .upload(caleNoua, fisier, {
                     contentType: fisier.type || (
-                        esteWord
-                            ? "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-                            : "image/png"
+                        esteRezumatScris
+                            ? /\.pdf$/i.test(fisier.name)
+                                ? "application/pdf"
+                                : "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                            : esteDocumentPDF
+                                ? "application/pdf"
+                                : "image/png"
                     ),
                     upsert: false
                 });
@@ -1885,7 +2217,7 @@ async function inlocuiesteFisierOpera(
             throw uploadError;
         }
 
-        const valoareNoua = tipFisier === "word"
+        const valoareNoua = tipFisier === "word" || esteDocumentPDF
             ? `storage://${bucket}/${caleNoua}`
             : supabaseClient
                 .storage
@@ -2059,10 +2391,16 @@ async function stergeOpera(operaId) {
                 opera.pdf
             ),
             obtineCalePDF(
+                opera.pdf_analiza_literara
+            ),
+            obtineCalePDF(
                 opera.pdf_valori_morale
             ),
             obtineCalePDF(
                 opera.pdf_caracterizare
+            ),
+            obtineCalePDF(
+                opera.personaje_instagram
             )
         ]
             .filter(Boolean);
@@ -2791,6 +3129,7 @@ async function afiseazaAdmin(user) {
     incarcaAutoriAdmin();
     incarcaOpereAdmin();
     incarcaListaAutoriSelect();
+    incarcaLimbaAdmin();
 
 }
 
