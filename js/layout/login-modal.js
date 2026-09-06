@@ -24,16 +24,16 @@ const LOGIN_MODAL_HTML = `
 
         <div id="loginForm" class="auth-form">
             <p>Intră în contul tău.</p>
-            <input type="email" id="loginEmail" placeholder="Email">
-            <input type="password" id="loginPassword" placeholder="Parolă">
+            <input type="email" id="loginEmail" placeholder="Email" autocomplete="email" required>
+            <input type="password" id="loginPassword" placeholder="Parolă" autocomplete="current-password" required>
             <button class="login-btn" onclick="loginUtilizator()">🔐 Logare</button>
             <button class="login-btn reset-btn" type="button" onclick="reseteazaParola()">🔑 Am uitat parola</button>
         </div>
 
         <div id="registerForm" class="auth-form ascuns">
             <p>Creează un cont de profesor sau elev.</p>
-            <input type="email" id="registerEmail" placeholder="Email">
-            <input type="password" id="registerPassword" placeholder="Parolă (minimum 6 caractere)">
+            <input type="email" id="registerEmail" placeholder="Email" autocomplete="email" required>
+            <input type="password" id="registerPassword" placeholder="Parolă (12 caractere, literă mare, literă mică, cifră)" autocomplete="new-password" minlength="12" required>
             <select id="registerRole">
                 <option value="elev">Elev</option>
                 <option value="profesor">Profesor</option>
