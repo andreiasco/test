@@ -68,6 +68,12 @@ async function incarcaMaterialeLimba() {
                                 onclick='deschidePDF(${JSON.stringify(material.pdf)})'>
                                 📄 Deschide PDF
                             </button>
+                            <button class="material-progress-btn ${typeof esteMaterialParcurs === "function" && esteMaterialParcurs(material.id) ? "is-complete" : ""}"
+                                type="button" data-material-id="${escapeHTML(material.id)}"
+                                aria-pressed="${typeof esteMaterialParcurs === "function" && esteMaterialParcurs(material.id)}"
+                                onclick='marcheazaMaterialParcurs(${JSON.stringify(String(material.id))}, ${JSON.stringify(material.titlu || "Material")})'>
+                                ${typeof esteMaterialParcurs === "function" && esteMaterialParcurs(material.id) ? "✓ Parcurs" : "○ Marchează parcurs"}
+                            </button>
                         </div>
                     `).join("")
                     : "<p>Nu există materiale în acest capitol.</p>";

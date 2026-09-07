@@ -347,6 +347,7 @@ function actualizeazaStareAutentificare(user) {
 
     const status = document.getElementById("authStatus");
     const logoutButton = document.getElementById("logoutButton");
+    const profileButton = document.getElementById("profileButton");
 
     if (!status || !logoutButton) {
         return;
@@ -355,6 +356,8 @@ function actualizeazaStareAutentificare(user) {
     status.textContent = "Signed in: " + (user.email || "utilizator");
     status.classList.add("signed-in");
     logoutButton.classList.remove("ascuns");
+    profileButton?.classList.remove("ascuns");
+    if (typeof actualizeazaProfilElev === "function") actualizeazaProfilElev(user);
     if (typeof setAiAccess === "function") setAiAccess(true);
 
 }
@@ -363,6 +366,7 @@ function actualizeazaStareDelogata() {
 
     const status = document.getElementById("authStatus");
     const logoutButton = document.getElementById("logoutButton");
+    const profileButton = document.getElementById("profileButton");
 
     if (!status || !logoutButton) {
         return;
@@ -371,6 +375,8 @@ function actualizeazaStareDelogata() {
     status.textContent = "Signed out";
     status.classList.remove("signed-in");
     logoutButton.classList.add("ascuns");
+    profileButton?.classList.add("ascuns");
+    if (typeof inchideProfilElev === "function") inchideProfilElev();
     if (typeof setAiAccess === "function") setAiAccess(false);
 
 }
