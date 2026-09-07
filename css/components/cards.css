@@ -3,15 +3,16 @@
 ====================================================== */
 
 .cards {
-    display: grid;
-
-    grid-template-columns:
-        repeat(auto-fit, minmax(240px, 1fr));
-
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
     gap: 25px;
 }
 
 .card {
+    /* Latime fixa, nu se intinde cand randul e incomplet */
+    flex: 0 0 240px;
+
     background: white;
 
     padding: 30px;
@@ -112,5 +113,3 @@
 .icon {
     font-size: 45px;
 }
-
-

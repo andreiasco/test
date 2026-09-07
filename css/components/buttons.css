@@ -7,7 +7,7 @@ button,
 .buton,
 .kahoot-link,
 .opera-link {
-    border-radius: 4px;
+    border-radius: 6px;
     font-family: inherit;
     transition: background-color .2s ease, border-color .2s ease, color .2s ease, transform .2s ease;
 }
@@ -142,4 +142,3 @@ nav .search-toggle:hover {
 .sterge-btn:hover {
     background: #6e2822;
 }
-

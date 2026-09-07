@@ -13,6 +13,74 @@
     border-radius: 2px;
 }
 
+.map-region-labels {
+    position: absolute;
+    inset: 18px 18px 18px 18px;
+    pointer-events: none;
+    z-index: 2;
+}
+
+.map-region-label {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    padding: 2px 7px;
+    border-radius: 999px;
+    background: rgba(255, 248, 238, 0.82);
+    border: 1px solid rgba(20, 44, 84, 0.18);
+    color: var(--navy);
+    font-family: Georgia, serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+    box-shadow: 0 2px 8px rgba(20, 44, 84, 0.12);
+}
+
+.label-banat {
+    left: 16%;
+    top: 57%;
+}
+
+.label-crisana {
+    left: 20%;
+    top: 33%;
+}
+
+.label-maramures {
+    left: 35%;
+    top: 11%;
+}
+
+.label-transilvania {
+    left: 43%;
+    top: 42%;
+}
+
+.label-oltenia {
+    left: 32%;
+    top: 79%;
+}
+
+.label-muntenia {
+    left: 61%;
+    top: 76%;
+}
+
+.label-dobrogea {
+    left: 85%;
+    top: 74%;
+}
+
+.label-moldova {
+    left: 72%;
+    top: 34%;
+}
+
+.label-bucovina {
+    left: 55%;
+    top: 15%;
+}
+
 .harta-romaniei {
     display: block;
     width: 100%;
@@ -105,6 +173,13 @@
 
 body.dark .harta-canvas {
     background: #1b385c;
+}
+
+body.dark .map-region-label {
+    background: rgba(19, 43, 77, 0.8);
+    border-color: rgba(248, 240, 223, 0.25);
+    color: #f8f0df;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
 }
 
 body.dark .harta-popup {
