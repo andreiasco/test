@@ -1,0 +1,2 @@
+Modelele GLB din acest folder au fost generate special pentru proiect, din primitive 3D originale.
+Pot fi folosite împreună cu proiectul fără dependențe externe.

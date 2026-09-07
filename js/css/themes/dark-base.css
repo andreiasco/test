@@ -1,0 +1,38 @@
+/* ======================================================
+   DARK MODE
+====================================================== */
+
+body.dark {
+    background: #181318;
+    color: white;
+}
+
+body.dark .card,
+body.dark .quiz-card,
+body.dark .kahoot-card,
+body.dark .login-box,
+body.dark .admin-box {
+    background: #271f27;
+}
+
+body.dark .card p,
+body.dark .quiz-card p,
+body.dark .kahoot-card p {
+    color: #ddd;
+}
+
+body.dark .subtitlu {
+    color: #bbb;
+}
+
+body.dark .admin-panel {
+    background: #35152a;
+}
+
+body.dark .admin-autor,
+body.dark .admin-opera,
+body.dark .pdf-item {
+    background: #181318;
+}
+
+

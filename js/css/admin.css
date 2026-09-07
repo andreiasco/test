@@ -1,0 +1,14 @@
+main,
+footer,
+#loginModal {
+    display: none !important;
+}
+
+#adminPanel {
+    display: block;
+    margin-top: 40px;
+}
+
+#adminPanel.ascuns {
+    display: none !important;
+}

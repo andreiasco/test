@@ -1,0 +1,264 @@
+/* ======================================================
+   TEMA COMUNA - ALINIATA CU PAGINA ACASA
+====================================================== */
+
+:root {
+    --navy: #142c54;
+    --navy-deep: #0e2343;
+    --teal: #2d6d68;
+    --terracotta: #b44b38;
+    --gold: #d59b2e;
+    --paper: #fffaf0;
+    --paper-alt: #f4e7c7;
+    --ink-soft: #536271;
+    --line: #ddcfae;
+}
+
+nav {
+    background: var(--navy-deep);
+    padding: 12px max(4vw, 18px);
+    justify-content: space-between;
+    border-bottom: 3px solid var(--terracotta);
+}
+
+nav a {
+    padding: 8px 10px;
+    color: #f8f0df;
+    font-size: 14px;
+}
+
+nav a:hover {
+    color: #f1c56c;
+}
+
+nav button,
+.search-toggle {
+    background: var(--teal);
+    border-radius: 7px;
+}
+
+nav button:hover,
+.search-toggle:hover {
+    background: #3e8880;
+}
+
+.account-menu summary {
+    border-radius: 2px;
+}
+
+.account-menu summary:hover,
+.account-menu[open] summary {
+    background: var(--teal);
+}
+
+.account-actions {
+    background: var(--navy-deep);
+    border-color: rgba(255, 255, 255, .2);
+    border-radius: 2px;
+}
+
+.pagina:not(#pagina-acasa),
+#adminPanel {
+    background: var(--paper);
+    color: var(--navy);
+}
+
+.pagina:not(#pagina-acasa) section {
+    margin-top: 58px;
+    margin-bottom: 58px;
+}
+
+.titlu {
+    color: var(--navy);
+    font-family: Georgia, serif;
+    font-size: clamp(32px, 4vw, 46px);
+}
+
+.subtitlu {
+    color: var(--ink-soft);
+}
+
+.card,
+.quiz-card,
+.kahoot-card,
+.login-box,
+.admin-box {
+    border: 1px solid var(--line);
+    border-top: 5px solid var(--teal);
+    border-radius: 2px;
+    box-shadow: 0 10px 26px rgba(20, 44, 84, .09);
+}
+
+.intro-box,
+.rol-card,
+.howto-card {
+    border-radius: 2px;
+}
+
+.card:hover {
+    border-color: #c9b98f;
+    transform: translateY(-4px);
+}
+
+.card h3,
+.quiz-card h3,
+.kahoot-card h3,
+.login-box h2,
+.admin-box h3,
+.admin-header h2 {
+    color: var(--navy);
+    font-family: Georgia, serif;
+}
+
+.card p,
+.quiz-card p,
+.kahoot-card p {
+    color: var(--ink-soft);
+}
+
+.clasa-limba-box .icon {
+    color: var(--terracotta);
+    font-family: Georgia, serif;
+}
+
+.capitol-limba {
+    background: #f8f0df;
+    border-left-color: var(--terracotta);
+    border-radius: 2px;
+}
+
+.capitol-limba h4 {
+    color: var(--navy);
+}
+
+.material-limba {
+    border-top-color: var(--line);
+}
+
+.citat {
+    background: var(--navy);
+    border-radius: 2px;
+    box-shadow: 0 12px 30px rgba(20, 44, 84, .16);
+}
+
+.quiz-tab,
+.kahoot-link,
+.login-btn,
+.admin-btn {
+    border-radius: 2px;
+}
+
+.quiz-tab.kahoot,
+.kahoot-link {
+    background: var(--navy);
+}
+
+.quiz-tab.wordwall {
+    background: var(--terracotta);
+}
+
+.quiz-card {
+    border-top-color: var(--teal);
+}
+
+.kahoot-card {
+    border-top-color: var(--navy);
+}
+
+.quiz-card h3 {
+    color: var(--teal);
+}
+
+.kahoot-card h3 {
+    color: var(--navy);
+}
+
+.login-box {
+    border-top-color: var(--terracotta);
+}
+
+.login-box input,
+.auth-form select,
+.admin-box input,
+.admin-box textarea,
+.admin-box select {
+    border: 1px solid #c9b98f;
+    border-radius: 2px;
+    background: #fffdf8;
+}
+
+.login-box input:focus,
+.auth-form select:focus,
+.admin-box input:focus,
+.admin-box textarea:focus,
+.admin-box select:focus {
+    outline: 2px solid rgba(45, 109, 104, .25);
+    border-color: var(--teal);
+}
+
+.login-btn,
+.admin-btn {
+    background: var(--teal);
+}
+
+.login-btn:hover,
+.admin-btn:hover {
+    background: #235a56;
+}
+
+.auth-tab {
+    border-color: var(--teal);
+    border-radius: 5px;
+    color: var(--teal);
+}
+
+.auth-tab.activ {
+    background: var(--teal);
+}
+
+.admin-panel {
+    background: var(--paper-alt);
+    border: 1px solid var(--line);
+    border-top: 5px solid var(--terracotta);
+    border-radius: 2px;
+}
+
+.admin-box label {
+    color: var(--navy);
+}
+
+.admin-autor,
+.admin-opera,
+.pdf-item {
+    background: #f8f0df;
+    border-radius: 2px;
+    border-left-color: var(--teal);
+}
+
+footer {
+    background: var(--navy-deep);
+    border-top: 3px solid var(--terracotta);
+}
+
+@media(max-width:700px) {
+    nav {
+        padding-bottom: 58px;
+    }
+
+    section[id],
+    header[id] {
+        scroll-margin-top: 150px;
+    }
+
+    .nav-tools {
+        top: auto;
+        right: 18px;
+        bottom: 10px;
+        transform: none;
+    }
+
+    .nav-links {
+        gap: 2px;
+    }
+}
+

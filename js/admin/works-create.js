@@ -245,10 +245,30 @@ async function adaugaOpera() {
 
 
         status.textContent =
-            "Se încarcă PDF-urile...";
+            "Se citesc PDF-urile pentru Profesorul AI...";
 
         status.style.color =
             "#7b2450";
+
+        const continutRezumat = rezumat ? await extrageTextDinFisierPDF(rezumat) : "";
+        const continutAnalizaLiterara = analizaLiterara ? await extrageTextDinFisierPDF(analizaLiterara) : "";
+        const continutValoriMorale = valoriMorale ? await extrageTextDinFisierPDF(valoriMorale) : "";
+        const continutCaracterizare = caracterizare ? await extrageTextDinFisierPDF(caracterizare) : "";
+        let continutRezumatWord = "";
+        let continutPersonajeInstagram = "";
+        try {
+            continutRezumatWord = rezumatWord ? await extrageTextDinFisierAI(rezumatWord) : "";
+        } catch (e) {
+            console.warn("Rezumatul Word/PDF nu a putut fi indexat pentru AI:", e);
+        }
+        try {
+            continutPersonajeInstagram = personajeInstagram ? await extrageTextDinFisierAI(personajeInstagram) : "";
+        } catch (e) {
+            console.warn("Documentul de personaje nu a putut fi indexat pentru AI:", e);
+        }
+
+        status.textContent =
+            "Se încarcă PDF-urile...";
 
 
         const caleRezumat =
@@ -388,6 +408,7 @@ async function adaugaOpera() {
 
 
         const {
+            data: operaNoua,
             error
         } =
             await supabaseClient
@@ -412,6 +433,18 @@ async function adaugaOpera() {
                         pdf_caracterizare:
                             pdfCaracterizare,
 
+                        continut_rezumat:
+                            continutRezumat || null,
+
+                        continut_analiza_literara:
+                            continutAnalizaLiterara || null,
+
+                        continut_valori_morale:
+                            continutValoriMorale || null,
+
+                        continut_caracterizare:
+                            continutCaracterizare || null,
+
                         rezumat_word:
                             caleRezumatWord
                                 ? `storage://${BUCKET}/${caleRezumatWord}`
@@ -429,13 +462,40 @@ async function adaugaOpera() {
                         personaje_instagram:
                             documentPersonajeUrl
                     }
-                ]);
+                ])
+                .select("id")
+                .single();
 
 
         if (error) {
 
             throw error;
 
+        }
+
+        const operaIdNou = operaNoua?.id;
+        const documentePentruAI = [
+            { key: "pdf", category: "Rezumat", file: rezumat, ref: pdf, text: continutRezumat },
+            { key: "pdf_analiza_literara", category: "Analiză literară", file: analizaLiterara, ref: pdfAnalizaLiterara, text: continutAnalizaLiterara },
+            { key: "pdf_valori_morale", category: "Valori morale", file: valoriMorale, ref: pdfValoriMorale, text: continutValoriMorale },
+            { key: "pdf_caracterizare", category: "Caracterizare", file: caracterizare, ref: pdfCaracterizare, text: continutCaracterizare },
+            { key: "rezumat_word", category: "Rezumat scris", file: rezumatWord, ref: caleRezumatWord ? `storage://${BUCKET}/${caleRezumatWord}` : null, text: continutRezumatWord },
+            { key: "personaje_instagram", category: "Personaje", file: personajeInstagram, ref: documentPersonajeUrl, text: continutPersonajeInstagram }
+        ];
+
+        for (const doc of documentePentruAI) {
+            if (!doc.file || !doc.text) continue;
+            await salveazaDocumentAI({
+                sourceKey: `opera:${operaIdNou}:${doc.key}`,
+                sourceType: "opera",
+                sourceId: operaIdNou,
+                title: `${titlu} — ${doc.category}`,
+                category: doc.category,
+                file: doc.file,
+                storageRef: doc.ref,
+                text: doc.text,
+                metadata: { opera_titlu: titlu, autor_id: Number(autorId) }
+            });
         }
 
 

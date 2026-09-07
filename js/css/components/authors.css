@@ -1,0 +1,104 @@
+/* ======================================================
+   AUTORI
+====================================================== */
+
+.autor {
+    text-align: center;
+}
+
+.portret {
+    width: 120px;
+    height: 120px;
+
+    margin: 0 auto 20px;
+
+    border-radius: 50%;
+
+    overflow: hidden;
+
+    background: #7b2450;
+}
+
+.portret img {
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover;
+
+    display: block;
+}
+
+.opera {
+    margin-top: 15px;
+    padding-top: 10px;
+    border-top: 1px solid #eee;
+}
+
+.opera-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    margin-top: 15px;
+}
+
+.opera-btn {
+    padding: 10px 15px;
+
+    background: #f4dce7;
+    color: #7b2450;
+
+    border: 2px solid #7b2450;
+
+    border-radius: 8px;
+
+    cursor: pointer;
+
+    font-weight: bold;
+}
+
+.opera-btn:hover {
+    background: #7b2450;
+    color: white;
+}
+
+.personaje-instagram-btn {
+    background: #eadcf8;
+    color: #65358a;
+    border-color: #65358a;
+}
+
+.personaje-instagram-btn:hover {
+    background: #65358a;
+    color: white;
+}
+
+.opera-link {
+    display: inline-block;
+    padding: 10px 15px;
+    background: #d9f0f1;
+    color: #006b72;
+    border: 2px solid #008c95;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.opera-link:hover {
+    background: #008c95;
+    color: white;
+}
+
+.personaje-instagram {
+    margin: 15px 0;
+    text-align: center;
+}
+
+.personaje-instagram img {
+    max-width: 100%;
+    max-height: 420px;
+    border-radius: 10px;
+    object-fit: contain;
+}
+
+

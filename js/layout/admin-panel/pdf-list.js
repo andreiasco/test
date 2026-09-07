@@ -17,6 +17,16 @@ const ADMIN_PDF_LIST_HTML = `
 
         </button>
 
+        <button
+            class="admin-btn"
+            onclick="indexeazaToateDocumenteleAI()">
+
+            🤖 Indexează toate documentele pentru AI
+
+        </button>
+
+        <p id="aiDocumenteStatus" class="admin-status" aria-live="polite"></p>
+
         <div
             id="listaPDF"
             class="lista-pdf">

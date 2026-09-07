@@ -1,0 +1,29 @@
+/* ======================================================
+   CITAT
+====================================================== */
+
+.citat {
+    max-width: 900px;
+    margin: auto;
+
+    padding: 45px;
+
+    background:
+        linear-gradient(135deg,
+            #7b2450,
+            #a8446c);
+
+    color: white;
+
+    border-radius: 25px;
+
+    text-align: center;
+}
+
+.citat p {
+    font-size: 25px;
+    font-style: italic;
+    line-height: 1.6;
+}
+
+
