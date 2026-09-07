@@ -35,7 +35,7 @@ const HOME_HTML = `
     <article class="home-note"><span class="home-note-icon">🎬</span><div><h3>Poveștile continuă cu:</h3><p>filme, audiobookuri și alte resurse.</p></div></article>
     <article class="home-note"><span class="home-note-icon">🏆</span><div><h3>Testele de lectură?</h3><p>Le-am transformat în jocuri și provocări!</p></div></article>
     <article class="home-note"><span class="home-note-icon">✅</span><div><h3>La gramatică:</h3><p>teste originale, pe clase și capitole, iar pentru clasa a VIII-a, teste pe tipuri de itemi.</p></div></article>
-    <article class="home-note"><span class="home-note-icon">💼</span><div><h3>Și pentru profesori:</h3><p>analize SWOT, PIP-uri, modele și resurse, plus Revista Profesorilor.</p></div></article>
+        <article class="home-note"><span class="home-note-icon">💼</span><div><h3>Și pentru profesori:</h3><p>analize SWOT, PIP-uri, modele și resurse, plus Revista Profesorilor.</p></div></article>
 </section>
 
 <section class="home-discovery" id="functionalitati">
@@ -44,7 +44,7 @@ const HOME_HTML = `
     <div class="home-discovery-grid">
         <div><span>🧑‍🏫</span><p>idei pentru<br><strong>lecții</strong></p></div>
         <div><span>🧒</span><p>personaje<br><strong>de descoperit</strong></p></div>
-        <div><span>📚</span><p>opere care<br><strong>prind viață</strong></p></div>
+        <div><span>📖</span><p>opere care<br><strong>prind viață</strong></p></div>
         <div><span>🎮</span><p>lecții care<br><strong>stârnesc curiozitatea</strong></p></div>
     </div>
 </section>
@@ -55,16 +55,10 @@ const HOME_HTML = `
         <div><span>🎯</span><p>Credem că educația poate fi <strong>riguroasă</strong> și, în același timp, <strong>caldă.</strong></p></div>
         <div><span>🛡️</span><p>Poate fi serioasă fără să fie rigidă.</p></div>
         <div><span>🎓</span><p>Poate respecta programa și, totuși, să lase loc <strong>imaginației.</strong></p></div>
-        <div><span>💗</span><p>Înainte de a iubi o carte, trebuie să avem un motiv să o deschidem.</p></div>
+        <div><span>📚</span><p>Înainte de a iubi o carte, trebuie să avem un motiv să o deschidem.</p></div>
         <div><span>💡</span><p>Înainte de a învăța, trebuie să ne trezim curiozitatea.</p></div>
         <div><span>⭐</span><p>Cea mai importantă lecție e cea care te face să vrei să afli mai mult.</p></div>
     </div>
-</section>
-
-<section class="home-welcome">
-    <div class="home-welcome-book">📖</div>
-    <div><p>Acesta este locul pe care încercăm să-l construim.</p><h2>Bine ai venit<br><small>în lumea noastră!</small></h2></div>
-    <p>Sperăm să devină, încet-încet,<br>și lumea ta. 🌍</p>
 </section>
 
 </div>

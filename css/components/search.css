@@ -7,7 +7,7 @@
     background: transparent;
     color: white;
     padding: 0 16px;
-    border-radius: 20px;
+    border-radius: 6px;
     cursor: pointer;
     font-weight: bold;
 }
@@ -159,4 +159,3 @@ body.dark .search-result small {
     }
 
 }
-

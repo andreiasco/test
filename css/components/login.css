@@ -372,7 +372,7 @@
     flex: 1;
     padding: 10px;
     border: 2px solid #7b2450;
-    border-radius: 8px;
+    border-radius: 6px;
     background: white;
     color: #7b2450;
     cursor: pointer;
@@ -396,5 +396,3 @@
     border-radius: 10px;
     font-size: 16px;
 }
-
-
