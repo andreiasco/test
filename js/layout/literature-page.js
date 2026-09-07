@@ -72,7 +72,7 @@ const LITERATURE_HTML = `
     </h2>
 
     <p class="subtitlu">
-        Autori și opere de poezie.
+        Autori și opere poetice
     </p>
 
     <div
@@ -90,7 +90,7 @@ const LITERATURE_HTML = `
     </h2>
 
     <p class="subtitlu">
-        Autori și opere de proză.
+        Autori și opere în proză
     </p>
 
     <div

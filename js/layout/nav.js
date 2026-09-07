@@ -73,7 +73,6 @@ const NAV_HTML = `
         <div class="profile-heading">
             <span class="profile-avatar">👤</span>
             <div>
-                <p class="profile-eyebrow">Spațiul meu de învățare</p>
                 <h2 id="profileTitle">Profilul meu</h2>
                 <p id="profileEmail" class="profile-email"></p>
             </div>

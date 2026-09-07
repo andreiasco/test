@@ -4,7 +4,7 @@ const FOOTER_HTML = `
 <footer>
 
     <h2>
-        Limba și Literatura Română 📖
+        Limba și Literatura Română 
     </h2>
 
     <p>
