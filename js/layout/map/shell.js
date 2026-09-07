@@ -25,6 +25,18 @@ const MAP_SUFFIX_HTML = `
                 </g>
             </svg>
 
+            <div class="map-region-labels" aria-hidden="true">
+                <span class="map-region-label label-banat">Banat</span>
+                <span class="map-region-label label-crisana">Crișana</span>
+                <span class="map-region-label label-maramures">Maramureș</span>
+                <span class="map-region-label label-transilvania">Transilvania</span>
+                <span class="map-region-label label-oltenia">Oltenia</span>
+                <span class="map-region-label label-muntenia">Muntenia</span>
+                <span class="map-region-label label-dobrogea">Dobrogea</span>
+                <span class="map-region-label label-moldova">Moldova</span>
+                <span class="map-region-label label-bucovina">Bucovina</span>
+            </div>
+
             <div id="hartaPopup" class="harta-popup ascuns" role="dialog" aria-modal="false" aria-labelledby="hartaPopupTitlu">
                 <button type="button" class="harta-popup-inchide" aria-label="Închide popup-ul">×</button>
                 <h3 id="hartaPopupTitlu"></h3>
