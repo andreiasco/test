@@ -155,8 +155,13 @@ function inchideProfilElev() {
     document.getElementById("profileModal")?.classList.add("ascuns");
 }
 
+function reseteazaProfilElev() {
+    profilElevUser = null;
+    progresElev = null;
+}
+
 function inregistreazaRezultatQuiz(rezultat) {
-    if (!profilElevUser || !rezultat) return;
+    if (rolUtilizatorCurent !== "elev" || !profilElevUser || !rezultat) return;
     if (!progresElev) progresElev = incarcaProgresElev(profilElevUser);
     progresElev.quizuri.unshift({
         quizId: String(rezultat.quizId || ""),
