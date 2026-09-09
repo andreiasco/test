@@ -34,3 +34,18 @@ if (loculNasteriiSelect && loculNasteriiOther) {
     });
 }
 
+// Inaltimea reala a navbarului (variaza cand meniul se rupe pe mai multe randuri),
+// folosita ca variabila CSS pentru a evita suprapunerea barei sticky peste continut.
+(function sincronizeazaInaltimeNav() {
+    const nav = document.querySelector("nav");
+    if (!nav) return;
+
+    const actualizeaza = () => {
+        document.documentElement.style.setProperty("--site-nav-height", `${nav.offsetHeight}px`);
+    };
+
+    actualizeaza();
+    window.addEventListener("resize", actualizeaza);
+    window.addEventListener("orientationchange", actualizeaza);
+})();
+

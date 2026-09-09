@@ -91,6 +91,10 @@ async function stergeOpera(operaId) {
 
         }
 
+        if (typeof inregistreazaActiuneAdmin === "function") {
+            inregistreazaActiuneAdmin("Operă ștearsă", "opera", opera?.titlu || operaId);
+        }
+
         await stergeDocumenteAISursa("opera", operaId);
 
 

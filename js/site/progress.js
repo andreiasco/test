@@ -146,6 +146,8 @@ function deschideProfilElev() {
         return;
     }
     randareProfilElev();
+    document.getElementById("profileProfesorContent")?.classList.add("ascuns");
+    document.getElementById("profileElevContent")?.classList.remove("ascuns");
     document.getElementById("profileModal")?.classList.remove("ascuns");
 }
 
@@ -199,7 +201,13 @@ function marcheazaMaterialParcurs(materialId, titlu) {
     randareProfilElev();
 }
 
-document.getElementById("profileButton")?.addEventListener("click", deschideProfilElev);
+document.getElementById("profileButton")?.addEventListener("click", () => {
+    if (typeof rolContActiv !== "undefined" && rolContActiv === "profesor" && typeof deschideProfilProfesor === "function") {
+        deschideProfilProfesor();
+        return;
+    }
+    deschideProfilElev();
+});
 document.getElementById("profileCloseButton")?.addEventListener("click", inchideProfilElev);
 document.getElementById("profileModal")?.addEventListener("click", event => {
     if (event.target.id === "profileModal") inchideProfilElev();

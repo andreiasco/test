@@ -254,6 +254,9 @@ async function adaugaAutor() {
 
         }
 
+        if (typeof inregistreazaActiuneAdmin === "function") {
+            inregistreazaActiuneAdmin("Autor creat", "autor", nume);
+        }
 
         status.textContent =
             "Autorul a fost adăugat cu succes!";

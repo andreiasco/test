@@ -139,6 +139,56 @@
     min-height: 20px;
 }
 
+/* ===== Cont administrator ===== */
+.admin-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 12px;
+    margin-top: 10px;
+}
+
+.admin-stat-card {
+    padding: 15px;
+    background: #f8eef3;
+    border-radius: 10px;
+    border-left: 5px solid #7b2450;
+    text-align: center;
+}
+
+.admin-stat-card strong {
+    display: block;
+    font-size: 1.6rem;
+    color: #7b2450;
+}
+
+.admin-stat-card span {
+    font-size: .85rem;
+    opacity: .75;
+}
+
+.admin-role-row,
+.admin-audit-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    padding: 10px;
+    margin-bottom: 8px;
+    background: #f8eef3;
+    border-radius: 8px;
+}
+
+.admin-role-row select {
+    width: auto;
+    margin: 0;
+}
+
+.admin-audit-row small {
+    display: block;
+    opacity: .7;
+}
+
 .lista-pdf {
     margin-top: 20px;
 }
@@ -359,14 +409,20 @@
 }
 
 .admin-object-nav {
+    /* elementul e un <nav>; anuleaza regula globala "nav { position: sticky; z-index: 1000 }"
+       ca sa nu se lipeasca sus si sa acopere navbar-ul site-ului si meniurile lui (search/cont). */
+    position: static;
+    top: auto;
+    z-index: auto;
     display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
+    grid-template-columns: repeat(6, minmax(0, 1fr));
     gap: 10px;
     margin: 24px 0;
     padding: 10px;
-    background: rgba(255, 255, 255, .58);
+    background: #f8eef3;
     border: 1px solid rgba(123, 36, 80, .14);
     border-radius: 18px;
+    scroll-margin-top: calc(var(--site-nav-height, 90px) + 16px);
 }
 
 .admin-object-tab {
@@ -386,7 +442,7 @@
 }
 
 .admin-object-tab:hover {
-    background: rgba(255, 255, 255, .86);
+    background: #ffffff;
     transform: translateY(-1px);
 }
 
@@ -447,8 +503,9 @@
     margin: 4px 0 16px;
     padding: 18px 20px;
     border-radius: 16px;
-    background: linear-gradient(135deg, rgba(255, 255, 255, .9), rgba(255, 255, 255, .58));
+    background: #fdf9fb;
     border-left: 5px solid #7b2450;
+    scroll-margin-top: calc(var(--site-nav-height, 90px) + 16px);
 }
 
 .admin-object-page-heading h3 {
@@ -512,7 +569,7 @@
 /* Dark mode / temă întunecată */
 body.dark-mode .admin-object-nav,
 .dark .admin-object-nav {
-    background: rgba(20, 20, 26, .45);
+    background: #17171d;
     border-color: rgba(255, 255, 255, .12);
 }
 
@@ -525,7 +582,7 @@ body.dark-mode .admin-object-tab.is-active,
 .dark .admin-object-tab.is-active,
 body.dark-mode .admin-object-page-heading,
 .dark .admin-object-page-heading {
-    background: rgba(30, 30, 38, .9);
+    background: #1e1e26;
     border-color: rgba(255, 255, 255, .14);
 }
 

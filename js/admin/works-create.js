@@ -473,6 +473,10 @@ async function adaugaOpera() {
 
         }
 
+        if (typeof inregistreazaActiuneAdmin === "function") {
+            inregistreazaActiuneAdmin("Operă creată", "opera", titlu);
+        }
+
         const operaIdNou = operaNoua?.id;
         const documentePentruAI = [
             { key: "pdf", category: "Rezumat", file: rezumat, ref: pdf, text: continutRezumat },

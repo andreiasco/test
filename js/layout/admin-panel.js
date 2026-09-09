@@ -34,6 +34,11 @@ const ADMIN_PANEL_HTML = [
     ADMIN_QUIZ_LIST_HTML,
     `</section>`,
 
+    `<section class="admin-object-page" data-admin-page="cont" aria-labelledby="adminTabCont" hidden>
+        <div class="admin-object-page-heading"><div><span class="admin-object-kicker">Administrator</span><h3>🛡️ Contul administratorului</h3><p>Statistici platformă, spațiu de stocare, roluri utilizatori și jurnal de acțiuni.</p></div></div>`,
+    ADMIN_ACCOUNT_PANEL_HTML,
+    `</section>`,
+
     `</div>`,
     ADMIN_PANEL_SUFFIX_HTML
 ].join("");

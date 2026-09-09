@@ -28,7 +28,7 @@ const NAV_HTML = `
             <div class="account-actions">
             <span id="authStatus" class="auth-status">Signed out</span>
 
-            <button onclick="afiseazaLogin()">
+            <button id="loginButton" onclick="afiseazaLogin()">
                 🔐 Logare / Register
             </button>
 
@@ -77,21 +77,28 @@ const NAV_HTML = `
                 <p id="profileEmail" class="profile-email"></p>
             </div>
         </div>
-        <div id="profileStats" class="profile-stats"></div>
-        <div class="profile-content-grid">
-            <section class="profile-panel">
-                <h3>Insigne</h3>
-                <div id="profileBadges" class="profile-badges"></div>
-            </section>
-            <section class="profile-panel">
-                <h3>Recomandarea următoare</h3>
-                <div id="profileRecommendation" class="profile-recommendation"></div>
+        <div id="profileElevContent">
+            <div id="profileStats" class="profile-stats"></div>
+            <div class="profile-content-grid">
+                <section class="profile-panel">
+                    <h3>Insigne</h3>
+                    <div id="profileBadges" class="profile-badges"></div>
+                </section>
+                <section class="profile-panel">
+                    <h3>Recomandarea următoare</h3>
+                    <div id="profileRecommendation" class="profile-recommendation"></div>
+                </section>
+            </div>
+            <section class="profile-panel profile-history-panel">
+                <div class="profile-panel-heading"><h3>Ultimele aventuri</h3><span id="profileBestScore"></span></div>
+                <div id="profileHistory" class="profile-history"></div>
             </section>
         </div>
-        <section class="profile-panel profile-history-panel">
-            <div class="profile-panel-heading"><h3>Ultimele aventuri</h3><span id="profileBestScore"></span></div>
-            <div id="profileHistory" class="profile-history"></div>
-        </section>
+        <div id="profileProfesorContent" class="ascuns">
+            <section class="profile-panel">
+                <p class="profile-empty">Secțiunea profesorului este în curs de dezvoltare.</p>
+            </section>
+        </div>
     </section>
 </div>
 

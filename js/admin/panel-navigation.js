@@ -5,7 +5,8 @@
         opere: ["incarcaListaAutoriSelect", "incarcaOpereAdmin"],
         limba: ["incarcaLimbaAdmin"],
         pdf: ["incarcaListaPDF"],
-        quiz: ["incarcaQuizuriAdmin"]
+        quiz: ["incarcaQuizuriAdmin"],
+        cont: ["incarcaContAdmin"]
     };
 
     function ruleazaLoader(name) {
@@ -42,7 +43,7 @@
             tab.setAttribute("aria-selected", String(active));
         });
 
-        try { sessionStorage.setItem("admin-active-page", target); } catch (_) {}
+        try { sessionStorage.setItem("admin-active-page", target); } catch (_) { }
 
         if (options.load !== false) {
             (LOADERS[target] || []).forEach(ruleazaLoader);
@@ -66,7 +67,7 @@
         });
 
         let initial = "autori";
-        try { initial = sessionStorage.getItem("admin-active-page") || initial; } catch (_) {}
+        try { initial = sessionStorage.getItem("admin-active-page") || initial; } catch (_) { }
         activeazaPaginaAdmin(initial, { load: false, scroll: false });
     }
 
