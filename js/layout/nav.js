@@ -10,7 +10,7 @@ const NAV_HTML = `
         <a href="${estePaginaAdmin ? "index.html" : ""}#acasa">Acasă</a>
         <a href="${estePaginaAdmin ? "index.html" : ""}#limba">Limba română</a>
         <a href="${estePaginaAdmin ? "index.html" : ""}#literatura">Literatura română</a>
-        <a href="${estePaginaAdmin ? "index.html" : ""}#quiz">Quiz-uri</a>
+        <a id="quizNavLink" href="${estePaginaAdmin ? "index.html" : ""}#quiz">Quiz-uri</a>
         <a href="${estePaginaAdmin ? "index.html" : ""}#harta">Hartă</a>
         <a href="${estePaginaAdmin ? "index.html" : ""}#revista">Revista</a>
         <a id="adminLink" class="ascuns" href="admin.html">Panou admin</a>

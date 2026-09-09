@@ -47,6 +47,7 @@ function inchideLogin() {
 // ======================================================
 
 const LUNGIME_MINIMA_PAROLA = 12;
+let rolUtilizatorCurent = null;
 
 function normalizeazaEmail(email) {
     return email.trim().toLowerCase();
@@ -360,8 +361,12 @@ async function actualizeazaStareAutentificare(user) {
     loginButton?.classList.add("ascuns");
     if (typeof setAiAccess === "function") setAiAccess(true);
 
-    // Profilul de progres (elev) si tab-ul de cont (profesor) sunt specifice fiecarui rol.
     const role = await obtineRolUtilizator(user);
+    rolUtilizatorCurent = role;
+    if (typeof seteazaAccesQuiz === "function") seteazaAccesQuiz(true);
+    if (role !== "elev" && typeof reseteazaProfilElev === "function") reseteazaProfilElev();
+
+    // Profilul de progres (elev) si tab-ul de cont (profesor) sunt specifice fiecarui rol.
     if (role === "elev") {
         profileButton?.classList.remove("ascuns");
         if (typeof actualizeazaProfilElev === "function") actualizeazaProfilElev(user);
@@ -392,7 +397,10 @@ function actualizeazaStareDelogata() {
     logoutButton.classList.add("ascuns");
     loginButton?.classList.remove("ascuns");
     profileButton?.classList.add("ascuns");
+    rolUtilizatorCurent = null;
+    if (typeof seteazaAccesQuiz === "function") seteazaAccesQuiz(false);
     if (typeof rolContActiv !== "undefined") rolContActiv = null;
+    if (typeof reseteazaProfilElev === "function") reseteazaProfilElev();
     if (typeof inchideProfilElev === "function") inchideProfilElev();
     if (typeof setAiAccess === "function") setAiAccess(false);
 
