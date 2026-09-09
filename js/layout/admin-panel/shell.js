@@ -26,6 +26,9 @@ const ADMIN_PANEL_PREFIX_HTML = `
         <button type="button" class="admin-object-tab" id="adminTabQuiz" data-admin-tab="quiz" aria-selected="false">
             <span class="admin-object-tab-icon">🎮</span><span><b>Quiz-uri</b><small>Creator, AI și publicare</small></span>
         </button>
+        <button type="button" class="admin-object-tab" id="adminTabCont" data-admin-tab="cont" aria-selected="false">
+            <span class="admin-object-tab-icon">🛡️</span><span><b>Cont</b><small>Statistici, roluri și jurnal</small></span>
+        </button>
     </nav>
 `;
 const ADMIN_PANEL_SUFFIX_HTML = `

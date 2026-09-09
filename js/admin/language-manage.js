@@ -187,6 +187,7 @@ async function stergeMaterialLimba(materialId) {
     if (error) return alert(error.message);
     const result = await supabaseClient.from("limba_materiale").delete().eq("id", materialId);
     if (result.error) return alert(result.error.message);
+    if (typeof inregistreazaActiuneAdmin === "function") inregistreazaActiuneAdmin("Material Limba română șters", "limba_material", materialId);
     await stergeDocumenteAISursa("limba_material", materialId);
     const cale = obtineCaleResursa(material.pdf, BUCKET);
     if (cale) await supabaseClient.storage.from(BUCKET).remove([cale]);
@@ -198,6 +199,7 @@ async function stergeCapitolLimba(capitolId) {
     const { data: materiale } = await supabaseClient.from("limba_materiale").select("id, pdf").eq("capitol_id", capitolId);
     const result = await supabaseClient.from("limba_capitole").delete().eq("id", capitolId);
     if (result.error) return alert(result.error.message);
+    if (typeof inregistreazaActiuneAdmin === "function") inregistreazaActiuneAdmin("Capitol Limba română șters", "limba_capitol", capitolId);
     for (const material of materiale || []) await stergeDocumenteAISursa("limba_material", material.id);
     const cai = (materiale || []).map(material => obtineCaleResursa(material.pdf, BUCKET)).filter(Boolean);
     if (cai.length) await supabaseClient.storage.from(BUCKET).remove(cai);

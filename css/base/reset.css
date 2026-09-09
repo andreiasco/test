@@ -5,6 +5,7 @@
 
 html {
     scroll-behavior: smooth;
+    --site-nav-height: 90px;
 }
 
 body {
@@ -24,5 +25,3 @@ body {
 main {
     flex: 1;
 }
-
-

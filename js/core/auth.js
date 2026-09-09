@@ -343,10 +343,11 @@ async function obtineRolUtilizator(user) {
     return data ? data.role : null;
 }
 
-function actualizeazaStareAutentificare(user) {
+async function actualizeazaStareAutentificare(user) {
 
     const status = document.getElementById("authStatus");
     const logoutButton = document.getElementById("logoutButton");
+    const loginButton = document.getElementById("loginButton");
     const profileButton = document.getElementById("profileButton");
 
     if (!status || !logoutButton) {
@@ -356,9 +357,22 @@ function actualizeazaStareAutentificare(user) {
     status.textContent = "Signed in: " + (user.email || "utilizator");
     status.classList.add("signed-in");
     logoutButton.classList.remove("ascuns");
-    profileButton?.classList.remove("ascuns");
-    if (typeof actualizeazaProfilElev === "function") actualizeazaProfilElev(user);
+    loginButton?.classList.add("ascuns");
     if (typeof setAiAccess === "function") setAiAccess(true);
+
+    // Profilul de progres (elev) si tab-ul de cont (profesor) sunt specifice fiecarui rol.
+    const role = await obtineRolUtilizator(user);
+    if (role === "elev") {
+        profileButton?.classList.remove("ascuns");
+        if (typeof actualizeazaProfilElev === "function") actualizeazaProfilElev(user);
+    } else if (role === "profesor") {
+        profileButton?.classList.remove("ascuns");
+        if (typeof activeazaProfilProfesor === "function") activeazaProfilProfesor(user);
+    } else {
+        if (typeof rolContActiv !== "undefined") rolContActiv = null;
+        profileButton?.classList.add("ascuns");
+        if (typeof inchideProfilElev === "function") inchideProfilElev();
+    }
 
 }
 
@@ -366,6 +380,7 @@ function actualizeazaStareDelogata() {
 
     const status = document.getElementById("authStatus");
     const logoutButton = document.getElementById("logoutButton");
+    const loginButton = document.getElementById("loginButton");
     const profileButton = document.getElementById("profileButton");
 
     if (!status || !logoutButton) {
@@ -375,7 +390,9 @@ function actualizeazaStareDelogata() {
     status.textContent = "Signed out";
     status.classList.remove("signed-in");
     logoutButton.classList.add("ascuns");
+    loginButton?.classList.remove("ascuns");
     profileButton?.classList.add("ascuns");
+    if (typeof rolContActiv !== "undefined") rolContActiv = null;
     if (typeof inchideProfilElev === "function") inchideProfilElev();
     if (typeof setAiAccess === "function") setAiAccess(false);
 
