@@ -468,6 +468,9 @@ async function afiseazaAdmin(user) {
     incarcaLimbaAdmin();
     if (typeof initializeazaQuizAdmin === "function") initializeazaQuizAdmin();
     if (typeof incarcaQuizuriAdmin === "function") incarcaQuizuriAdmin();
+    if (typeof incarcaContAdmin === "function") incarcaContAdmin();
+    if (typeof incarcaRevistaAdmin === "function") incarcaRevistaAdmin();
+    if (typeof incarcaNumereRevistaAdmin === "function") incarcaNumereRevistaAdmin();
 
 }
 

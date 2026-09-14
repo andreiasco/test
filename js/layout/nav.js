@@ -96,7 +96,20 @@ const NAV_HTML = `
         </div>
         <div id="profileProfesorContent" class="ascuns">
             <section class="profile-panel">
-                <p class="profile-empty">Secțiunea profesorului este în curs de dezvoltare.</p>
+                <h3>Trimite un material pentru revistă</h3>
+                <p class="profile-empty">Materialul va fi verificat de un administrator înainte de a fi folosit în revistă. Doar administratorii pot vedea fișierul trimis.</p>
+                <label for="profesorMaterialTitlu">Titlu</label>
+                <input type="text" id="profesorMaterialTitlu" placeholder="Titlul materialului">
+                <label for="profesorMaterialDescriere">Descriere</label>
+                <textarea id="profesorMaterialDescriere" rows="2" placeholder="Descriere scurtă (opțional)"></textarea>
+                <label for="profesorMaterialFisier">Fișier (PDF sau DOCX)</label>
+                <input type="file" id="profesorMaterialFisier" accept="application/pdf,.docx">
+                <button class="admin-btn" type="button" onclick="trimiteMaterialRevista()">📤 Trimite spre revizuire</button>
+                <p id="profesorMaterialStatus" class="profile-empty"></p>
+            </section>
+            <section class="profile-panel">
+                <h3>Materialele mele trimise</h3>
+                <div id="profesorListaMateriale"></div>
             </section>
         </div>
     </section>

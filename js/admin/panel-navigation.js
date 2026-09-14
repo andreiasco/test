@@ -6,6 +6,7 @@
         limba: ["incarcaLimbaAdmin"],
         pdf: ["incarcaListaPDF"],
         quiz: ["incarcaQuizuriAdmin"],
+        revista: ["incarcaRevistaAdmin", "incarcaNumereRevistaAdmin"],
         cont: ["incarcaContAdmin"]
     };
 
