@@ -54,7 +54,7 @@ async function incarcaRevistaAdmin() {
                         ` : ""}
                     </div>
                     <div>
-                        <button class="admin-btn" type="button" onclick="descarcaMaterialRevista(${material.id})">⬇ Descarcă</button>
+                        <button class="admin-btn" type="button" onclick="descarcaMaterialRevista(${material.id})">👁 Deschide</button>
                         ${material.stare === "in_asteptare" ? `
                             <button class="admin-btn" type="button" onclick="acceptaMaterialRevista(${material.id})">✅ Acceptă</button>
                             <button class="admin-btn" type="button" onclick="afiseazaFormularRefuz(${material.id})">❌ Refuză</button>
@@ -98,15 +98,16 @@ async function descarcaMaterialRevista(id) {
             .from("RevistaSubmisii")
             .createSignedUrl(material.storage_path, 5 * 60);
         if (error) throw error;
-        window.open(data.signedUrl, "_blank", "noopener");
+        await deschidePrevizualizarePDF(data.signedUrl, true);
     } catch (error) {
-        scrieStatusRevistaMateriale("Nu am putut descărca materialul: " + error.message, true);
+        scrieStatusRevistaMateriale("Nu am putut deschide materialul: " + error.message, true);
     }
 }
 
 async function acceptaMaterialRevista(id) {
     await actualizeazaStareMaterialRevista(id, "acceptat");
 }
+
 
 async function actualizeazaStareMaterialRevista(id, stare, motiv = null) {
     try {
@@ -194,12 +195,29 @@ async function incarcaNumereRevistaAdmin() {
                     ${numar.descriere ? `<p>${escapeHTML(numar.descriere)}</p>` : ""}
                 </div>
                 <div>
+                    <button class="admin-btn" type="button" onclick="deschideNumarRevistaAdmin(${numar.id})">📖 Deschide</button>
                     <button class="admin-btn sterge-opera-btn" type="button" onclick="stergeNumarRevista(${numar.id})">🗑 Șterge</button>
                 </div>
             </div>`).join("");
     } catch (error) {
         console.error("Eroare încărcare numere revistă:", error);
         container.innerHTML = `<p style="color:#c62828">${escapeHTML(error.message)}</p>`;
+    }
+}
+
+async function deschideNumarRevistaAdmin(id) {
+    const numar = revistaNumereCache.find(n => n.id === id);
+    if (!numar) return;
+
+    try {
+        const { data, error } = await supabaseClient.storage
+            .from("RevistaNumere")
+            .createSignedUrl(numar.storage_path, 5 * 60);
+        if (error) throw error;
+        await deschidePrevizualizarePDF(data.signedUrl, true);
+    } catch (error) {
+        console.error("Deschidere număr revistă:", error);
+        scrieStatusRevistaMateriale("Nu am putut deschide numărul: " + error.message, true);
     }
 }
 

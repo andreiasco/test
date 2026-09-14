@@ -57,7 +57,7 @@ async function deschideNumarRevista(id) {
             .from("RevistaNumere")
             .createSignedUrl(numar.storage_path, 5 * 60);
         if (error) throw error;
-        window.open(data.signedUrl, "_blank", "noopener");
+        await deschidePrevizualizarePDF(data.signedUrl, true);
     } catch (error) {
         console.error("Eroare deschidere revistă:", error);
         alert("Nu am putut deschide revista: " + error.message);
