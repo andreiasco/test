@@ -98,9 +98,56 @@ async function descarcaMaterialRevista(id) {
             .from("RevistaSubmisii")
             .createSignedUrl(material.storage_path, 5 * 60);
         if (error) throw error;
-        await deschidePrevizualizarePDF(data.signedUrl, true);
+
+        const esteDOCX = /\.docx$/i.test(material.nume_fisier || material.storage_path || "");
+        if (esteDOCX) {
+            await deschidePrevizualizareDOCX(data.signedUrl);
+        } else {
+            await deschidePrevizualizarePDF(data.signedUrl, true);
+        }
     } catch (error) {
         scrieStatusRevistaMateriale("Nu am putut deschide materialul: " + error.message, true);
+    }
+}
+
+// Randeaza un DOCX ca text simplu (fara HTML din document) in acelasi
+// modal folosit pentru PDF-uri, pdf.js neputand citi acest format.
+async function deschidePrevizualizareDOCX(signedUrl) {
+    const modal = document.getElementById("pdfPreviewModal");
+    const pages = document.getElementById("pdfPreviewPages");
+    const titlu = document.getElementById("pdfPreviewTitlu");
+    const downloadButton = document.getElementById("pdfPreviewDownload");
+    if (!modal || !pages || !titlu || !downloadButton) return;
+
+    pdfPreviewDownloadUrl = signedUrl;
+    downloadButton.classList.remove("ascuns");
+    titlu.textContent = "Vizualizare material (DOCX)";
+    pages.innerHTML = "<p class=\"pdf-preview-loading\">Se încarcă previzualizarea...</p>";
+    modal.classList.remove("ascuns");
+    document.body.style.overflow = "hidden";
+
+    try {
+        if (typeof extrageTextDinBufferDOCX !== "function") {
+            throw new Error("Mammoth.js nu este încărcat.");
+        }
+
+        const response = await fetch(signedUrl);
+        if (!response.ok) throw new Error("Documentul nu a putut fi încărcat.");
+
+        const arrayBuffer = await response.arrayBuffer();
+        const text = await extrageTextDinBufferDOCX(arrayBuffer);
+
+        const wrapper = document.createElement("div");
+        wrapper.className = "pdf-preview-page-wrapper docx-preview-text";
+        wrapper.innerHTML = text
+            ? escapeHTML(text).replace(/\n/g, "<br>")
+            : "<p>Documentul nu conține text extras.</p>";
+
+        pages.innerHTML = "";
+        pages.appendChild(wrapper);
+    } catch (error) {
+        console.error("Eroare previzualizare DOCX:", error);
+        pages.innerHTML = "<p class=\"pdf-preview-error\">Nu am putut încărca previzualizarea acestui document.</p>";
     }
 }
 
