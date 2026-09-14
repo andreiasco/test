@@ -8,15 +8,11 @@ const MAGAZINE_HTML = `
     <h2 class="titlu">Revista</h2>
 
     <p class="subtitlu">
-        O secțiune nouă pentru articole și conținut editorial.
+        Numerele publicate ale revistei școlii.
     </p>
 
-    <div class="card" style="text-align:center;">
-        <div class="icon">📰</div>
-        <h3>În curând</h3>
-        <p>
-            Revista este în pregătire. Aici va fi adăugată o funcționalitate nouă.
-        </p>
+    <div id="listaNumereRevistaSite" class="revista-lista">
+        <p>Se încarcă...</p>
     </div>
 
 </section>

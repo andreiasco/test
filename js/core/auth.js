@@ -468,6 +468,9 @@ async function afiseazaAdmin(user) {
     incarcaLimbaAdmin();
     if (typeof initializeazaQuizAdmin === "function") initializeazaQuizAdmin();
     if (typeof incarcaQuizuriAdmin === "function") incarcaQuizuriAdmin();
+    if (typeof incarcaContAdmin === "function") incarcaContAdmin();
+    if (typeof incarcaRevistaAdmin === "function") incarcaRevistaAdmin();
+    if (typeof incarcaNumereRevistaAdmin === "function") incarcaNumereRevistaAdmin();
 
 }
 
@@ -567,12 +570,75 @@ async function utilizatorAutentificat() {
 
 
 // ======================================================
+// AUTO-DELOGARE DUPĂ ABSENȚĂ (10 minute)
+// ======================================================
+
+const CHEIE_ULTIMA_ACTIVITATE = "romana_ultima_activitate";
+const LIMITA_ABSENTA_MS = 10 * 60 * 1000; // 10 minute
+
+function noteazaActivitate() {
+    localStorage.setItem(CHEIE_ULTIMA_ACTIVITATE, Date.now().toString());
+}
+
+function aExpiratAbsenta() {
+    const ultima = Number(localStorage.getItem(CHEIE_ULTIMA_ACTIVITATE));
+    if (!ultima) return false;
+    return (Date.now() - ultima) > LIMITA_ABSENTA_MS;
+}
+
+// Verifică dacă utilizatorul a lipsit de pe site peste limita permisă
+// (tab închis/ascuns sau pagină nouă) și, dacă da, îl deloghează.
+async function verificaAbsentaSiDelogheaza() {
+
+    const trebuieDelogat = aExpiratAbsenta();
+    noteazaActivitate();
+
+    if (!trebuieDelogat) {
+        return false;
+    }
+
+    const { data } = await supabaseClient.auth.getSession();
+
+    if (data && data.session) {
+        await supabaseClient.auth.signOut();
+    }
+
+    return trebuieDelogat;
+
+}
+
+document.addEventListener("visibilitychange", function () {
+
+    if (document.visibilityState === "visible") {
+        verificaAbsentaSiDelogheaza();
+    } else {
+        noteazaActivitate();
+    }
+
+});
+
+window.addEventListener("beforeunload", noteazaActivitate);
+window.addEventListener("pagehide", noteazaActivitate);
+window.addEventListener("focus", verificaAbsentaSiDelogheaza);
+
+// Reîmprospătează timestamp-ul doar cât tab-ul e efectiv vizibil,
+// altfel un tab lăsat deschis în fundal nu ar mai expira niciodată.
+setInterval(function () {
+    if (document.visibilityState === "visible") {
+        verificaAbsentaSiDelogheaza();
+    }
+}, 60 * 1000);
+
+
+// ======================================================
 // VERIFICĂ SESIUNEA
 // ======================================================
 
 async function verificaSesiunea() {
 
     try {
+
+        await verificaAbsentaSiDelogheaza();
 
         const {
             data,
