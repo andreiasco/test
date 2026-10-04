@@ -150,40 +150,62 @@ function aplicaQuizGeneratAI(payload) {
     renumeroteazaEditoareQuiz();
 }
 
-async function genereazaQuizCuAI() {
-    const button = document.getElementById("genereazaQuizAI");
+let quizAiBusy = false;
+async function genereazaMaterialCuAI(kind) {
+    if (quizAiBusy) return;
     const tema = document.getElementById("quizAiTema")?.value.trim() || "";
-    if (tema.length < 3) return statusQuizAI("Scrie tema quiz-ului.", true);
-    const { data: sessionData } = await supabaseClient.auth.getSession();
-    if (!sessionData?.session) return statusQuizAI("Trebuie să fii autentificat.", true);
-    const role = await obtineRolUtilizator(sessionData.session.user);
-    if (role !== "admin") return statusQuizAI("Generatorul AI este disponibil doar administratorului.", true);
-
-    const count = Math.max(3, Math.min(12, Number(document.getElementById("quizAiCount")?.value || 8)));
-    const body = {
-        topic: tema,
-        count,
-        game_mode: currentQuizMode(),
-        grade: document.getElementById("quizClasa")?.value || "general",
-        difficulty: document.getElementById("quizDificultate")?.value || "medium"
-    };
-    if (button) button.disabled = true;
-    statusQuizAI("AI-ul pregătește provocările...");
+    if (tema.length < 3) return statusQuizAI("Scrie tema materialului.", true);
+    const grade = document.getElementById("quizClasa")?.value;
+    if (!["5", "6", "7", "8"].includes(grade)) return statusQuizAI("Alege o clasă, de la a V-a la a VIII-a.", true);
+    if (!SchoolAI.ready) return statusQuizAI('Apasă mai întâi „Activează AI local”.', true);
+    const buttons = [document.getElementById("genereazaQuizAI"), document.getElementById("genereazaFisaAI")];
+    quizAiBusy = true;
+    buttons.forEach(b => { if (b) b.disabled = true; });
+    const epoch = aiAssistantEpoch;
     try {
-        const { data, error } = await supabaseClient.functions.invoke("ai-generate-quiz", { body });
-        if (error) throw error;
-        aplicaQuizGeneratAI(data?.quiz);
-        statusQuizAI(`Au fost generate ${data.quiz.questions.length} provocări. Verifică-le înainte de salvare.`);
+        const { data, error } = await supabaseClient.auth.getSession();
+        if (error || !data?.session) throw new Error("Trebuie să fii autentificat.");
+        const userId = data.session.user.id;
+        if (await obtineRolUtilizator(data.session.user) !== "admin") throw new Error("Generatorul este disponibil doar administratorului.");
+        statusQuizAI("Pregătesc materialul sursă…");
+        let source = document.getElementById("quizAiSource")?.value.trim() || "";
+        if (!source) source = (await AIMaterials.find(tema)).map(s => s.title + "\n" + s.text).join("\n\n");
+        if (!source) throw new Error("Nu am găsit text relevant în materialele accesibile. Copiază teoria sau fragmentul în câmpul de text sursă.");
+        const options = {
+            topic: tema, grade, source,
+            count: Number(document.getElementById("quizAiCount")?.value || 8),
+            game_mode: currentQuizMode(),
+            difficulty: document.getElementById("quizDificultate")?.value || "medium"
+        };
+        if (epoch !== aiAssistantEpoch) return;
+        statusQuizAI("AI-ul pregătește materialul…");
+        const result = kind === "worksheet" ? await AIGenerators.worksheet(options) : await AIGenerators.quiz(options, statusQuizAI);
+        const { data: current } = await supabaseClient.auth.getSession();
+        if (epoch !== aiAssistantEpoch || current?.session?.user.id !== userId || await obtineRolUtilizator(current.session.user) !== "admin") return;
+        if (kind === "worksheet") {
+            document.getElementById("aiWorksheetText").value = result.text;
+            document.getElementById("aiWorksheetAnswers").value = result.answers;
+            document.getElementById("aiWorksheetResult").classList.remove("ascuns");
+            statusQuizAI("Fișa și baremul sunt gata pentru verificare și editare. Nu au fost publicate.");
+        } else {
+            // Never overwrite an existing saved quiz or expose generated content by default.
+            document.getElementById("quizEditId").value = "";
+            document.getElementById("quizPublicat").checked = false;
+            document.getElementById("quizClasa").value = options.grade;
+            document.getElementById("quizDificultate").value = options.difficulty;
+            aplicaQuizGeneratAI(result);
+            statusQuizAI(`Au fost generate ${result.questions.length} provocări. Verifică-le înainte de salvare; publicarea este dezactivată.`);
+        }
     } catch (error) {
-        console.error("Generate quiz AI:", error);
-        statusQuizAI("Nu am putut genera quiz-ul. Verifică funcția AI din Supabase.", true);
+        if (epoch === aiAssistantEpoch) statusQuizAI(error.message || "Generarea nu a reușit. Încearcă din nou.", true);
     } finally {
-        if (button) button.disabled = false;
+        quizAiBusy = false;
+        buttons.forEach(b => { if (b) b.disabled = false; });
     }
 }
-
+function genereazaQuizCuAI() { return genereazaMaterialCuAI("quiz"); }
 (function attachQuizAIWhenReady() {
-    const form = document.getElementById("quizAdminForm");
-    if (!form) return;
+    if (!document.getElementById("quizAdminForm")) return;
     document.getElementById("genereazaQuizAI")?.addEventListener("click", genereazaQuizCuAI);
+    document.getElementById("genereazaFisaAI")?.addEventListener("click", () => genereazaMaterialCuAI("worksheet"));
 })();

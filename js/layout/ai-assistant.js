@@ -6,6 +6,17 @@ const AI_ASSISTANT_HTML = `
         <span class="ai-assistant-avatar" aria-hidden="true">🤖</span>
         <div><strong>Profesor AI</strong><small>Limba și literatura română</small></div>
     </div>
+    <div class="ai-local-card">
+        <strong>AI gratuit, pe acest calculator</strong>
+        <p>Prima activare descarcă aproximativ 2,5 GB. Ai nevoie de un calculator cu memorie grafică suficientă (circa 4 GB) și de un browser compatibil. Mesajele sunt procesate local. Răspunsurile pot conține greșeli.</p>
+        <button type="button" data-ai-activate data-ai-status="aiLocalStatus">Activează AI local</button>
+        <button type="button" data-ai-stop data-ai-status="aiLocalStatus">Oprește AI</button>
+        <p id="aiLocalStatus" role="status"></p>
+    </div>
+    <label class="ai-study-label">Clasa
+        <select id="aiAssistantGrade"><option value="">Alege clasa</option><option value="5">a V-a</option><option value="6">a VI-a</option><option value="7">a VII-a</option><option value="8">a VIII-a</option></select>
+    </label>
+    <details class="ai-study-label"><summary>Text de studiu (opțional)</summary><textarea id="aiStudyText" maxlength="6000" rows="3" placeholder="Copiază un fragment din lecție. Altfel, caut în materialele site-ului."></textarea></details>
     <div id="aiAssistantMessages" class="ai-assistant-messages" aria-live="polite">
         <div class="ai-message ai-message-bot">Bună! Îți pot explica o lecție, te pot ajuta să înțelegi o greșeală sau îți pot crea exerciții de antrenament.</div>
     </div>
