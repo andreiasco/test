@@ -1,3 +1,11 @@
+# Configurația AI actuală
+
+Profesorul AI pentru elevi răspunde online prin funcția Supabase `ai-assistant`; elevul nu descarcă un model și nu are nevoie de WebGPU. Această corecție refolosește contractul original `{messages}` → `{answer}`. Funcția nu este inclusă în depozit; configurarea ei, serviciul AI folosit, costurile, accesul la materiale și răspunsurile reale nu au fost verificate. Cheia serviciului AI se păstrează doar pe server. Nu se promite gratuitate nelimitată.
+
+Generatorul de quiz-uri și fișe pentru administrator rămâne local și necesită activarea/descărcarea descrise mai jos. Notele despre asistentul elevilor din secțiunea istorică nu mai descriu comportamentul actual.
+
+## Istoric: integrarea locală inițială
+
 # AI local gratuit — variantă de test
 
 Integrarea folosește WebLLM 0.2.85 și Qwen3-4B-q4f16_1-MLC. Inferența se face în browser, într-un Web Worker. Nu există cheie API, apel de inferență către Supabase/Gemini/OpenAI sau trecere automată la un serviciu plătit. Găzduirea, traficul și stocarea site-ului își păstrează condițiile existente.

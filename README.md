@@ -1,6 +1,6 @@
-# AI local gratuit (variantă de test)
+# Profesor AI online și generator local
 
-Asistentul elevilor și generatorul de quiz-uri/fișe folosesc acum un model local în browser. Nu este necesară o cheie API. Vezi [AI_LOCAL.md](AI_LOCAL.md) pentru utilizare, cerințe hardware și limitele verificării. Secțiunile de mai jos păstrează istoricul proiectului; configurările AI cu Edge Functions descriu varianta anterioară.
+Profesorul AI al elevilor apelează funcția Supabase `ai-assistant` și nu descarcă un model. Funcția și serviciul AI din spatele ei trebuie configurate pe server; existența și gratuitatea lor nu au fost confirmate. Generatorul administratorului rămâne local. Vezi [AI_LOCAL.md](AI_LOCAL.md) pentru detalii.
 
 # Site modularizat
 
