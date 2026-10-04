@@ -1,3 +1,7 @@
+# AI local gratuit (variantă de test)
+
+Asistentul elevilor și generatorul de quiz-uri/fișe folosesc acum un model local în browser. Nu este necesară o cheie API. Vezi [AI_LOCAL.md](AI_LOCAL.md) pentru utilizare, cerințe hardware și limitele verificării. Secțiunile de mai jos păstrează istoricul proiectului; configurările AI cu Edge Functions descriu varianta anterioară.
+
 # Site modularizat
 
 Structura proiectului a fost reorganizată fără schimbarea logicii existente. Fișierele mari `js/site.js`, `js/admin.js` și `css/site.css` au fost împărțite pe responsabilități.

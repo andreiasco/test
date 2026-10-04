@@ -33,14 +33,28 @@ const ADMIN_QUIZ_FORM_HTML = `
             <div class="quiz-ai-generator-head">
                 <div><h4>✨ Generează provocările cu AI</h4><p>AI-ul completează editorul. Verifică întrebările înainte să salvezi sau să publici.</p></div>
             </div>
+            <div class="ai-local-card">
+        <strong>AI gratuit, pe acest calculator</strong>
+        <p>Prima activare descarcă aproximativ 2,5 GB. Ai nevoie de un calculator cu memorie grafică suficientă (circa 4 GB) și de un browser compatibil. Mesajele sunt procesate local. Răspunsurile pot conține greșeli.</p>
+        <button type="button" data-ai-activate data-ai-status="quizLocalStatus">Activează AI local</button>
+        <button type="button" data-ai-stop data-ai-status="quizLocalStatus">Oprește AI</button>
+        <p id="quizLocalStatus" role="status"></p>
+    </div>
             <div class="quiz-ai-generator-grid">
                 <label>Tema quiz-ului<input id="quizAiTema" type="text" maxlength="180" placeholder="Ex.: Verbul, modurile și timpurile verbale"></label>
                 <label>Număr provocări<select id="quizAiCount"><option>3</option><option>5</option><option selected>8</option><option>10</option><option>12</option></select></label>
             </div>
+            <label>Text sursă / repere pentru AI<textarea id="quizAiSource" rows="3" maxlength="6000" placeholder="Copiază teoria sau fragmentul pe baza căruia vrei să generezi. Dacă lași gol, caut în materialele site-ului."></textarea></label>
             <div class="quiz-ai-generator-actions">
                 <button type="button" class="admin-btn" id="genereazaQuizAI">✨ Generează cu AI</button>
+                <button type="button" class="admin-btn secondary" id="genereazaFisaAI">Generează o fișă cu barem</button>
                 <p id="quizAiStatus" class="quiz-ai-generator-status" aria-live="polite"></p>
             </div>
+            <section id="aiWorksheetResult" class="ascuns" aria-label="Fișă generată">
+                <p>Propunere editabilă. Verifică exactitatea și punctajul înainte de folosire.</p>
+                <label>Fișa elevului<textarea id="aiWorksheetText" rows="16"></textarea></label>
+                <details><summary>Barem de corectare și notare</summary><textarea id="aiWorksheetAnswers" rows="12" aria-label="Barem editabil"></textarea></details>
+            </section>
         </div>
 
         <label>Descriere / introducerea aventurii<textarea id="quizDescriere" rows="2" maxlength="300" placeholder="Ex.: Intră în castel și treci de toate provocările!"></textarea></label>
