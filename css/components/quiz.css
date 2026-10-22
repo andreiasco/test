@@ -1682,8 +1682,6 @@
     line-height: 1.55;
     white-space: pre-wrap;
     overflow-wrap: anywhere;
-    overflow: auto;
-    max-height: min(38vh, 320px)
 }
 
 .quiz-ai-explanation.loading {
