@@ -1,3 +1,7 @@
+# Profesor AI online și generator local
+
+Profesorul AI al elevilor apelează funcția Supabase `ai-assistant` și nu descarcă un model. Funcția și serviciul AI din spatele ei trebuie configurate pe server; existența și gratuitatea lor nu au fost confirmate. Generatorul administratorului rămâne local. Vezi [AI_LOCAL.md](AI_LOCAL.md) pentru detalii.
+
 # Site modularizat
 
 Structura proiectului a fost reorganizată fără schimbarea logicii existente. Fișierele mari `js/site.js`, `js/admin.js` și `css/site.css` au fost împărțite pe responsabilități.

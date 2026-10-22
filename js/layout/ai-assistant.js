@@ -6,6 +6,11 @@ const AI_ASSISTANT_HTML = `
         <span class="ai-assistant-avatar" aria-hidden="true">🤖</span>
         <div><strong>Profesor AI</strong><small>Limba și literatura română</small></div>
     </div>
+    <p class="ai-assistant-status">Asistent online, fără descărcarea unui model. Întrebările și textul de studiu sunt trimise serverului pentru răspuns.</p>
+    <label class="ai-study-label">Clasa
+        <select id="aiAssistantGrade"><option value="">Alege clasa</option><option value="5">a V-a</option><option value="6">a VI-a</option><option value="7">a VII-a</option><option value="8">a VIII-a</option></select>
+    </label>
+    <details class="ai-study-label"><summary>Text de studiu (opțional)</summary><textarea id="aiStudyText" maxlength="6000" rows="3" placeholder="Copiază un fragment din lecție. Altfel, caut în materialele site-ului."></textarea></details>
     <div id="aiAssistantMessages" class="ai-assistant-messages" aria-live="polite">
         <div class="ai-message ai-message-bot">Bună! Îți pot explica o lecție, te pot ajuta să înțelegi o greșeală sau îți pot crea exerciții de antrenament.</div>
     </div>

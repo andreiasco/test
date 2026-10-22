@@ -1,0 +1,12 @@
+.ai-local-card { border: 1px solid #a78bfa; border-radius: 12px; padding: 12px; background: rgba(124,58,237,.09); }
+.ai-local-card p { font-size: .85rem; line-height: 1.5; margin: 6px 0; }
+.ai-local-card button { padding: 8px 10px; border: 1px solid #a78bfa; border-radius: 8px; margin: 4px 4px 0 0; background: #6d28d9; color: white; cursor: pointer; }
+.ai-local-card button:disabled { opacity: .6; cursor: wait; }
+.ai-study-label { display: block; font-size: .9rem; }
+.ai-study-label select, .ai-study-label textarea { display: block; width: 100%; margin-top: 6px; background: #fff; color: #171327; border: 1px solid #a78bfa; border-radius: 6px; padding: 6px; }
+#aiAssistant { overflow-y: auto; }
+#aiAssistantMessages { min-height: 100px; flex: 1 0 140px; }
+#aiWorksheetResult textarea { width: 100%; padding: 12px; line-height: 1.6; resize: vertical; font: 12pt/1.6 'Times New Roman', serif; background: #fff; color: #171327; }
+#aiWorksheetResult details { margin-top: 14px; }
+#aiWorksheetResult summary, .ai-study-label summary { cursor: pointer; }
+.ai-message-sources { display: block; margin-top: 8px; font-size: .8rem; opacity: .85; }
