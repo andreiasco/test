@@ -1,0 +1,174 @@
+/* Shared visual system. Loaded last so all pages use the same controls. */
+:root {
+    --paper: #f8f9fb;
+    --paper-alt: #eef2f4;
+    --line: #dfe5eb;
+    --ink-soft: #5c6b7c;
+    --surface: #fff;
+    --shadow-soft: 0 8px 30px #142c5408;
+}
+body { font-family: 'Segoe UI', system-ui, sans-serif; line-height: 1.55; background: var(--paper); color: var(--navy); }
+h1, h2, h3, h4, .titlu, .autor-nume, .home-hero h1, .home-section-heading h2,
+.card h3, .quiz-card h3, .kahoot-card h3, .login-box h2, .admin-box h3 {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    letter-spacing: -.035em;
+    line-height: 1.18;
+}
+:where(a, button, input, select, textarea, summary):focus-visible {
+    outline: 3px solid #548fba;
+    outline-offset: 4px;
+}
+:where(section[id], article[id], div[id]) { scroll-margin-top: calc(var(--site-nav-height) + 24px); }
+nav {
+    padding: 12px clamp(16px, 4vw, 64px);
+    gap: 16px;
+    border-bottom: 1px solid #ffffff16;
+    box-shadow: 0 4px 18px #10234214;
+}
+.nav-links { gap: 4px; justify-content: flex-start; }
+nav a { padding: 10px 13px; border-radius: 10px; font-weight: 600; transition: background .18s; }
+nav a:hover, nav a[aria-current='page'] { color: #fff; background: #ffffff18; }
+.nav-tools { position: relative; top: auto; right: auto; transform: none; margin-left: auto; }
+nav .search-toggle, .account-menu summary { min-height: 42px; border-radius: 10px; border-color: #ffffff25; }
+.account-actions { border-radius: 14px; padding: 12px; box-shadow: 0 14px 40px #0e234330; }
+.account-actions button { border-radius: 8px; text-align: left; }
+.titlu { font-size: clamp(30px, 3.6vw, 44px); font-weight: 750; margin: 0 0 14px; }
+.subtitlu { max-width: 680px; margin: 0 auto 32px; font-size: 16px; line-height: 1.7; }
+.pagina:not(#pagina-acasa) section { margin-top: 40px; margin-bottom: 40px; }
+.cards { gap: 20px; align-items: stretch; }
+.card, .quiz-card, .kahoot-card, .admin-box, .login-box, .profile-box, .profile-panel,
+.intro-box, .rol-card, .howto-card {
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    background: var(--surface);
+    box-shadow: var(--shadow-soft);
+}
+.card { padding: 24px; transition: transform .18s, box-shadow .18s, border-color .18s; }
+.card:hover { transform: translateY(-3px); border-color: #a6c6c1; box-shadow: 0 12px 32px #142c5410; }
+.card h3 { font-size: 20px; }
+.card p { font-size: 14px; line-height: 1.65; }
+.card.autor { flex-basis: 290px; height: auto; min-height: 0; overflow: visible; }
+.autor-descriere { flex: 0 0 auto; min-height: 0; }
+.autor-descriere p { height: auto; max-height: 150px; }
+.autor-nume { font-size: 22px; padding: 12px 0; }
+.autor > .opera-list { max-height: 250px; margin-top: 16px; }
+.autor .portret { border-radius: 14px; }
+.clasa-limba-box .icon { display: inline-grid; place-items: center; width: 64px; height: 64px; border-radius: 18px; background: #eaf3f0; font-family: inherit; font-size: 32px; }
+.capitol-limba { background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--teal); border-radius: 14px; padding: 20px; }
+.capitol-limba h4 { font-size: 19px; }
+.capitol-limba > p { color: var(--ink-soft); font-size: 14px; margin: 8px 0 16px; }
+.limba-clasa-descriere, #poezie .subtitlu, #proza .subtitlu, #teatru .subtitlu { border-bottom: 1px solid var(--line); padding-bottom: 20px; }
+button, .opera-link, .home-cta, .kahoot-link, .buton { border-radius: 10px; }
+.opera-btn, .opera-link { padding: 10px 15px; background: #edf4f3; border: 1px solid #d2e3df; border-radius: 9px; color: var(--teal); font-weight: 650; font-size: 13px; }
+.opera-btn:hover, .opera-link:hover { background: var(--teal); border-color: var(--teal); color: #fff; }
+.login-btn, .admin-btn, .quiz-tab, .auth-tab, .reset-btn, .kahoot-link { border-radius: 10px; }
+:where(input:not([type='checkbox']):not([type='radio']), select, textarea),
+.login-box input, .auth-form select, .admin-box input, .admin-box textarea, .admin-box select {
+    border-radius: 10px;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    color: var(--navy);
+    font: inherit;
+    padding: 12px 14px;
+}
+input[type='checkbox'], input[type='radio'] { accent-color: var(--teal); }
+.search-results, .search-input { border-radius: 12px; }
+.admin-panel { border: 1px solid var(--line); border-radius: 20px; padding: 28px; box-shadow: var(--shadow-soft); }
+.admin-box { padding: 24px; }
+.home-page { background: var(--paper); }
+.home-hero { min-height: 430px; background: linear-gradient(120deg, #edf4f2, #f6efe6); border-bottom: 1px solid var(--line); padding: 64px max(7vw, 28px); grid-template-columns: minmax(0, 1fr); }
+.home-hero-copy { max-width: 840px; }
+.home-hero h1 { font-size: clamp(42px, 6vw, 72px); line-height: 1.05; font-weight: 780; }
+.home-kicker { font-size: 11px; letter-spacing: .16em; }
+.home-lead { font-size: clamp(21px, 2.6vw, 29px); line-height: 1.4; }
+.home-intro { font-size: 17px; }
+.home-hero-art { display: none; }
+.home-cta { border-radius: 12px; padding: 14px 22px; background: var(--teal); }
+.home-note, .home-discovery-grid > div, .home-values-grid > div { border-radius: 16px; border: 1px solid var(--line); background: var(--surface); box-shadow: var(--shadow-soft); }
+.home-section-heading h2 { font-size: clamp(28px, 3.5vw, 40px); }
+.home-story { border-color: var(--line); }
+.harta-layout .harta-canvas { background: #f0f3f2; border-radius: 20px; }
+.harta-layout .harta-popup { background: var(--surface); border-radius: 18px; box-shadow: var(--shadow-soft); }
+footer { border-top: 0; padding: 40px 24px; }
+footer h2 { font-size: 22px; }
+body.dark { --surface: #1b324e; --paper: #11253e; --paper-alt: #233e59; --line: #354d66; --ink-soft: #b7c7d6; color: #edf3f9; }
+body.dark .card, body.dark .capitol-limba, body.dark .admin-box, body.dark .profile-panel, body.dark .home-note,
+body.dark .home-discovery-grid > div, body.dark .home-values-grid > div, body.dark .harta-layout .harta-popup { background: var(--surface); border-color: var(--line); }
+body.dark .home-hero { background: linear-gradient(120deg, #193b43, #25334b); }
+body.dark .home-page { background: var(--paper); }
+body.dark .home-hero h1, body.dark .home-lead, body.dark .home-section-heading h2 { color: #f2f6fa; }
+body.dark .home-intro { color: var(--ink-soft); }
+body.dark .harta-layout .harta-canvas { background: #20394c; }
+body.dark .clasa-limba-box .icon { background: #294950; color: #a6d4cb; }
+@media (max-width: 900px) {
+    nav { justify-content: center; }
+    .nav-links { justify-content: center; flex: 1 1 100%; }
+    .nav-tools { margin: 0; }
+}
+@media (max-width: 600px) {
+    nav { padding: 10px 12px; gap: 8px; }
+    nav a { font-size: 12px; padding: 8px; }
+    .nav-links { gap: 2px; }
+    .pagina:not(#pagina-acasa) section { margin-top: 28px; margin-bottom: 28px; padding: 16px; }
+    .card, .card.autor { flex: 1 1 100%; min-width: 0; }
+    .home-hero { padding: 44px 24px; min-height: 0; }
+    .material-limba-actions { width: 100%; }
+    .material-limba-actions .opera-btn { flex: 1 1 auto; }
+    .admin-panel { padding: 16px; margin: 20px 12px; }
+    .search-container { max-width: calc(100vw - 24px); }
+}
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
+}
+
+.home-explainer { gap: 20px; }
+.citat { border-radius: 18px; }
+
+/* Equal author cards with centered portraits and biographies. */
+.card.autor {
+    flex: 0 0 290px;
+    width: 290px;
+    height: 520px;
+    min-height: 520px;
+    align-self: stretch;
+    overflow: hidden;
+}
+.card.autor .autor-descriere {
+    flex: 0 0 188px;
+    min-height: 188px;
+    text-align: center;
+}
+.card.autor .autor-nume {
+    min-height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+.card.autor .autor-descriere p {
+    max-height: 118px;
+    margin: 0;
+    overflow-y: auto;
+    text-align: center;
+}
+.card.autor > .opera-list {
+    flex: 1 1 auto;
+    min-height: 0;
+    max-height: none;
+    width: 100%;
+    overflow-y: auto;
+    margin-top: 16px;
+}
+@media (max-width: 600px) {
+    .card.autor { flex: 0 1 340px; width: 100%; max-width: 340px; }
+}
+
+.home-values-grid {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
+    gap: 20px;
+}
+.home-values-grid > div,
+.home-values-grid > div:last-child {
+    border: 1px solid var(--line);
+    padding: 24px;
+}

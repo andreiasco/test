@@ -40,6 +40,11 @@ function afiseazaPagina(hash = window.location.hash) {
         )
     );
 
+    document.querySelectorAll('.nav-links a').forEach(link => {
+        const target = (link.hash || '').slice(1);
+        if (pagini[target] === paginaId) link.setAttribute('aria-current', 'page');
+        else link.removeAttribute('aria-current');
+    });
     const element = document.getElementById(ancora);
 
     if (element && !esteRutaPrincipala) {

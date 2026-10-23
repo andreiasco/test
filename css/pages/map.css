@@ -473,143 +473,119 @@ body.dark main:has(.pagina.activ:not(#pagina-acasa)) {
     background: #132b4d;
 }
 
-/* CONTAINERUL PĂRINTE DIN SVG (Trebuie adăugat pentru a activa z-index în SVG) */
+/* Muted site-palette atlas styling; region paths retain their interactive semantics. */
+.harta-canvas,
+body.dark .harta-canvas {
+    width: min(100%, 760px);
+    padding: 18px;
+    background: var(--paper-alt);
+    border: 0;
+    border-radius: 16px;
+}
+
 #romania-regions {
     isolation: isolate;
 }
 
-/* Styling the region paths to act like buttons */
 .map-region-btn {
-    /* Default region background color - Default fill overriden by specific region IDs below */
-    fill: #f5ebe0;
-    stroke: #0b132b;
-    /* Linia dintre regiuni are acum culoarea fundalului închis */
-    stroke-width: 1.5;
-    /* O linie mai fină arată mai elegant pe web */
+    fill: var(--region-color);
+    stroke: #fff;
+    stroke-width: 10;
+    stroke-linejoin: round;
+    paint-order: stroke fill;
     cursor: pointer;
-    position: relative;
-    z-index: 1;
-    transform: translateZ(0);
-    transform-origin: center center;
-    will-change: transform, filter, stroke, fill;
-    transition: fill 0.25s ease, filter 0.25s ease, stroke 0.25s ease, transform 0.2s ease, z-index 0s linear;
-    pointer-events: visiblePainted;
-    isolation: isolate;
+    transform-box: fill-box;
+    transform-origin: center;
+    transform: scale(.945);
+    filter: drop-shadow(0 0 2px #718078) drop-shadow(0 3px 2px #00000024);
+    transition: filter .18s ease, transform .18s ease;
 }
 
-#romania-regions .map-region-btn {
-    position: relative;
-    z-index: 1;
-}
+#RO-BA { --region-color: #709c9b; }
+#RO-CR { --region-color: #87576b; }
+#RO-MA { --region-color: #bb8050; }
+#RO-TR { --region-color: #92976a; }
+#RO-OL { --region-color: #b76350; }
+#RO-MU { --region-color: #586c88; }
+#RO-DO { --region-color: #66846f; }
+#RO-MO { --region-color: #b47877; }
+#RO-BC { --region-color: #477879; }
 
-
-/* REPARTIZAREA NUANȚELOR DE BEJ PE REGIUNI */
-#RO-BA {
-    fill: #f5ebe0;
-}
-
-/* Banat */
-
-#RO-CR {
-    fill: #e3d5ca;
-}
-
-/* Crișana */
-
-#RO-MA {
-    fill: #d5bdaf;
-}
-
-/* Maramureș */
-
-#RO-TR {
-    fill: #eddfd3;
-}
-
-/* Transilvania */
-
-#RO-OL {
-    fill: #e6ccb2;
-}
-
-/* Oltenia */
-
-#RO-MU {
-    fill: #ddb892;
-}
-
-/* Muntenia */
-
-#RO-DO {
-    fill: #b7b7a4;
-}
-
-/* Dobrogea */
-
-#RO-MO {
-    fill: #f0e6ef;
-}
-
-/* Moldova */
-
-#RO-BC {
-    fill: #dbe7e4;
-}
-
-/* Bucovina */
-
-
-/* EFECTUL DE HOVER (Aici intervine Portocaliul tău Accent) */
 .map-region-btn:hover {
-    fill: #ff7900;
-    stroke: #ffffff;
-    stroke-width: 2;
-    filter: drop-shadow(0px 4px 12px rgba(255, 121, 0, 0.7)) drop-shadow(0px 0px 0px rgba(255, 255, 255, 0.8));
-    outline: none;
-    z-index: 20;
-    transform: scale(1.0025);
+    filter: brightness(1.09) drop-shadow(0 0 3px #53615b) drop-shadow(0 5px 4px #00000030);
+    transform: scale(.955);
 }
 
-.map-region-btn:focus,
-.map-region-btn:focus-visible {
-    outline: none;
-    box-shadow: none;
-}
-
-/* ACCESIBILITATE (Când navighezi cu tasta TAB) */
-.map-region-btn:focus-visible {
-    fill: #ff9130;
-    stroke: #ffffff;
-    stroke-width: 3;
-    outline: none;
-    z-index: 20;
-    transform: scale(1.0025);
-}
-
-/* EFECTUL DE CLICK / ACTIVE (Când se apasă fizic pe mouse) */
-.map-region-btn:active {
-    fill: #e06a00;
-    stroke: #ffffff;
-    z-index: 20;
-    transform: scale(1.003);
-}
-
-/* STAREA DE SELECTAT (Opțional)
-   Dacă adaugi din JavaScript clasa 'is-active' pe regiunea click-uită, 
-   aceasta va rămâne portocalie chiar și după ce muți mouse-ul de pe ea. */
+.map-region-btn:focus-visible,
 .map-region-btn.is-active {
-    fill: #ff7900;
-    stroke: #ffffff;
-    stroke-width: 2;
-    filter: drop-shadow(0px 2px 8px rgba(255, 121, 0, 0.6));
-    z-index: 20;
-    transform: scale(1.0015);
+    outline: none;
+    stroke: #253e54;
+    stroke-width: 14;
+    filter: brightness(1.08) drop-shadow(0 2px 3px #00000035);
 }
 
-.map-region-btn.is-active:hover,
-.map-region-btn.is-active:focus-visible {
-    fill: #ff7900;
-    stroke: #ffffff;
-    stroke-width: 2;
-    z-index: 20;
-    transform: scale(1.0025);
+.map-region-btn:active {
+    transform: scale(.935);
+}
+
+.map-region-labels-svg {
+    pointer-events: none;
+    fill: #fff;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 35px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    text-anchor: middle;
+    dominant-baseline: middle;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .map-region-btn { transition: none; }
+}
+
+/* A stable reading panel keeps region details clear of the map. */
+.harta-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 300px;
+    align-items: center;
+    gap: 24px;
+}
+
+.harta-layout .harta-canvas { width: 100%; }
+
+.harta-layout .harta-popup {
+    position: static;
+    width: auto;
+    max-width: none;
+    max-height: none;
+    min-height: 280px;
+    padding: 28px 24px;
+    border: 1px solid var(--line);
+    border-top: 3px solid var(--terracotta);
+    border-radius: 10px;
+    box-shadow: 0 8px 24px #142c5408;
+}
+
+.harta-panel-eyebrow {
+    margin: 0 0 18px;
+    color: var(--terracotta);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .16em;
+}
+
+.harta-popup h3 { font-size: 27px; line-height: 1.15; }
+#hartaPopupLista > p { color: var(--ink-soft); line-height: 1.7; font-size: 14px; }
+.harta-popup.is-empty .harta-popup-inchide { display: none; }
+.harta-popup { position: relative; }
+.harta-layout .harta-popup { position: relative; }
+.harta-popup-inchide { border: 0; border-radius: 50%; }
+.harta-popup li { padding: 14px 0; }
+.harta-popup li a { display: block; }
+.harta-popup li a strong { text-decoration: none !important; }
+.harta-popup li a:hover { color: var(--terracotta) !important; }
+
+@media (max-width: 850px) {
+    .harta-layout { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+    .harta-layout .harta-popup { min-height: 0; padding: 24px; }
+}
