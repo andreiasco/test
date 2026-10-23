@@ -355,7 +355,7 @@ async function actualizeazaStareAutentificare(user) {
         return;
     }
 
-    status.textContent = "Signed in: " + (user.email || "utilizator");
+    status.textContent = "Conectat: " + (user.email || "utilizator");
     status.classList.add("signed-in");
     logoutButton.classList.remove("ascuns");
     loginButton?.classList.add("ascuns");
@@ -392,7 +392,7 @@ function actualizeazaStareDelogata() {
         return;
     }
 
-    status.textContent = "Signed out";
+    status.textContent = "Neautentificat";
     status.classList.remove("signed-in");
     logoutButton.classList.add("ascuns");
     loginButton?.classList.remove("ascuns");

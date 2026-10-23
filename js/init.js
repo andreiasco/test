@@ -6,6 +6,28 @@ function afiseazaPagina(hash = window.location.hash) {
     const ancora = hash.replace("#", "") || "acasa";
     const pagini = {
         acasa: "pagina-acasa",
+        elevi: "pagina-elevi",
+        profesori: "pagina-profesori",
+        "scoala-altfel": "pagina-scoala-altfel",
+        jocuri: "pagina-quiz",
+        "profesor-ai": "pagina-profesor-ai",
+        abonamente: "pagina-abonamente",
+        ajutor: "pagina-ajutor",
+        contact: "pagina-contact",
+        "rezumate-literare": "pagina-elevi",
+        "biblioteca-vizuala": "pagina-elevi",
+        "evaluarea-nationala": "pagina-elevi",
+        "exercitii-recapitulari": "pagina-elevi",
+        "teste-evaluari": "pagina-profesori",
+        "adaptari-ces": "pagina-profesori",
+        "analiza-diagnoza": "pagina-profesori",
+        "planificare-remediala": "pagina-profesori",
+        "fise-remediale": "pagina-profesori",
+        "planificari-proiectari": "pagina-profesori",
+        "escape-games": "pagina-scoala-altfel",
+        "vanatori-comori": "pagina-scoala-altfel",
+        "clase-mici": "pagina-scoala-altfel",
+        "pachete-profesori": "pagina-scoala-altfel",
         "despre-noi": "pagina-acasa",
         functionalitati: "pagina-acasa",
         "how-to": "pagina-acasa",
@@ -20,12 +42,13 @@ function afiseazaPagina(hash = window.location.hash) {
         teatru: "pagina-literatura",
         quiz: "pagina-quiz",
         harta: "pagina-harta",
-        revista: "pagina-revista"
+        revista: "pagina-revista",
+        "numere-publicate": "pagina-revista"
     };
 
     const paginaId = pagini[ancora] || "pagina-acasa";
     const esteRutaPrincipala = [
-        "acasa",
+        "acasa", "elevi", "profesori", "scoala-altfel", "jocuri", "profesor-ai", "abonamente", "ajutor", "contact",
         "limba",
         "literatura",
         "quiz",
@@ -42,10 +65,16 @@ function afiseazaPagina(hash = window.location.hash) {
 
     document.querySelectorAll('.nav-links a').forEach(link => {
         const target = (link.hash || '').slice(1);
-        if (pagini[target] === paginaId) link.setAttribute('aria-current', 'page');
+        const studentRoute = ['pagina-limba', 'pagina-literatura'].includes(paginaId) && target === 'elevi';
+        const gameRoute = paginaId === 'pagina-quiz' && target === 'jocuri';
+        const samePage = pagini[target] === paginaId;
+        const homeLink = ancora === 'despre-noi' ? 'despre-noi' : 'acasa';
+        const currentPage = samePage && (paginaId !== 'pagina-acasa' || target === homeLink);
+        if (currentPage || studentRoute || gameRoute) link.setAttribute('aria-current', 'page');
         else link.removeAttribute('aria-current');
     });
     const element = document.getElementById(ancora);
+    if (element?.matches('details.alma-category')) element.open = true;
 
     if (element && !esteRutaPrincipala) {
         window.requestAnimationFrame(
@@ -125,6 +154,7 @@ document.addEventListener(
                 "ascuns"
             );
 
+            searchToggle.setAttribute("aria-expanded", "false");
             results.classList.remove(
                 "activ"
             );

@@ -5,6 +5,7 @@ const LANGUAGE_HTML = `
 
 
 <section id="limba">
+    <a class="alma-back" href="#elevi"> Biblioteca elevului</a>
 
     <h2 class="titlu">
         Limba română

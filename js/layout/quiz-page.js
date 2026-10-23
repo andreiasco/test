@@ -1,7 +1,8 @@
 // Componentă de layout: quiz-page.js
 const QUIZ_HTML = `
-<div id="pagina-quiz" class="pagina ascuns">
+<div id="pagina-quiz" class="pagina">
 <section id="quiz">
+    <span id="jocuri" aria-hidden="true"></span>
     <div class="quiz-page-heading">
         <span class="quiz-page-icon" aria-hidden="true">🏰</span>
         <div>

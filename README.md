@@ -1,3 +1,13 @@
+# EDU ALMA — navigare și identitate
+
+Interfața include bibliotecile Elevi și Profesori, Școala Altfel, Reviste, Jocuri și Profesor AI. Harta, povestea echipei, contactul, informațiile despre abonamente și ajutorul sunt accesibile direct în bara principală. Rutele existente (`#limba`, `#literatura`, `#quiz`, `#harta`, `#revista`) sunt păstrate.
+
+- `js/layout/catalog-pages.js`: categorii extensibile și legături către biblioteca existentă; colecțiile fără materiale sunt marcate „În pregătire”. Nu creează și nu mută înregistrări Supabase.
+- `css/themes/alma.css`: identitate bleumarin și auriu, componente și adaptare pentru mobil.
+- `assets/edu-alma-emblem.png`: emblemă restaurată cu ImageGen din fotografia furnizată, folosită în antet, pe pagina Acasă și în subsol. Pentru reproducere tipografică exactă se poate înlocui cu fișierul original al siglei.
+- Jocuri deschide direct catalogul de quiz-uri; pornirea unei aventuri și asistentul păstrează autentificarea existentă. Nu sunt introduse plăți, prețuri, drepturi premium sau emitere de adeverințe. Pagina Abonamente explică starea actuală.
+- Validare: `node --test tests/catalog-navigation.test.cjs tests/ai-local.test.cjs`.
+
 # Profesor AI online și generator local
 
 Profesorul AI al elevilor apelează funcția Supabase `ai-assistant` și nu descarcă un model. Funcția și serviciul AI din spatele ei trebuie configurate pe server; existența și gratuitatea lor nu au fost confirmate. Generatorul administratorului rămâne local. Vezi [AI_LOCAL.md](AI_LOCAL.md) pentru detalii.

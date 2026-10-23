@@ -12,6 +12,7 @@ const searchContainer =
 searchToggle.addEventListener("click", function () {
 
     searchContainer.classList.toggle("ascuns");
+    searchToggle.setAttribute("aria-expanded", String(!searchContainer.classList.contains("ascuns")));
 
     if (!searchContainer.classList.contains("ascuns")) {
 
@@ -50,3 +51,11 @@ function golesteCampuri(...iduri) {
     });
 }
 
+
+document.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && !searchContainer.classList.contains('ascuns')) {
+        searchContainer.classList.add('ascuns');
+        searchToggle.setAttribute('aria-expanded', 'false');
+        searchToggle.focus();
+    }
+});

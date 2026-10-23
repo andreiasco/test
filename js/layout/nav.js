@@ -4,32 +4,38 @@ const NAV_HTML = `
 
 
 
-<nav>
-
+<nav aria-label="Navigare principală">
+    <a class="alma-brand" href="${estePaginaAdmin ? "index.html" : ""}#acasa" aria-label="EDU ALMA — Acasă"><img src="assets/edu-alma-emblem.png" alt="" width="48" height="48"><span><strong><em>EDU</em> ALMA</strong><small>Educație Digitală Utilă</small></span></a>
     <div class="nav-links">
         <a href="${estePaginaAdmin ? "index.html" : ""}#acasa">Acasă</a>
-        <a href="${estePaginaAdmin ? "index.html" : ""}#limba">Limba română</a>
-        <a href="${estePaginaAdmin ? "index.html" : ""}#literatura">Literatura română</a>
-        <a id="quizNavLink" href="${estePaginaAdmin ? "index.html" : ""}#quiz">Quiz-uri</a>
-        <a href="${estePaginaAdmin ? "index.html" : ""}#harta">Hartă</a>
-        <a href="${estePaginaAdmin ? "index.html" : ""}#revista">Revista</a>
-        <a id="adminLink" class="ascuns" href="admin.html">Panou admin</a>
+        <a href="${estePaginaAdmin ? "index.html" : ""}#elevi">Elevi</a>
+        <a href="${estePaginaAdmin ? "index.html" : ""}#profesori">Profesori</a>
+        <a href="${estePaginaAdmin ? "index.html" : ""}#scoala-altfel">Școala Altfel</a>
+        <a href="${estePaginaAdmin ? "index.html" : ""}#revista">Reviste</a>
+        <a id="quizNavLink" href="${estePaginaAdmin ? "index.html" : ""}#jocuri">Jocuri</a>
+        <a href="${estePaginaAdmin ? "index.html" : ""}#profesor-ai">Profesor AI</a>
+            <a href="${estePaginaAdmin ? "index.html" : ""}#harta">Harta literară</a>
+            <a href="${estePaginaAdmin ? "index.html" : ""}#despre-noi">Despre noi</a>
+            <a href="${estePaginaAdmin ? "index.html" : ""}#contact">Contact</a>
+            <a href="${estePaginaAdmin ? "index.html" : ""}#abonamente">Abonamente</a>
+            <a href="${estePaginaAdmin ? "index.html" : ""}#ajutor">Ajutor</a>
+            <a id="adminLink" class="ascuns" href="admin.html">Panou admin</a>
+
     </div>
-    
     <div class="nav-tools">
 
-        <button id="searchToggle" class="search-toggle">
-            🔍 Search
+        <button id="searchToggle" class="search-toggle" type="button" aria-expanded="false" aria-controls="siteSearchPanel">
+            Caută
         </button>
 
         <details class="account-menu">
-            <summary>⚙️ Cont</summary>
+            <summary>Cont</summary>
 
             <div class="account-actions">
-            <span id="authStatus" class="auth-status">Signed out</span>
+            <span id="authStatus" class="auth-status">Neautentificat</span>
 
             <button id="loginButton" onclick="afiseazaLogin()">
-                🔐 Logare / Register
+                Autentificare / Înregistrare
             </button>
 
             <button id="aiAssistantButton" class="ascuns" type="button">
@@ -50,7 +56,9 @@ const NAV_HTML = `
             </div>
         </details>
 
-        <div class="search-container ascuns">
+        <div id="siteSearchPanel" class="search-container ascuns" role="search" aria-label="Caută în site">
+        <label class="search-panel-label" for="searchInput">Ce vrei să descoperi?</label>
+        <p class="search-panel-hint">Caută un autor, o operă sau o poezie.</p>
 
         <input
             type="search"
