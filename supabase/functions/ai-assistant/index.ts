@@ -1,6 +1,6 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-const MODEL = "gemini-3.6-flash";
+const MODEL = "gpt-5.4-mini";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -299,12 +299,13 @@ function localFallback(sources: Source[]) {
   return `Am găsit informația în materialul „${source.title}”${author}. Modulul AI este temporar indisponibil, dar acesta este fragmentul relevant din material:\n\n${shortExcerpt}`;
 }
 
-async function callGemini(url: string, apiKey: string, body: unknown) {
+async function callOpenAI(apiKey: string, body: unknown) {
+  const url = "https://api.openai.com/v1/responses";
   const options: RequestInit = {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "x-goog-api-key": apiKey,
+      "Authorization": `Bearer ${apiKey}`,
     },
     body: JSON.stringify(body),
   };
@@ -368,7 +369,7 @@ Deno.serve(async (req) => {
     const fallback = localFallback(sources);
 
     // Profesorul răspunde numai din materialele site-ului.
-    // Dacă nu găsim surse, nu consumăm o cerere Gemini.
+    // Dacă nu găsim surse, nu consumăm o cerere OpenAI.
     if (!sources.length) {
       return json({
         answer: "Nu am găsit informații despre acest subiect în materialele site-ului.",
@@ -376,9 +377,9 @@ Deno.serve(async (req) => {
       });
     }
 
-    const geminiApiKey = Deno.env.get("GEMINI_API_KEY");
-    if (!geminiApiKey) {
-      return json({ answer: fallback, source: "site", temporary_error: true });
+    const openaiApiKey = Deno.env.get("OPENAI_API_KEY");
+    if (!openaiApiKey) {
+      return json({ answer: fallback, source: "site", temporary_error: true, reason: "openai_not_configured" });
     }
 
     const systemPrompt = `
@@ -408,51 +409,64 @@ REGULI:
         // împreună cu instrucțiunile adăugate de interfață.
         const text = String(m?.content || "").trim().slice(0, 8000);
         if (!text) return null;
-        return { role: m?.role === "assistant" ? "model" : "user", parts: [{ text }] };
+        return { role: m?.role === "assistant" ? "assistant" : "user", content: text };
       })
       .filter(Boolean);
 
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`;
-
     let response: Response;
     try {
-      response = await callGemini(url, geminiApiKey, {
-        systemInstruction: { parts: [{ text: systemPrompt }] },
-        contents: cleanMessages,
-        generationConfig: { temperature: 0.15, maxOutputTokens: 4096 },
+      response = await callOpenAI(openaiApiKey, {
+        model: MODEL,
+        instructions: systemPrompt,
+        input: cleanMessages,
+        reasoning: { effort: "low" },
+        max_output_tokens: 4096,
+        store: false,
       });
     } catch (error) {
-      console.error("Gemini network:", error);
-      return json({ answer: fallback, source: "site", temporary_error: true });
+      console.error("OpenAI network:", error);
+      return json({ answer: fallback, source: "site", temporary_error: true, reason: "openai_error" });
     }
 
     if (!response.ok) {
-      const details = await response.text();
-      console.error(`Gemini ${response.status}:`, details);
+      console.error(`OpenAI HTTP ${response.status}`);
       return json({
         answer: fallback,
         source: "site",
         temporary_error: true,
-        reason: response.status === 429 ? "rate_limit" : "gemini_error",
+        reason: response.status === 429 ? "rate_limit" : "openai_error",
       });
     }
 
     const data = await response.json();
-    const candidate = data?.candidates?.[0];
-    const answer = candidate?.content?.parts
-      ?.map((part: any) => typeof part?.text === "string" ? part.text : "")
-      .join("")
-      .trim() || "";
+    const answer = (Array.isArray(data?.output) ? data.output : [])
+      .filter((item: any) => item?.type === "message" && item?.role === "assistant")
+      .flatMap((item: any) => Array.isArray(item?.content) ? item.content : [])
+      .map((part: any) => {
+        if (part?.type === "output_text" && typeof part.text === "string") return part.text;
+        if (part?.type === "refusal" && typeof part.refusal === "string") return part.refusal;
+        return "";
+      })
+      .filter(Boolean)
+      .join("\n")
+      .trim();
 
-    if (!answer) {
-      return json({ answer: fallback, source: "site", temporary_error: true });
+    if (!answer || !["completed", "incomplete"].includes(data?.status)) {
+      return json({ answer: fallback, source: "site", temporary_error: true, reason: "openai_error" });
     }
+
+    const incomplete = data.status === "incomplete";
+    const finishReason = !incomplete ? "STOP"
+      : data.incomplete_details?.reason === "max_output_tokens" ? "MAX_TOKENS"
+      : data.incomplete_details?.reason === "content_filter" ? "CONTENT_FILTER"
+      : "INCOMPLETE";
 
     return json({
       answer,
-      source: "site+gemini",
+      source: "site+openai",
       sources_used: sources.slice(0, 3).map((s) => ({ type: s.type, title: s.title, author: s.author || null })),
-      finish_reason: candidate?.finishReason ?? null,
+      finish_reason: finishReason,
+      incomplete,
     });
   } catch (error) {
     console.error("ai-assistant fatal:", error);

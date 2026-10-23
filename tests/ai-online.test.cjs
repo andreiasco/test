@@ -56,6 +56,22 @@ test('online assistant labels MAX_TOKENS output as incomplete without discarding
     assert.equal(calls.length, 1, 'truncation must not trigger another inference request automatically');
 });
 
+test('online assistant labels other incomplete OpenAI responses without discarding partial text', async t => {
+    const answer = 'Explicația începe cu definiția verbului.';
+    const { window, element, calls } = createAssistant(t, {
+        answer,
+        source: 'site+openai',
+        finish_reason: 'CONTENT_FILTER',
+        incomplete: true,
+    });
+    await window.sendAiAssistantMessage('Explică-mi verbul.');
+    assert.equal(element('aiAssistantMessages').lastElementChild.textContent, answer);
+    assert.match(element('aiAssistantStatus').textContent, /Răspuns incomplet/);
+    assert.doesNotMatch(element('aiAssistantStatus').textContent, /Răspuns generat cu AI/);
+    assert.equal(element('aiAssistantSend').disabled, false);
+    assert.equal(calls.length, 1, 'incomplete output must not trigger another inference request automatically');
+});
+
 test('online assistant distinguishes a temporary fallback from generated AI output', async t => {
     const answer = 'Modulul AI este temporar indisponibil. Fragment din material: Verbul exprimă o acțiune.';
     const { window, element, calls } = createAssistant(t, { answer, source: 'site', temporary_error: true });
