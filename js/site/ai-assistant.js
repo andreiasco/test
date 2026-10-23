@@ -69,7 +69,13 @@ async function sendAiAssistantMessage(message) {
         aiAssistantHistory.push({ role: 'user', content: text }, { role: 'assistant', content: answer });
         if (aiAssistantHistory.length > 4) aiAssistantHistory.splice(0, aiAssistantHistory.length - 4);
         if (input && input.value.trim() === text) input.value = '';
-        status.textContent = 'Răspuns generat cu AI. Verifică explicația în materialul de studiu.';
+        if (result.finish_reason === 'MAX_TOKENS') {
+            status.textContent = 'Răspuns incomplet: generarea s-a întrerupt înainte de final. Încearcă o întrebare mai precisă.';
+        } else if (result.temporary_error) {
+            status.textContent = 'Profesorul AI este temporar indisponibil. Încearcă din nou mai târziu.';
+        } else {
+            status.textContent = 'Răspuns generat cu AI. Verifică explicația în materialul de studiu.';
+        }
     } catch (error) {
         if (epoch === aiAssistantEpoch) status.textContent = error.message || 'AI indisponibil momentan.';
     } finally {
