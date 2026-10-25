@@ -30,6 +30,7 @@ window.CastleQuiz3D = (() => {
     let ambientPulse = 0;
     let usingGlbHero = false;
     let usingGlbMonster = false;
+    let currentWorld = 'castle';
     let surfaces = null;
     let environmentTarget = null;
     let shadowTexture = null;
@@ -847,15 +848,7 @@ window.CastleQuiz3D = (() => {
             flame.scale.set(s, 1 + Math.cos(t * 7.1 + phase) * 0.06 * motion, s);
         });
         torchLights.forEach(light => { light.intensity = light.userData.baseIntensity * (1 + Math.sin(t * 5.3 + light.position.z) * 0.035 * motion); });
-        if (particles && motion) {
-            const positions = particles.geometry.getAttribute("position");
-            const base = particles.userData.basePositions;
-            for (let i = 0; i < positions.count; i++) {
-                positions.setX(i, base[i * 3] + Math.cos(t * 0.25 + i) * 0.025);
-                positions.setY(i, base[i * 3 + 1] + Math.sin(t * 0.4 + i) * 0.05);
-            }
-            positions.needsUpdate = true;
-        }
+        updateParticles(t, motion);
         animateHero(t, delta); animateMonster(t); updateFx(time, delta);
         if (heroShadow && hero) { heroShadow.position.x = hero.position.x; heroShadow.position.z = hero.position.z; }
         if (monsterShadow) {
@@ -865,6 +858,27 @@ window.CastleQuiz3D = (() => {
         if (roomMoodLight) roomMoodLight.intensity = roomMoodLight.userData.baseIntensity * (1 + Math.sin(t * 5) * 0.035 * ambientPulse * motion);
         ambientPulse = Math.max(0, ambientPulse - delta * 0.7);
         renderer.render(scene, camera);
+    }
+
+    function updateParticles(t, motion) {
+        if (!particles || !motion) return;
+        if (particles.isPoints) {
+            const positions = particles.geometry.getAttribute("position");
+            const base = particles.userData.basePositions;
+            for (let i = 0; i < positions.count; i++) {
+                positions.setX(i, base[i * 3] + Math.cos(t * 0.25 + i) * 0.025);
+                positions.setY(i, base[i * 3 + 1] + Math.sin(t * 0.4 + i) * 0.05);
+            }
+            positions.needsUpdate = true;
+        } else {
+            particles.children.forEach(flake => {
+                const data = flake.userData;
+                data.baseY ??= flake.position.y;
+                flake.position.y = data.snow
+                    ? 0.5 + ((data.baseY - 0.5 - t * 0.28) % 4.5 + 4.5) % 4.5
+                    : data.baseY + Math.sin(t * 0.4 + data.phase) * 0.08;
+            });
+        }
     }
 
     function tween(duration, updater, easing = (p) => p * p * (3 - 2 * p)) {
@@ -915,6 +929,7 @@ window.CastleQuiz3D = (() => {
     async function init(targetCanvas, world = 'castle') {
         dispose(false);
         const ticket = lifecycle;
+        currentWorld = window.QuizWorlds?.normalize(world) || 'castle';
         canvas = targetCanvas;
         if (!canvas) return false;
         const loading = document.getElementById("castleLoading");
@@ -938,7 +953,13 @@ window.CastleQuiz3D = (() => {
         camera = new THREE.PerspectiveCamera(48, 16 / 9, 0.1, 60);
         camera.position.set(0.9, 2.15, 7.4);
         camera.lookAt(0, 1.3, -1.8);
-        buildCastle();
+        if (currentWorld === 'castle') buildCastle();
+        else {
+            createEnvironment();
+            const environment = window.QuizWorldScenery.buildEnvironment({ THREE, scene, world: currentWorld, mat, makeMesh });
+            door = environment.door;
+            particles = environment.particles;
+        }
         buildRoom(0, false);
         const loaded = await createHeroModel();
         if (ticket !== lifecycle) { disposeTree(loaded, true); return false; }
