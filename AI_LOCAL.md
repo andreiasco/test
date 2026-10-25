@@ -1,6 +1,6 @@
 # Configurația AI actuală
 
-Profesorul AI pentru elevi răspunde online prin funcția Supabase `ai-assistant`; elevul nu descarcă un model și nu are nevoie de WebGPU. Această corecție refolosește contractul original `{messages}` → `{answer}`. Funcția nu este inclusă în depozit; configurarea ei, serviciul AI folosit, costurile, accesul la materiale și răspunsurile reale nu au fost verificate. Cheia serviciului AI se păstrează doar pe server. Nu se promite gratuitate nelimitată.
+Profesorul AI pentru elevi răspunde online prin funcția Supabase `ai-assistant`, folosind OpenAI Responses API și modelul `gpt-5.4-mini`; elevul nu descarcă un model și nu are nevoie de WebGPU. Funcția este în [`supabase/functions/ai-assistant/index.ts`](supabase/functions/ai-assistant/index.ts). Păstrează contractul `{messages}` → `{answer}`, metadatele `finish_reason`/`temporary_error` și adaugă marcajul `incomplete` pentru răspunsurile OpenAI întrerupte. Bugetul de generare este 4096 de tokeni (inclusiv tokenii de raționament), iar mesajele păstrează până la 8000 de caractere. Interfața afișează integral textul primit și semnalează explicit răspunsurile incomplete și indisponibilitatea temporară. Căutarea și sursele rămân cele din site; cererea OpenAI folosește `store: false`. Cheia `OPENAI_API_KEY` se păstrează în secretele funcției Supabase. API-ul OpenAI are facturare separată de ChatGPT. Vezi [pașii de publicare](supabase/functions/ai-assistant/README.md). Publicarea și răspunsurile reale se verifică separat de testele locale cu servicii simulate.
 
 Generatorul de quiz-uri și fișe pentru administrator rămâne local și necesită activarea/descărcarea descrise mai jos. Notele despre asistentul elevilor din secțiunea istorică nu mai descriu comportamentul actual.
 
@@ -45,4 +45,4 @@ Verifică validarea quiz-urilor, separarea baremului, recuperarea surselor cu ta
 - https://github.com/mlc-ai/web-llm
 - https://huggingface.co/mlc-ai/Qwen3-4B-q4f16_1-MLC
 
-Instrucțiunile vechi despre Edge Functions din README și SUPABASE_AI_DOCUMENTE.md descriu integrarea anterioară. Nu sunt necesare pentru această variantă locală.
+Instrucțiunile istorice din README și SUPABASE_AI_DOCUMENTE.md menționează și migrări sau funcții care nu sunt incluse în acest checkout. Pentru Profesorul AI online folosește funcția `ai-assistant` și instrucțiunile ei actuale; generatorul local al administratorului nu necesită această funcție.

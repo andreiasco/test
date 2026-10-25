@@ -10,7 +10,7 @@ Interfața include bibliotecile Elevi și Profesori, Școala Altfel, Reviste, Jo
 
 # Profesor AI online și generator local
 
-Profesorul AI al elevilor apelează funcția Supabase `ai-assistant` și nu descarcă un model. Funcția și serviciul AI din spatele ei trebuie configurate pe server; existența și gratuitatea lor nu au fost confirmate. Generatorul administratorului rămâne local. Vezi [AI_LOCAL.md](AI_LOCAL.md) pentru detalii.
+Profesorul AI al elevilor apelează OpenAI Responses API prin funcția Supabase `ai-assistant`, cu modelul `gpt-5.4-mini`; elevul nu descarcă un model. Codul funcției este în [`supabase/functions/ai-assistant/index.ts`](supabase/functions/ai-assistant/index.ts); pașii de configurare și publicare sunt în [instrucțiunile funcției](supabase/functions/ai-assistant/README.md). Funcția păstrează căutarea în materialele site-ului și limita de 4096 de tokeni generați, iar interfața semnalează răspunsurile incomplete. Cheia `OPENAI_API_KEY` se configurează în Supabase. API-ul se facturează separat de abonamentul ChatGPT. Publicarea în Supabase și un răspuns real trebuie verificate separat; testele locale simulează serviciile externe. Generatorul administratorului rămâne local. Vezi [AI_LOCAL.md](AI_LOCAL.md) pentru detalii.
 
 # Site modularizat
 
