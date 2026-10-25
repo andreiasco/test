@@ -1,0 +1,21 @@
+#adminPanel .quiz-world-picker { margin: 0; padding: 20px; border: 1px solid var(--line); border-radius: 14px; background: var(--paper); min-width: 0; }
+#adminPanel .quiz-world-picker legend { padding-inline: 8px; color: var(--admin-heading); font-weight: 700; }
+.quiz-world-description { color: var(--ink-soft); font-size: 14px; line-height: 1.7; }
+.quiz-world-rooms { display: flex; flex-wrap: wrap; gap: 8px; margin-block: 12px; }
+.quiz-world-rooms span { padding: 6px 10px; border-radius: 8px; background: var(--action-soft); color: var(--action-ink); font-size: 12px; }
+.quiz-world-badge { display: inline-flex; align-items: center; gap: 6px; }
+.quiz-world-badge svg { width: 16px; height: 16px; }
+.castle-player[data-world] { --world-accent: #e3c585; --world-bg: #12131c; --world-surface: #1b1d29; background: var(--world-bg); }
+.castle-player[data-world='snow'] { --world-accent: #a8dff5; --world-bg: #102432; --world-surface: #1b3548; border-color: #41677a; }
+.castle-player[data-world='desert'] { --world-accent: #e6c28b; --world-bg: #2c2220; --world-surface: #40312a; border-color: #77634c; }
+.castle-player[data-world='jungle'] { --world-accent: #a6d7ae; --world-bg: #102820; --world-surface: #1b3b2f; border-color: #416c52; }
+.castle-player[data-world] .castle-hud { background: var(--world-surface); }
+.castle-player[data-world] .castle-scene { background: var(--world-bg); }
+.castle-player[data-world] :is(#quizWorldLabel, .castle-topbar strong, .castle-transition-card strong) { color: var(--world-accent); }
+.castle-player[data-world] .castle-dialogue-icon svg { width: 1em; height: 1em; }
+.admin-quiz-preview { position: fixed; inset: 0; z-index: 3000; display: flex; align-items: flex-start; justify-content: center; padding: 24px; overflow-y: auto; background: #0b1829e8; }
+.admin-quiz-preview.ascuns { display: none; }
+#adminQuizPreviewContent { width: min(100%, 1040px); min-width: 0; }
+#adminQuizPreviewContent .quiz-player { width: 100%; margin: 0; }
+@media (max-width: 600px) { #adminPanel .quiz-world-picker { padding: 14px; } }
+@media (max-width: 600px) { .admin-quiz-preview { padding: 12px; } }

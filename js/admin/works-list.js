@@ -726,7 +726,7 @@ async function incarcaOpereAdmin() {
 
         container.innerHTML = `
 
-            <p style="color:#c62828">
+            <p style="color:var(--admin-error, #c62828)">
 
                 ${escapeHTML(
                     error.message

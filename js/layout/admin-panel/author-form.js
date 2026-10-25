@@ -7,11 +7,13 @@ const ADMIN_AUTHOR_FORM_HTML = `
             👤 Adaugă autor
         </h3>
 
+        <label for="autorInitiale">Inițiale</label>
         <input
             type="text"
             id="autorInitiale"
             placeholder="Inițiale">
 
+        <label for="autorNume">Numele autorului</label>
         <input
             type="text"
             id="autorNume"
@@ -25,7 +27,7 @@ const ADMIN_AUTHOR_FORM_HTML = `
             <option value="">Selectează genul literar</option>
             <option value="poezie">Poezie</option>
             <option value="proza">Proză</option>
-            <option value="teatru">Teatru</option>
+            <option value="teatru">Dramă</option>
         </select>
 
         <label for="autorLoculNasterii">
@@ -44,7 +46,7 @@ const ADMIN_AUTHOR_FORM_HTML = `
             <option value="moldova">Moldova</option>
             <option value="bucovina">Bucovina</option>
             <option value="tara-romaneasca">Țara Românească</option>
-            <option value="other">Other / internațional</option>
+            <option value="other">Altă regiune / internațional</option>
         </select>
 
         <input
@@ -62,6 +64,7 @@ const ADMIN_AUTHOR_FORM_HTML = `
             id="autorPoza"
             accept="image/*">
 
+        <label for="autorDescriere">Biografie</label>
         <textarea
             id="autorDescriere"
             placeholder="Descrierea autorului"

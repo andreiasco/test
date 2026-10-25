@@ -268,13 +268,13 @@
 }
 
 .quiz-mode-option input:checked+span {
-    outline: 3px solid color-mix(in srgb, var(--accent-color, #8a5a2b) 35%, transparent);
-    border-color: var(--accent-color, #8a5a2b);
+    outline: 3px solid color-mix(in srgb, var(--accent-color, var(--accent-gold)) 35%, transparent);
+    border-color: var(--accent-color, var(--accent-gold));
     transform: translateY(-2px)
 }
 
 .quiz-mode-option input:focus-visible+span {
-    outline: 3px solid var(--accent-color, #8a5a2b)
+    outline: 3px solid var(--accent-color, var(--accent-gold))
 }
 
 .quiz-mode-badge {

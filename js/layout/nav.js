@@ -13,14 +13,15 @@ const NAV_HTML = `
         <a href="${estePaginaAdmin ? "index.html" : ""}#scoala-altfel">Școala Altfel</a>
         <a href="${estePaginaAdmin ? "index.html" : ""}#revista">Reviste</a>
         <a id="quizNavLink" href="${estePaginaAdmin ? "index.html" : ""}#jocuri">Jocuri</a>
-        <a href="${estePaginaAdmin ? "index.html" : ""}#profesor-ai">Profesor AI</a>
             <a href="${estePaginaAdmin ? "index.html" : ""}#harta">Harta literară</a>
-            <a href="${estePaginaAdmin ? "index.html" : ""}#despre-noi">Despre noi</a>
-            <a href="${estePaginaAdmin ? "index.html" : ""}#contact">Contact</a>
-            <a href="${estePaginaAdmin ? "index.html" : ""}#abonamente">Abonamente</a>
+            <a href="${estePaginaAdmin ? "index.html" : ""}#contact">Contribuții</a>
+            <a href="${estePaginaAdmin ? "index.html" : ""}#abonamente">Acces la resurse</a>
             <a href="${estePaginaAdmin ? "index.html" : ""}#ajutor">Ajutor</a>
             <a id="adminLink" class="ascuns" href="admin.html">Panou admin</a>
-
+        <details class="alma-more nav-overflow" hidden>
+            <summary aria-label="Mai mult — navigare"><span aria-hidden="true">☰</span> Mai mult</summary>
+            <div class="alma-more-menu"></div>
+        </details>
     </div>
     <div class="nav-tools">
 
@@ -36,10 +37,6 @@ const NAV_HTML = `
 
             <button id="loginButton" onclick="afiseazaLogin()">
                 Autentificare / Înregistrare
-            </button>
-
-            <button id="aiAssistantButton" class="ascuns" type="button">
-                🤖 Profesor AI
             </button>
 
             <button id="profileButton" class="ascuns" type="button">

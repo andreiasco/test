@@ -18,15 +18,15 @@ const LOGIN_MODAL_HTML = `
         <h2>🔐 Contul tău</h2>
 
         <div class="auth-tabs">
-            <button id="loginTab" class="auth-tab activ" onclick="schimbaAuthForm('login')">Logare</button>
-            <button id="registerTab" class="auth-tab" onclick="schimbaAuthForm('register')">Register</button>
+            <button id="loginTab" class="auth-tab activ" onclick="schimbaAuthForm('login')">Autentificare</button>
+            <button id="registerTab" class="auth-tab" onclick="schimbaAuthForm('register')">Înregistrare</button>
         </div>
 
         <div id="loginForm" class="auth-form">
             <p>Intră în contul tău.</p>
             <input type="email" id="loginEmail" placeholder="Email" autocomplete="email" required>
             <input type="password" id="loginPassword" placeholder="Parolă" autocomplete="current-password" required>
-            <button class="login-btn" onclick="loginUtilizator()">🔐 Logare</button>
+            <button class="login-btn" onclick="loginUtilizator()">🔐 Intră în cont</button>
             <button class="login-btn reset-btn" type="button" onclick="reseteazaParola()">🔑 Am uitat parola</button>
         </div>
 

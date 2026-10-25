@@ -3,13 +3,13 @@ const aiAssistantHistory = [];
 let aiAssistantBusy = false;
 let aiAssistantEpoch = 0;
 function setAiAccess(enabled) {
-    document.getElementById('aiAssistantButton')?.classList.toggle('ascuns', !enabled);
     if (!enabled) {
         aiAssistantEpoch++;
         aiAssistantHistory.length = 0;
         aiAssistantBusy = false;
         window.SchoolAI?.stop();
         document.getElementById('aiAssistant')?.classList.add('ascuns');
+        document.getElementById('aiAssistantButton')?.setAttribute('aria-expanded', 'false');
         const messages = document.getElementById('aiAssistantMessages');
         if (messages) messages.textContent = '';
         for (const id of ['aiStudyText', 'aiAssistantInput', 'aiAssistantGrade', 'aiWorksheetText', 'aiWorksheetAnswers', 'quizAiSource']) {
@@ -21,9 +21,15 @@ function setAiAccess(enabled) {
 }
 function openAiAssistant() {
     document.getElementById('aiAssistant')?.classList.remove('ascuns');
+    document.getElementById('aiAssistantButton')?.setAttribute('aria-expanded', 'true');
     document.getElementById('aiAssistantInput')?.focus();
 }
-function closeAiAssistant() { document.getElementById('aiAssistant')?.classList.add('ascuns'); }
+function closeAiAssistant(restoreFocus = true) {
+    document.getElementById('aiAssistant')?.classList.add('ascuns');
+    const launcher = document.getElementById('aiAssistantButton');
+    launcher?.setAttribute('aria-expanded', 'false');
+    if (restoreFocus !== false) launcher?.focus();
+}
 function addAiMessage(role, text, sources = []) {
     const list = document.getElementById('aiAssistantMessages');
     if (!list) return;
@@ -86,8 +92,18 @@ function initializeazaAiAssistant() {
     const form = document.getElementById('aiAssistantForm');
     if (!form || form.dataset.initialized === 'true') return;
     form.dataset.initialized = 'true';
-    document.getElementById('aiAssistantButton')?.addEventListener('click', openAiAssistant);
+    document.getElementById('aiAssistantButton')?.addEventListener('click', () => {
+        if (!document.getElementById('aiAssistant')?.classList.contains('ascuns')) closeAiAssistant();
+        else almaDeschideAsistent();
+    });
     document.getElementById('aiAssistantClose')?.addEventListener('click', closeAiAssistant);
+    document.addEventListener('pointerdown', event => {
+        const assistant = document.getElementById('aiAssistant');
+        const launcher = document.getElementById('aiAssistantButton');
+        if (!assistant || assistant.classList.contains('ascuns')) return;
+        if (assistant.contains(event.target) || launcher?.contains(event.target)) return;
+        closeAiAssistant(false);
+    });
     form.addEventListener('submit', event => { event.preventDefault(); sendAiAssistantMessage(document.getElementById('aiAssistantInput')?.value); });
     document.getElementById('aiAssistantGrade')?.addEventListener('change', () => { aiAssistantHistory.length = 0; });
     document.querySelectorAll('[data-ai-prompt]').forEach(button => button.addEventListener('click', () => {

@@ -592,6 +592,11 @@ window.CastleQuiz3D = (() => {
         roomGroup.name = "encounterRoom";
         scene.add(roomGroup);
 
+        if (currentWorld !== 'castle') {
+            window.QuizWorldScenery.buildRoom({ THREE, scene, parent: roomGroup, world: currentWorld, index, boss, mat, makeMesh });
+            return;
+        }
+
         const theme = boss ? { id: "throne", name: "Sala Dragonului", accent: 0xd66b3d } : ROOM_THEMES[index % ROOM_THEMES.length];
         const stone = surface("stone", boss ? 0xc7b7a7 : 0xd6d0c3);
         const darkStone = surface("floor", boss ? 0xbab0a4 : 0xc9c4b9);
@@ -907,7 +912,7 @@ window.CastleQuiz3D = (() => {
         });
     }
 
-    async function init(targetCanvas) {
+    async function init(targetCanvas, world = 'castle') {
         dispose(false);
         const ticket = lifecycle;
         canvas = targetCanvas;
@@ -1187,7 +1192,7 @@ window.CastleQuiz3D = (() => {
     }
 
     function getRoomName(index = 0, boss = false) {
-        return boss ? "Sala Dragonului" : ROOM_THEMES[index % ROOM_THEMES.length].name;
+        return window.QuizWorlds?.room(currentWorld, index, boss).name || (boss ? "Sala Dragonului" : ROOM_THEMES[index % ROOM_THEMES.length].name);
     }
 
     function skip() { skipRequested = true; window.CastleQuizAudio?.stopSteps?.(); activeTween?.cancel?.(true); }

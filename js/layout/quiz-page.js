@@ -6,8 +6,8 @@ const QUIZ_HTML = `
     <div class="quiz-page-heading">
         <span class="quiz-page-icon" aria-hidden="true">🏰</span>
         <div>
-            <h2 class="titlu">Quiz-uri aventură</h2>
-            <p class="subtitlu">Intră în castel, înfruntă monștrii și păstrează-ți cele 3 vieți până la final.</p>
+            <h2 class="titlu">Jocuri și quiz-uri</h2>
+            <p class="subtitlu">Alege o aventură 3D sau exersează cu activitățile Kahoot și Wordwall.</p>
         </div>
     </div>
 
@@ -24,8 +24,8 @@ const QUIZ_HTML = `
 
         <div id="quizPlayer" class="quiz-player castle-player ascuns">
             <div class="quiz-player-topbar castle-topbar">
-                <button type="button" id="quizCloseButton" class="quiz-close-btn" aria-label="Ieși din quiz">← Ieși din castel</button>
-                <div class="quiz-player-title-wrap"><strong id="quizPlayerTitle">Aventura din castel</strong><small id="quizModeLabel">Quiz animat</small></div>
+                <button type="button" id="quizCloseButton" class="quiz-close-btn" aria-label="Ieși din quiz">← Ieși din aventură</button>
+                <div class="quiz-player-title-wrap"><strong id="quizPlayerTitle">Aventura din castel</strong><small id="quizModeLabel">Quiz animat</small><small id="quizWorldLabel">Castel</small></div>
                 <div class="castle-topbar-actions"><button type="button" id="quizSoundToggle" class="quiz-sound-btn" aria-pressed="true">🔊 Sunet</button><span id="quizLiveScore">Scor: 0</span></div>
             </div>
 
@@ -47,7 +47,7 @@ const QUIZ_HTML = `
             <div id="castleScene" class="castle-scene" aria-label="Scenă 3D într-un castel">
                 <canvas id="castleCanvas"></canvas>
                 <div class="castle-vignette" aria-hidden="true"></div>
-                <div id="castleLoading" class="castle-loading">Se pregătește castelul...</div>
+                <div id="castleLoading" class="castle-loading">Se pregătește nivelul...</div>
                 <div id="castleDialogue" class="castle-dialogue ascuns" aria-live="polite"></div>
                 <button type="button" id="castleSkipAnimation" class="castle-skip ascuns">Sari animația »</button>
             </div>
@@ -61,12 +61,12 @@ const QUIZ_HTML = `
         <div class="kahoot-card">
             <h3>📝 Aplicarea regulilor în contexte noi</h3>
             <p>Exersează aplicarea regulilor de limbă română.</p>
-            <a class="kahoot-link" href="https://play.kahoot.it/v2/?quizId=071aa0d4-21d3-426f-a7a3-4c8ab375d61b&hostId=abe4ceb9-8934-4647-a7f8-ee81f1f1ac7c" target="_blank" rel="noopener noreferrer">🎯 Deschide Kahoot</a>
+            <a class="kahoot-link" href="https://play.kahoot.it/v2/?quizId=071aa0d4-21d3-426f-a7a3-4c8ab375d61b&hostId=abe4ceb9-8934-4647-a7f8-ee81f1f1ac7c" target="_blank" rel="noopener noreferrer">🎯 Deschide în Kahoot (filă nouă)</a>
         </div>
         <div class="kahoot-card">
             <h3>📚 Romanian Vocabulary in Context</h3>
             <p>Exersează vocabularul românesc.</p>
-            <a class="kahoot-link" href="https://play.kahoot.it/v2/?quizId=bf406337-3185-409c-92c7-22471cf41e38&hostId=abe4ceb9-8934-4647-a7f8-ee81f1f1ac7c" target="_blank" rel="noopener noreferrer">🎯 Deschide Kahoot</a>
+            <a class="kahoot-link" href="https://play.kahoot.it/v2/?quizId=bf406337-3185-409c-92c7-22471cf41e38&hostId=abe4ceb9-8934-4647-a7f8-ee81f1f1ac7c" target="_blank" rel="noopener noreferrer">🎯 Deschide în Kahoot (filă nouă)</a>
         </div>
     </div>
 

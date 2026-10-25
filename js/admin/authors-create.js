@@ -60,7 +60,7 @@ async function adaugaAutor() {
             "Completează inițialele și numele autorului.";
 
         status.style.color =
-            "#c62828";
+            "var(--admin-error, #c62828)";
 
         return;
 
@@ -73,7 +73,7 @@ async function adaugaAutor() {
             "Selectează genul literar al autorului.";
 
         status.style.color =
-            "#c62828";
+            "var(--admin-error, #c62828)";
 
         return;
 
@@ -81,7 +81,7 @@ async function adaugaAutor() {
 
     if (!loculNasterii) {
         status.textContent = "Selectează regiunea sau completează locul internațional al nașterii.";
-        status.style.color = "#c62828";
+        status.style.color = "var(--admin-error, #c62828)";
         return;
     }
 
@@ -92,7 +92,7 @@ async function adaugaAutor() {
             "Selectează imaginea autorului.";
 
         status.style.color =
-            "#c62828";
+            "var(--admin-error, #c62828)";
 
         return;
 
@@ -109,7 +109,7 @@ async function adaugaAutor() {
             "Fișierul selectat nu este o imagine.";
 
         status.style.color =
-            "#c62828";
+            "var(--admin-error, #c62828)";
 
         return;
 
@@ -126,7 +126,7 @@ async function adaugaAutor() {
             "Trebuie să fii autentificat.";
 
         status.style.color =
-            "#c62828";
+            "var(--admin-error, #c62828)";
 
         return;
 
@@ -139,7 +139,7 @@ async function adaugaAutor() {
             "Se încarcă imaginea...";
 
         status.style.color =
-            "#7b2450";
+            "var(--ink-soft)";
 
 
         const extensie =
@@ -262,7 +262,7 @@ async function adaugaAutor() {
             "Autorul a fost adăugat cu succes!";
 
         status.style.color =
-            "#2e7d32";
+            "var(--admin-success, #2e7d32)";
 
 
         document
@@ -321,7 +321,7 @@ async function adaugaAutor() {
             error.message;
 
         status.style.color =
-            "#c62828";
+            "var(--admin-error, #c62828)";
 
     }
 }

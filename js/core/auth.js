@@ -471,6 +471,7 @@ async function afiseazaAdmin(user) {
     if (typeof incarcaContAdmin === "function") incarcaContAdmin();
     if (typeof incarcaRevistaAdmin === "function") incarcaRevistaAdmin();
     if (typeof incarcaNumereRevistaAdmin === "function") incarcaNumereRevistaAdmin();
+    if (estePaginaAdmin && typeof initializeazaEditoareEducationale === "function") initializeazaEditoareEducationale();
 
 }
 

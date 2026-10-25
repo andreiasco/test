@@ -42,7 +42,7 @@ async function incarcaRevistaAdmin() {
                         <strong>${escapeHTML(material.titlu)}</strong>
                         <small>${escapeHTML(profesor?.email || "Profesor necunoscut")} • ${new Date(material.creat_la).toLocaleString("ro-RO")}</small>
                         ${material.descriere ? `<p>${escapeHTML(material.descriere)}</p>` : ""}
-                        ${material.stare === "refuzat" && material.motiv_respingere ? `<p style="color:#c62828">Motiv respingere: ${escapeHTML(material.motiv_respingere)}</p>` : ""}
+                        ${material.stare === "refuzat" && material.motiv_respingere ? `<p style="color:var(--admin-error, #c62828)">Motiv respingere: ${escapeHTML(material.motiv_respingere)}</p>` : ""}
                         <span>${etichetaStare[material.stare] || material.stare}</span>
                         ${material.stare === "in_asteptare" ? `
                             <div id="revistaRefuzForm-${material.id}" class="ascuns" style="margin-top:8px;">
@@ -65,7 +65,7 @@ async function incarcaRevistaAdmin() {
         }).join("");
     } catch (error) {
         console.error("Eroare încărcare materiale revistă:", error);
-        container.innerHTML = `<p style="color:#c62828">${escapeHTML(error.message)}</p>`;
+        container.innerHTML = `<p style="color:var(--admin-error, #c62828)">${escapeHTML(error.message)}</p>`;
     }
 }
 
@@ -73,7 +73,7 @@ function scrieStatusRevistaMateriale(mesaj, eroare = false) {
     const status = document.getElementById("revistaMaterialeStatus");
     if (!status) return;
     status.textContent = mesaj;
-    status.style.color = eroare ? "#c62828" : "#2e7d32";
+    status.style.color = eroare ? "var(--admin-error, #c62828)" : "var(--admin-success, #2e7d32)";
 }
 
 function afiseazaFormularRefuz(id) {
@@ -248,7 +248,7 @@ async function incarcaNumereRevistaAdmin() {
             </div>`).join("");
     } catch (error) {
         console.error("Eroare încărcare numere revistă:", error);
-        container.innerHTML = `<p style="color:#c62828">${escapeHTML(error.message)}</p>`;
+        container.innerHTML = `<p style="color:var(--admin-error, #c62828)">${escapeHTML(error.message)}</p>`;
     }
 }
 
@@ -276,7 +276,7 @@ async function adaugaNumarRevista() {
 
     if (!titlu || !fisier || (fisier.type !== "application/pdf" && !/\.pdf$/i.test(fisier.name))) {
         status.textContent = "Completează titlul și alege un fișier PDF valid.";
-        status.style.color = "#c62828";
+        status.style.color = "var(--admin-error, #c62828)";
         return;
     }
 
@@ -285,7 +285,7 @@ async function adaugaNumarRevista() {
         if (!user) throw new Error("Trebuie să fii autentificat ca administrator.");
 
         status.textContent = "Se încarcă fișierul...";
-        status.style.color = "#7b2450";
+        status.style.color = "var(--ink-soft)";
 
         const nume = fisier.name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9._-]/g, "_");
         const cale = `${Date.now()}_${nume}`;
@@ -305,14 +305,14 @@ async function adaugaNumarRevista() {
         }
 
         status.textContent = "Numărul a fost publicat în tabul Revistă.";
-        status.style.color = "#2e7d32";
+        status.style.color = "var(--admin-success, #2e7d32)";
         golesteCampuri("revistaNumarTitlu", "revistaNumarDescriere");
         document.getElementById("revistaNumarFisier").value = "";
 
         await incarcaNumereRevistaAdmin();
     } catch (error) {
         status.textContent = "Nu am putut publica numărul: " + error.message;
-        status.style.color = "#c62828";
+        status.style.color = "var(--admin-error, #c62828)";
     }
 }
 
