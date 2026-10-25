@@ -983,6 +983,8 @@ window.CastleQuiz3D = (() => {
         else {
             createEnvironment();
             const environment = window.QuizWorldScenery.buildEnvironment({ THREE, scene, world: currentWorld, mat, makeMesh });
+            // The same shared physical-lighting texture also belongs to outdoor scenes.
+            environment.floor.material.onBeforeCompile = shader => { lightingLookup = shader.uniforms.dfgLUT || null; };
             door = environment.door;
             particles = environment.particles;
         }

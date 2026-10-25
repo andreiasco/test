@@ -7,7 +7,7 @@ const root=require('node:path').resolve(__dirname, '..') + '/';
  const w=dom.window;
  const evaluate=code=>require('node:vm').runInContext(code,dom.getInternalVMContext());
  const run=file=>evaluate(fs.readFileSync(root+file,'utf8'));
- run('js/layout/ai-assistant.js'); run('js/layout/admin-panel/quiz-form.js');
+ run('js/layout/quiz-worlds.js'); run('js/layout/ai-assistant.js'); run('js/layout/admin-panel/quiz-form.js');
  evaluate('document.body.innerHTML = AI_ASSISTANT_HTML + ADMIN_QUIZ_FORM_HTML');
  w.supabaseClient={auth:{getSession:async()=>({data:{session:{user:{id:'admin-1'}}}})},functions:{invoke:async()=>{calls++;return {data:{answer:'<script>alert(1)</script> Explicație.'}};}}};
  w.obtineRolUtilizator=async()=> 'admin'; w.afiseazaLogin=()=>{};
