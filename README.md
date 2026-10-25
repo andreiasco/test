@@ -22,6 +22,26 @@ Elevi și Profesori au pagini și formulare distincte pentru fiecare tip de resu
 
 Profesorul AI al elevilor apelează OpenAI Responses API prin funcția Supabase `ai-assistant`, cu modelul `gpt-5.4-mini`; elevul nu descarcă un model. Codul funcției este în [`supabase/functions/ai-assistant/index.ts`](supabase/functions/ai-assistant/index.ts); pașii de configurare și publicare sunt în [instrucțiunile funcției](supabase/functions/ai-assistant/README.md). Funcția păstrează căutarea în materialele site-ului și limita de 4096 de tokeni generați, iar interfața semnalează răspunsurile incomplete. Cheia `OPENAI_API_KEY` se configurează în Supabase. API-ul se facturează separat de abonamentul ChatGPT. Publicarea în Supabase și un răspuns real trebuie verificate separat; testele locale simulează serviciile externe. Generatorul administratorului rămâne local. Vezi [AI_LOCAL.md](AI_LOCAL.md) pentru detalii.
 
+# Quiz Castel — materiale, mișcare și sunet
+
+Scena folosește hărți PBR generate local, cu seed-uri stabile, pentru piatră, dale și lemn (`js/site/castle-materials.js`): culoare, relief și rugozitate. Arcadele, lumina caldă a torțelor și reflexiile discrete dau coridorului mai multă profunzime. Sunt păstrate modelele GLB locale; nu sunt adăugate pachete externe de texturi sau sunete.
+
+- `js/site/castle-rig.js` ancorează pivoturile membrelor GLB la articulații, păstrând geometria atașată corpului în timpul animației.
+- Mersul și apelurile `CastleQuizAudio.footstep()` urmăresc distanța parcursă. Ușa se deschide în jurul balamalei, iar pașii programați sunt opriți când mișcarea este sărită.
+- Sunetul procedural include pași variați, reflexii scurte de încăpere și ambianță discretă. Dezactivarea sunetului, ascunderea paginii și ieșirea din quiz opresc sursele active.
+- `prefers-reduced-motion` reduce mișcarea și efectele. Profilul pentru suprafețe mici limitează rezoluția, umbrele și frecvența de randare; performanța pe un telefon real trebuie verificată pe dispozitiv.
+
+Cu **Node.js 24**, **jsdom@26.1.0** și **three@0.185.1** disponibile prin `NODE_PATH`, din rădăcina proiectului:
+
+```sh
+NODE_PATH="/workspace/.cloud-onboarding/test/node_modules${NODE_PATH:+:$NODE_PATH}" \
+  node --test tests/*.test.cjs
+NODE_PATH="/workspace/.cloud-onboarding/test/node_modules${NODE_PATH:+:$NODE_PATH}" \
+  node tests/ai-dom-check.cjs
+```
+
+Prima comandă include regresiile pentru rig (`tests/castle-rig.test.cjs`) și ciclul de viață audio (`tests/quiz-audio.test.cjs`). Aspectul WebGL și tranzițiile se verifică separat în browser, pentru camerele tematice, dimensiuni desktop/mobil și preferința de mișcare redusă.
+
 # Site modularizat
 
 Structura proiectului a fost reorganizată fără schimbarea logicii existente. Fișierele mari `js/site.js`, `js/admin.js` și `css/site.css` au fost împărțite pe responsabilități.
