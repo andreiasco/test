@@ -1,0 +1,24 @@
+/* Same line weight and colour inheritance as the home page icons. */
+.site-inline-icon {
+    display: inline-block;
+    width: 1.15em;
+    height: 1.15em;
+    vertical-align: -.2em;
+    flex-shrink: 0;
+    overflow: visible;
+    color: inherit;
+}
+:is(.interactive-quiz-icon, .quiz-page-icon, .profile-avatar, .ai-assistant-avatar,
+    .quiz-result-medal, .castle-dialogue-icon, .admin-object-tab-icon) > .site-inline-icon {
+    width: 1em; height: 1em;
+}
+.castle-lives .site-inline-icon { color: #d5a3a3; }
+.castle-lives .site-inline-icon[aria-label='Viață pierdută'] { color: #8995a5; }
+.quiz-boss-editor::after {
+    content: 'BOSS FINAL';
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23e6ca8e' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 20c7 0 2-8 7-10V3l5 4 5-1 1 5-5 3v4l-5 3H3Zm7-10L3 7l2 8m11-4h.01M12 3l4 1'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: left center;
+    background-size: 18px;
+    padding-left: 24px;
+}

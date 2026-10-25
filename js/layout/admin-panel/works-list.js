@@ -17,7 +17,9 @@ const ADMIN_WORKS_LIST_HTML = `
 
         </button>
 
-        <div id="listaOpereAdmin"></div>
+        <label for="filtru-listaOpereAdmin">Filtrează opere</label><input type="search" id="filtru-listaOpereAdmin" data-admin-filter="listaOpereAdmin" placeholder="Scrie un nume sau un titlu...">
+<p data-admin-filter-status="listaOpereAdmin" class="admin-filter-status" role="status"></p>
+<div id="listaOpereAdmin"></div>
 
     </div>
 `;

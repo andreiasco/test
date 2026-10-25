@@ -80,7 +80,7 @@ async function adaugaOpera() {
             "Selectează autorul.";
 
         status.style.color =
-            "#c62828";
+            "var(--admin-error, #c62828)";
 
         return;
 
@@ -93,7 +93,7 @@ async function adaugaOpera() {
             "Introdu titlul operei.";
 
         status.style.color =
-            "#c62828";
+            "var(--admin-error, #c62828)";
 
         return;
 
@@ -118,7 +118,7 @@ async function adaugaOpera() {
             "Adaugă cel puțin o resursă pentru operă.";
 
         status.style.color =
-            "#c62828";
+            "var(--admin-error, #c62828)";
 
         return;
 
@@ -135,7 +135,7 @@ async function adaugaOpera() {
             "Linkurile trebuie să înceapă cu http:// sau https://.";
 
         status.style.color =
-            "#c62828";
+            "var(--admin-error, #c62828)";
 
         return;
     }
@@ -151,7 +151,7 @@ async function adaugaOpera() {
             "Trebuie să fii autentificat.";
 
         status.style.color =
-            "#c62828";
+            "var(--admin-error, #c62828)";
 
         return;
 
@@ -248,7 +248,7 @@ async function adaugaOpera() {
             "Se citesc PDF-urile pentru Profesorul AI...";
 
         status.style.color =
-            "#7b2450";
+            "var(--ink-soft)";
 
         const continutRezumat = rezumat ? await extrageTextDinFisierPDF(rezumat) : "";
         const continutAnalizaLiterara = analizaLiterara ? await extrageTextDinFisierPDF(analizaLiterara) : "";
@@ -507,7 +507,7 @@ async function adaugaOpera() {
             "Opera a fost adăugată cu succes!";
 
         status.style.color =
-            "#2e7d32";
+            "var(--admin-success, #2e7d32)";
 
 
         golesteCampuri(
@@ -566,7 +566,7 @@ async function adaugaOpera() {
             error.message;
 
         status.style.color =
-            "#c62828";
+            "var(--admin-error, #c62828)";
 
     }
 }

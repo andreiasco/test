@@ -1,79 +1,31 @@
 // Componentă de layout: literature-page.js
 const LITERATURE_HTML = `
 
-<div id="pagina-literatura" class="pagina">
+<div id="pagina-literatura" class="pagina alma-page">
 
 
 <section id="literatura">
     <a class="alma-back" href="#elevi"> Biblioteca elevului</a>
 
-    <h2 class="titlu">
-        Literatura română
-    </h2>
+    <p class="alma-eyebrow">BIBLIOTECA DUPĂ AUTORI</p>
+    <h1 class="titlu">
+        Autori și operele lor
+    </h1>
 
     <p class="subtitlu">
-        Poezie, proză și teatru.
+        Descoperă autorii de poezie, proză și dramă, biografiile și resursele asociate operelor lor.
     </p>
-
-    <div class="cards">
-
-        <a class="card literatura-box" href="#poezie">
-            <div class="icon">🌙</div>
-            <h3>Poezia</h3>
-            <p>
-                Poezia exprimă sentimente și idei
-                printr-un limbaj artistic.
-            </p>
-        </a>
-
-        <a class="card literatura-box" href="#proza">
-            <div class="icon">📖</div>
-            <h3>Proza</h3>
-            <p>
-                Romanul, nuvela, povestirea și basmul
-                sunt forme importante ale prozei.
-            </p>
-        </a>
-
-        <a class="card literatura-box" href="#teatru">
-            <div class="icon">🎭</div>
-            <h3>Teatrul</h3>
-            <p>
-                Textele dramatice sunt construite
-                în jurul personajelor și dialogului.
-            </p>
-        </a>
-
-    </div>
-
-</section>
-
-
-<section>
-
-    <div class="citat">
-
-        <p>
-            „Nu există altă avere mai prețioasă
-            decât limba unui popor.”
-        </p>
-
-        <strong>
-            — Nicolae Iorga
-        </strong>
-
-    </div>
 
 </section>
 
 <section id="poezie">
 
-    <h2 class="titlu">
-        Poezie 📜
+    <h2 class="book-genre-title">
+        <span class="alma-icon">${almaIcon('poetry')}</span>Poezie
     </h2>
 
     <p class="subtitlu">
-        Autori și opere poetice
+        Poezia exprimă sentimente și idei printr-un limbaj artistic.
     </p>
 
     <div
@@ -86,12 +38,12 @@ const LITERATURE_HTML = `
 
 <section id="proza">
 
-    <h2 class="titlu">
-        Proză 📖
+    <h2 class="book-genre-title">
+        <span class="alma-icon">${almaIcon('prose')}</span>Proză
     </h2>
 
     <p class="subtitlu">
-        Autori și opere în proză
+        Romanul, nuvela, povestirea și basmul sunt forme importante ale prozei.
     </p>
 
     <div
@@ -104,12 +56,12 @@ const LITERATURE_HTML = `
 
 <section id="teatru">
 
-    <h2 class="titlu">
-        Teatru 🎭
+    <h2 class="book-genre-title">
+        <span class="alma-icon">${almaIcon('drama')}</span>Dramă
     </h2>
 
     <p class="subtitlu">
-        Autori și opere de teatru.
+        Textele dramatice sunt construite în jurul personajelor și dialogului.
     </p>
 
     <div
@@ -119,5 +71,14 @@ const LITERATURE_HTML = `
 
 </section>
 
+</div>
+<div id="pagina-carti" class="pagina alma-page">
+    <section id="carti">
+        <a class="alma-back" href="#elevi">Biblioteca elevului</a>
+        <p class="alma-eyebrow">BIBLIOTECA DUPĂ TITLU</p>
+        <h1 class="titlu">Opere literare</h1>
+        <p class="subtitlu">Proză, poezie și dramă, cu opere în ordine alfabetică în fiecare categorie. Alege un titlu pentru rezumate, analize și celelalte resurse disponibile.</p>
+        <div id="listaCarti" class="book-list"><p>Se încarcă operele...</p></div>
+    </section>
 </div>
 `;

@@ -6,8 +6,8 @@ const ADMIN_ACCOUNT_PANEL_HTML = `
         <button class="admin-btn" onclick="incarcaContAdmin()">🔄 Reîmprospătează</button>
         <div id="adminContStatistici" class="admin-stats-grid"></div>
         <div id="adminContStorage" class="admin-stats-grid" style="margin-top:10px;"></div>
-        <h3 style="margin-top:20px;">📄 Ultimele documente indexate (AI)</h3>
-        <div id="adminContDocumenteAI"></div>
+        <details class="admin-disclosure"><summary><strong>Documente indexate pentru AI</strong><span class="admin-disclosure-indicator" aria-hidden="true">+</span></summary>
+        <div id="adminContDocumenteAI" class="admin-disclosure-content"></div></details>
     </div>
 
     <div class="admin-box" style="margin-top:20px;">
@@ -17,7 +17,7 @@ const ADMIN_ACCOUNT_PANEL_HTML = `
     </div>
 
     <div class="admin-box" style="margin-top:20px;">
-        <h3>🗒️ Jurnal de acțiuni administrative</h3>
-        <div id="adminContJurnal"></div>
+        <details class="admin-disclosure"><summary><strong>Jurnal de acțiuni administrative</strong><span class="admin-disclosure-indicator" aria-hidden="true">+</span></summary>
+        <div id="adminContJurnal" class="admin-disclosure-content"></div></details>
     </div>
 `;

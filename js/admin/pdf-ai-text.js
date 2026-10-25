@@ -385,7 +385,7 @@ async function indexeazaPDFuriOpera(
                 "Se citesc materialele pentru Profesorul AI...";
 
             status.style.color =
-                "#7b2450";
+                "var(--ink-soft)";
         }
 
 
@@ -629,7 +629,7 @@ async function indexeazaPDFuriOpera(
 
 
                 status.style.color =
-                    "#2e7d32";
+                    "var(--admin-success, #2e7d32)";
 
 
             } else {
@@ -649,7 +649,7 @@ async function indexeazaPDFuriOpera(
 
 
                 status.style.color =
-                    "#c62828";
+                    "var(--admin-error, #c62828)";
             }
         }
 
@@ -682,7 +682,7 @@ async function indexeazaPDFuriOpera(
                 error.message;
 
             status.style.color =
-                "#c62828";
+                "var(--admin-error, #c62828)";
         }
     }
 }
@@ -919,7 +919,7 @@ async function indexeazaToateDocumenteleAI() {
     const scrieStatus = (mesaj, eroare = false) => {
         if (status) {
             status.textContent = mesaj;
-            status.style.color = eroare ? "#c62828" : "#2e7d32";
+            status.style.color = eroare ? "var(--admin-error, #c62828)" : "var(--admin-success, #2e7d32)";
         }
     };
 

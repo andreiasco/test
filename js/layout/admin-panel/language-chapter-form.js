@@ -16,8 +16,11 @@ const ADMIN_LANGUAGE_CHAPTER_FORM_HTML = `
             <option value="8">Clasa a VIII-a</option>
         </select>
 
+        <label for="limbaCapitolTitlu">Titlul capitolului</label>
         <input type="text" id="limbaCapitolTitlu" placeholder="Titlul capitolului">
+        <label for="limbaCapitolDescriere">Descriere</label>
         <textarea id="limbaCapitolDescriere" placeholder="Descrierea capitolului" rows="3"></textarea>
+        <label for="limbaCapitolOrdine">Ordine de afișare (opțional)</label>
         <input type="number" id="limbaCapitolOrdine" placeholder="Ordine (opțional)" min="0">
 
         <button class="admin-btn" onclick="adaugaCapitolLimba()">➕ Adaugă capitol</button>

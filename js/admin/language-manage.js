@@ -60,7 +60,7 @@ async function incarcaLimbaAdmin() {
         }).join("") || "<p>Nu există clase configurate.</p>";
     } catch (error) {
         console.error("Eroare încărcare admin Limba română:", error);
-        lista.innerHTML = `<p style="color:#c62828">${escapeHTML(error.message)}</p>`;
+        lista.innerHTML = `<p style="color:var(--admin-error, #c62828)">${escapeHTML(error.message)}</p>`;
     }
 }
 
@@ -73,7 +73,7 @@ async function adaugaCapitolLimba() {
 
     if (!clasaNumar || !titlu) {
         status.textContent = "Selectează clasa și completează titlul capitolului.";
-        status.style.color = "#c62828";
+        status.style.color = "var(--admin-error, #c62828)";
         return;
     }
 
@@ -87,12 +87,12 @@ async function adaugaCapitolLimba() {
         });
         if (error) throw error;
         status.textContent = "Capitolul a fost adăugat.";
-        status.style.color = "#2e7d32";
+        status.style.color = "var(--admin-success, #2e7d32)";
         golesteCampuri("limbaCapitolTitlu", "limbaCapitolDescriere", "limbaCapitolOrdine");
         await incarcaLimbaAdmin();
     } catch (error) {
         status.textContent = "Nu am putut adăuga capitolul: " + error.message;
-        status.style.color = "#c62828";
+        status.style.color = "var(--admin-error, #c62828)";
     }
 }
 
@@ -106,7 +106,7 @@ async function adaugaMaterialLimba() {
 
     if (!capitolId || !titlu || !fisier || (fisier.type !== "application/pdf" && !/\.pdf$/i.test(fisier.name))) {
         status.textContent = "Selectează capitolul, titlul și un fișier PDF valid.";
-        status.style.color = "#c62828";
+        status.style.color = "var(--admin-error, #c62828)";
         return;
     }
 
@@ -136,13 +136,13 @@ async function adaugaMaterialLimba() {
             metadata: { capitol_id: Number(capitolId), descriere: descriere || null }
         });
         status.textContent = "Materialul a fost încărcat.";
-        status.style.color = "#2e7d32";
+        status.style.color = "var(--admin-success, #2e7d32)";
         golesteCampuri("limbaMaterialTitlu", "limbaMaterialDescriere", "limbaMaterialOrdine", "limbaMaterialPDF");
         await incarcaLimbaAdmin();
     } catch (error) {
         if (cale) await supabaseClient.storage.from(BUCKET).remove([cale]);
         status.textContent = "Nu am putut încărca materialul: " + error.message;
-        status.style.color = "#c62828";
+        status.style.color = "var(--admin-error, #c62828)";
     }
 }
 

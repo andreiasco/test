@@ -96,7 +96,7 @@ nav .search-toggle:hover {
 
 .personaje-instagram-btn {
     background: #f1c56c;
-    border-color: #a36f12;
+    border-color: var(--accent-gold);
     color: var(--navy-deep);
 }
 

@@ -2,7 +2,7 @@
 :root { --alma-gold: #d7b66f; --alma-blue: #172f56; --alma-muted: #76869b; }
 .alma-icon { display: inline-grid; place-items: center; width: 46px; height: 46px; border-radius: 13px; background: #edf2f8; color: #365782; flex-shrink: 0; }
 .alma-icon svg, .alma-complementary svg, .alma-library-card > svg { width: 25px; height: 25px; }
-.alma-eyebrow { color: #92703a; font-size: 10px; font-weight: 750; letter-spacing: .17em; text-transform: uppercase; margin: 0 0 16px; }
+.alma-eyebrow { color: var(--accent-gold); font-size: 10px; font-weight: 750; letter-spacing: .17em; text-transform: uppercase; margin: 0 0 16px; }
 nav { padding: 12px 3vw; gap: 20px; border-bottom: 1px solid #d7b66f45; }
 nav .alma-brand { display: flex; gap: 10px; align-items: center; padding: 0; flex-shrink: 0; }
 .alma-brand img { object-fit: contain; }
@@ -42,29 +42,30 @@ nav .search-toggle, nav .account-menu summary { font-size: 12px; padding: 0 12px
 .alma-section-heading > p { font-size: 13px; color: var(--ink-soft); line-height: 1.7; }
 .alma-home-explore, .alma-library-intro { max-width: 1160px !important; margin: 58px auto; }
 .alma-home-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 18px; }
+.alma-home-grid.alma-home-secondary { grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 18px; }
 .alma-home-tile { display: flex; flex-direction: column; position: relative; padding: 24px; border: 1px solid var(--line); border-radius: 16px; background: var(--surface); text-decoration: none; color: var(--navy); transition: border-color .2s, box-shadow .2s, transform .2s; }
-.alma-home-tile:hover, .alma-library-card:hover { border-color: #c4a468; transform: translateY(-3px); box-shadow: 0 10px 28px #172f560c; }
+.alma-home-tile:hover, .alma-library-card:hover { border-color: var(--accent-gold); transform: translateY(-3px); box-shadow: 0 10px 28px #172f560c; }
 .alma-home-tile h3 { font-size: 17px; margin: 20px 0 10px; letter-spacing: -.02em; }
 .alma-home-tile p { color: var(--ink-soft); font-size: 13px; line-height: 1.65; margin: 0; }
 .alma-tile-arrow { position: absolute; right: 22px; top: 26px; color: #9aa7b7; font-size: 18px; }
-.alma-home-tile:nth-child(3n+2) .alma-icon { background: #f8f1e4; color: #94733b; }
+.alma-home-tile:nth-child(3n+2) .alma-icon { background: #f8f1e4; color: var(--accent-gold); }
 .alma-complementary { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 18px; }
 .alma-complementary a { display: flex; align-items: center; gap: 16px; padding: 20px 24px; border: 1px solid var(--line); border-radius: 14px; text-decoration: none; color: var(--navy); }
 .alma-complementary small { display: block; color: var(--ink-soft); font-size: 12px; margin-top: 4px; }
 .alma-complementary b { margin-left: auto; }
-.alma-complementary a:hover { background: var(--surface); border-color: #c4a468; }
+.alma-complementary a:hover { background: var(--surface); border-color: var(--accent-gold); }
 .alma-two-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
 .alma-library-card { border: 1px solid var(--line); border-radius: 18px; background: var(--surface); padding: 32px; text-decoration: none; color: var(--navy); transition: .2s; }
-.alma-library-card > svg { color: #a88950; }
+.alma-library-card > svg { color: var(--accent-gold); }
 .alma-library-card h3 { font-size: 24px; margin: 18px 0 12px; }
 .alma-library-card p { font-size: 14px; color: var(--ink-soft); line-height: 1.8; }
-.alma-library-card > span { display: inline-block; margin-top: 12px; font-size: 12px; font-weight: 700; color: #8a6a33; }
+.alma-library-card > span { display: inline-block; margin-top: 12px; font-size: 12px; font-weight: 700; color: var(--accent-gold); }
 .home-page .alma-identity { max-width: 1120px; padding: 44px; border-radius: 22px; background: linear-gradient(110deg, #122943, #2c4c76); color: #fff; text-align: center; }
 .alma-identity .alma-eyebrow { color: #dec388; }
-.alma-identity h2 { color: #e6ca8e; font-size: 40px; margin: 10px 0 28px; }
+.alma-identity h2 { color: var(--accent-gold); font-size: 40px; margin: 10px 0 28px; }
 .alma-identity h2 span { color: #fff; }
 .alma-initials { display: grid; grid-template-columns: repeat(4, 1fr); border-block: 1px solid #ffffff25; padding: 24px 0; }
-.alma-initials strong { display: block; color: #e6ca8e; font-size: 36px; }
+.alma-initials strong { display: block; color: var(--accent-gold); font-size: 36px; }
 .alma-initials span { font-size: 13px; }
 .alma-identity > p:last-child { font-size: 13px; color: #c5d2e4; margin: 24px 0 0; }
 .alma-page > section { max-width: 960px; }
@@ -78,8 +79,8 @@ nav .search-toggle, nav .account-menu summary { font-size: 12px; padding: 0 12px
 .alma-category > summary::-webkit-details-marker { display: none; }
 .alma-category summary strong { display: block; font-size: 19px; letter-spacing: -.02em; color: var(--navy); }
 .alma-category summary small { display: block; font-size: 13px; color: var(--ink-soft); margin-top: 4px; }
-.alma-chevron { margin-left: auto; font-size: 24px; font-weight: 300; color: #9a7a44; }
-.alma-category[open] { border-color: #c4a468; }
+.alma-chevron { margin-left: auto; font-size: 24px; font-weight: 300; color: var(--accent-gold); }
+.alma-category[open] { border-color: var(--accent-gold); }
 .alma-category[open] .alma-chevron { transform: rotate(45deg); }
 .alma-submenu { border-top: 1px solid var(--line); padding: 0 24px; }
 .alma-resource { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 22px 0; border-bottom: 1px solid var(--line); }
@@ -99,7 +100,7 @@ nav .search-toggle, nav .account-menu summary { font-size: 12px; padding: 0 12px
 .alma-footer { background: var(--navy-deep); color: #c5d2e2; padding: 42px max(5vw, 20px) 20px; text-align: left; }
 .alma-footer-content { display: flex; gap: 40px; justify-content: space-between; align-items: center; max-width: 1120px; margin: auto; }
 .alma-footer-brand { display: flex; align-items: center; gap: 18px; color: #fff; text-decoration: none; }
-.alma-footer-brand strong { display: block; color: #e6ca8e; letter-spacing: .04em; font-size: 20px; }
+.alma-footer-brand strong { display: block; color: var(--accent-gold); letter-spacing: .04em; font-size: 20px; }
 .alma-footer-brand small { display: block; font-size: 11px; }
 .alma-footer-content > p { font-size: 12px; }
 .alma-footer-links { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 24px; }
@@ -158,6 +159,83 @@ body.dark .alma-eyebrow, body.dark .alma-library-card > span { color: #dec388; }
 }
 
 .alma-about-intro { max-width: 700px; margin: 0 auto 32px; text-align: center; color: var(--ink-soft); font-size: 16px; line-height: 1.8; }
+
+.book-list { display: grid; gap: 22px; }
+.literature-quote {
+    margin: 24px 0 4px;
+    padding: 28px;
+    border: 1px solid var(--line);
+    border-top: 3px solid var(--accent-gold);
+    border-radius: 14px;
+    background: var(--paper);
+    text-align: center;
+}
+.literature-quote blockquote { margin: 0; }
+.literature-quote blockquote p { margin: 0; color: var(--ink-soft); font-size: clamp(17px, 2vw, 22px); font-style: italic; line-height: 1.7; }
+.literature-quote figcaption { margin-top: 14px; color: var(--ink-soft); font-size: 13px; font-weight: 650; }
+.book-card { scroll-margin-top: calc(var(--site-nav-height) + 24px); }
+.book-card h3 { margin-top: 0; font-size: 25px; color: var(--navy); }
+.book-genre + .book-genre { margin-top: 24px; }
+.book-genre-title { display: flex; align-items: center; gap: 14px; padding-bottom: 12px; border-bottom: 2px solid var(--accent-gold); }
+body.dark .book-card h3 { color: #edf3f9; }
+.book-card:target { border-color: var(--accent-gold); }
+.book-author-info { margin-top: 20px; border-top: 1px solid var(--line); padding-top: 16px; }
+.book-author-info summary { cursor: pointer; color: var(--ink-soft); }
+.book-author-info img { max-width: 110px; max-height: 140px; object-fit: contain; margin-top: 16px; border-radius: 10px; }
+
+/* The author and title libraries share the same panels and reading rhythm. */
+#pagina-literatura .cards:not(#literatura .cards) { display: grid; grid-template-columns: minmax(0, 1fr); gap: 22px; }
+#pagina-literatura .card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    padding: 36px;
+    box-shadow: none;
+    color: var(--navy);
+}
+#pagina-literatura .card:hover { transform: none; border-color: var(--accent-gold); box-shadow: none; }
+#pagina-literatura .card.autor {
+    scroll-margin-top: calc(var(--site-nav-height) + 24px);
+    width: 100%; max-width: none; height: auto; min-height: 0;
+    flex: 1 1 auto; overflow: visible; text-align: left;
+}
+#pagina-literatura .autor-descriere { flex: initial; min-height: 0; text-align: left; }
+#pagina-literatura .autor-nume { min-height: 0; justify-content: flex-start; text-align: left; font-size: 25px; color: var(--navy); }
+#pagina-literatura .autor-descriere p { height: auto; max-height: none; overflow: visible; text-align: left; color: var(--ink-soft); font-size: 14px; line-height: 1.8; }
+#pagina-literatura .autor > .opera-list { flex: initial; max-height: none; overflow: visible; }
+#pagina-literatura .portret { margin: 0 0 20px; border-radius: 10px; background: var(--paper-alt); }
+#pagina-literatura :is(#poezieCards, #prozaCards, #teatruCards) {
+    container: author-list / inline-size;
+}
+@container author-list (min-width: 560px) {
+    #pagina-literatura .card.autor {
+        display: grid;
+        grid-template-columns: 120px minmax(0, 1fr);
+        gap: 20px 28px;
+        align-items: start;
+    }
+    #pagina-literatura .autor > .portret { margin: 0; }
+    #pagina-literatura .autor-descriere { min-width: 0; }
+    #pagina-literatura .autor-nume { padding-top: 0; }
+    #pagina-literatura .autor > .opera-list { grid-column: 1 / -1; margin-top: 0; }
+}
+#pagina-literatura .card h3 { color: var(--navy); }
+#pagina-literatura .card p { color: var(--ink-soft); font-size: 14px; line-height: 1.8; }
+#pagina-literatura .book-genre-title { font-size: 24px; text-align: left; }
+#pagina-literatura :is(#poezie, #proza, #teatru) .subtitlu { border: 0; padding-bottom: 0; }
+#pagina-literatura .citat { padding: 36px; background: var(--surface); border: 1px solid var(--line); border-left: 3px solid var(--accent-gold); border-radius: 18px; color: var(--ink-soft); box-shadow: none; }
+body.dark #pagina-literatura :is(.card, .card h3, .autor-nume) { color: #edf3f9; }
+@media (max-width: 600px) {
+    #pagina-literatura :is(.card, .citat) { padding: 24px; }
+}
+
+/* Adventure quizzes grouped by game type in expandable lists. */
+#quizInteractiveLista { grid-template-columns: minmax(0, 1fr); }
+.quiz-type-list { display: grid; gap: 16px; padding: 20px; border-top: 1px solid var(--line); }
+.quiz-type-list .interactive-quiz-card { min-width: 0; margin: 0; }
+@media (max-width: 600px) {
+    .quiz-type-list { padding: 12px; gap: 12px; }
+}
 
 #limba > .alma-back, #literatura > .alma-back { display: inline-block; margin-bottom: 24px; }
 
@@ -222,7 +300,7 @@ nav .nav-links {
     background: var(--surface);
     gap: 14px;
 }
-.home-page .home-timeline span { font-size: 24px; font-weight: 700; letter-spacing: -.04em; color: #a28349; }
+.home-page .home-timeline span { font-size: 24px; font-weight: 700; letter-spacing: -.04em; color: var(--accent-gold); }
 .home-page .home-timeline strong { color: var(--navy); font-size: 14px; font-weight: 650; }
 .home-page .home-question {
     padding: 24px 28px;
@@ -256,7 +334,7 @@ nav .nav-links {
 .home-page .home-values-grid > div, .home-page .home-discovery-grid > div { text-align: left; min-height: 0; }
 .home-page .home-discovery-grid .alma-icon, .home-page .home-values-grid .alma-icon { font-size: inherit; }
 .home-page .home-values-grid strong, .home-page .home-discovery-grid strong { color: var(--navy); }
-.home-page .home-note-icon, .home-page .home-values-grid .alma-icon { background: #f8f1e4; color: #94733b; }
+.home-page .home-note-icon, .home-page .home-values-grid .alma-icon { background: #f8f1e4; color: var(--accent-gold); }
 body.dark .home-page .home-section-heading h2,
 body.dark .home-page .home-timeline strong,
 body.dark .home-page .home-question strong,

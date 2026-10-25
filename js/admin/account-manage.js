@@ -63,7 +63,7 @@ async function incarcaStatisticiContAdmin() {
     const { data: profiluri, error } = await supabaseClient.from("profiles").select("role");
 
     if (error) {
-        statsBox.innerHTML = `<p style="color:#c62828">${escapeHTML(error.message)}</p>`;
+        statsBox.innerHTML = `<p style="color:var(--admin-error, #c62828)">${escapeHTML(error.message)}</p>`;
     } else {
         const total = profiluri?.length || 0;
         const perRol = { elev: 0, profesor: 0, admin: 0 };
@@ -87,7 +87,7 @@ async function incarcaStatisticiContAdmin() {
             <div class="admin-stat-card"><strong>${formateazaBytesAdmin(pdfInfo.bytes)}</strong><span>PDF-uri (${pdfInfo.count} fișiere)</span></div>
             <div class="admin-stat-card"><strong>${formateazaBytesAdmin(imaginiInfo.bytes)}</strong><span>Imagini (${imaginiInfo.count} fișiere)</span></div>`;
     } catch (storageError) {
-        storageBox.innerHTML = `<p style="color:#c62828">Spațiul de stocare nu a putut fi calculat: ${escapeHTML(storageError.message)}</p>`;
+        storageBox.innerHTML = `<p style="color:var(--admin-error, #c62828)">Spațiul de stocare nu a putut fi calculat: ${escapeHTML(storageError.message)}</p>`;
     }
 }
 
@@ -103,7 +103,7 @@ async function incarcaDocumenteAIContAdmin() {
         .limit(8);
 
     if (error) {
-        container.innerHTML = `<p style="color:#c62828">Indexul AI nu este disponibil. ${escapeHTML(error.message)}</p>`;
+        container.innerHTML = `<p style="color:var(--admin-error, #c62828)">Indexul AI nu este disponibil. ${escapeHTML(error.message)}</p>`;
         return;
     }
 
@@ -134,7 +134,7 @@ async function incarcaRoluriContAdmin() {
         .limit(100);
 
     if (error) {
-        container.innerHTML = `<p style="color:#c62828">${escapeHTML(error.message)}</p>`;
+        container.innerHTML = `<p style="color:var(--admin-error, #c62828)">${escapeHTML(error.message)}</p>`;
         return;
     }
 
@@ -233,7 +233,7 @@ async function incarcaJurnalContAdmin() {
         .limit(30);
 
     if (error) {
-        container.innerHTML = `<p style="color:#c62828">Jurnalul nu a putut fi încărcat. (${escapeHTML(error.message)})</p>`;
+        container.innerHTML = `<p style="color:var(--admin-error, #c62828)">Jurnalul nu a putut fi încărcat. (${escapeHTML(error.message)})</p>`;
         return;
     }
 

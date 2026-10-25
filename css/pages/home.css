@@ -51,7 +51,7 @@
 }
 
 .home-lead strong {
-    color: #c35a38;
+    color: var(--accent-gold);
 }
 
 .home-intro {
@@ -84,13 +84,13 @@
 
 .home-hero-art span:nth-child(2) {
     margin: -80px -8px 0;
-    color: #c35a38;
+    color: var(--accent-gold);
     font-size: 108px;
 }
 
 .home-hero-art span:nth-child(3) {
     margin-top: 100px;
-    color: #d59b2e;
+    color: var(--accent-gold);
     font-size: 45px;
 }
 
@@ -152,7 +152,7 @@
 }
 
 .home-timeline i {
-    color: #c35a38;
+    color: var(--accent-gold);
     font-size: 24px;
     font-style: normal;
 }

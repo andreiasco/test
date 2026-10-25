@@ -1,0 +1,55 @@
+/* Single-row navigation with a measured overflow menu. */
+nav {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 16px;
+    padding: 12px 3vw;
+}
+nav .alma-brand { grid-column: 1; grid-row: 1; }
+nav .nav-links {
+    grid-column: 2;
+    grid-row: 1;
+    min-width: 0;
+    flex-basis: auto;
+    flex-wrap: nowrap;
+    justify-content: center;
+    gap: 3px;
+    padding: 0;
+    border: 0;
+}
+nav .nav-links > a, nav .nav-overflow { flex: 0 0 auto; }
+nav .nav-tools { grid-column: 3; grid-row: 1; margin: 0; }
+nav .nav-overflow[hidden] { display: none; }
+nav .nav-overflow summary {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    border: 0;
+    min-height: 0;
+    color: white;
+    font-weight: 600;
+    transition: background .18s;
+}
+nav .nav-overflow summary:hover,
+nav .nav-overflow[open] summary { background: #ffffff18; color: white; }
+nav .nav-overflow .alma-more-menu {
+    min-width: 210px;
+    max-width: calc(100vw - 28px);
+    max-height: min(70vh, 600px);
+    overflow-y: auto;
+}
+nav .nav-overflow a { white-space: nowrap; font-size: 12px; }
+@media (max-width: 600px) {
+    nav { gap: 8px; padding: 10px 12px; }
+    nav .alma-brand small { display: none; }
+    nav .alma-brand img { width: 32px; height: 32px; }
+    nav .alma-brand { gap: 6px; }
+    nav .alma-brand strong { font-size: 14px; }
+    nav .nav-links > a, nav .nav-overflow summary { padding: 7px; font-size: 11px; }
+    nav .nav-tools { gap: 4px; }
+    nav .search-toggle, nav .account-menu summary { padding: 0 7px; font-size: 11px; }
+    nav .nav-overflow .alma-more-menu { position: fixed; top: calc(var(--site-nav-height) + 6px); right: 12px; }
+}
+@media (max-width: 380px) {
+    nav { gap: 5px; padding-inline: 8px; }
+    nav .alma-brand img { display: none; }
+}

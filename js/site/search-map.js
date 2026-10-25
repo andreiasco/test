@@ -82,7 +82,7 @@ function inchideHartaPopup() {
     if (popup) {
         popup.classList.add("is-empty");
         document.getElementById("hartaPopupTitlu").textContent = "Fiecare regiune are o poveste";
-        document.getElementById("hartaPopupLista").innerHTML = "<p>Selectează o regiune de pe hartă pentru a descoperi autorii și locurile în care s-au născut.</p>";
+        document.getElementById("hartaPopupLista").innerHTML = "<p>Selectează o regiune de pe hartă pentru a descoperi autorii și locurile în care <span class='harta-birth-phrase'>s-au născut.</span></p>";
     }
 }
 
@@ -119,19 +119,24 @@ function deschideHartaPopup(regiune, element) {
 }
 
 function navigheazaLaAutor(autorId) {
-    // Navighează la literatura și scrollează la autorul selectat
     inchideHartaPopup();
-    window.location.hash = "#literatura";
-
-    // Așteaptă ca pagina să se înccarce și apoi scrollează la autorul selectat
-    setTimeout(() => {
+    const deschide = () => window.requestAnimationFrame(() => {
         const autorCard = document.getElementById(`autor-${autorId}`);
         if (autorCard) {
-            autorCard.scrollIntoView({ behavior: "smooth", block: "start" });
+            autorCard.scrollIntoView({ behavior: "instant", block: "start" });
             deschideAutorPopup(null, autorCard);
         }
-    }, 300);
+    });
+    if (window.location.hash !== "#literatura") {
+        // Wait for the router's scroll reset before positioning the author.
+        window.addEventListener('hashchange', deschide, { once: true });
+        window.location.hash = "#literatura";
+    } else {
+        afiseazaPagina("#literatura");
+        deschide();
+    }
 }
+
 
 function deschideAutorPopup(event, autorCard) {
     if (!autorCard || (event && event.target.closest("button, a, summary, input, select, textarea"))) {
@@ -397,100 +402,17 @@ async function deschideRezultatCautare(
     }
 
 
+    document.querySelector(".search-container")?.classList.add("ascuns");
+    document.getElementById("searchToggle")?.setAttribute("aria-expanded", "false");
+
     if (tip === "Autor") {
-
-        const { data: autor } =
-            await supabaseClient
-                .from("autori")
-                .select("categorie")
-                .eq("id", autorId)
-                .single();
-
-
-        if (!autor) {
-            return;
-        }
-
-
-        const categorie =
-            String(
-                autor.categorie || ""
-            )
-                .trim()
-                .toLowerCase();
-
-
-        const sectiuni = {
-            poezie: "poezie",
-            proza: "proza",
-            teatru: "teatru"
-        };
-
-
-        const ancora =
-            sectiuni[categorie];
-
-
-        if (ancora) {
-
-            window.location.hash =
-                ancora;
-
-        }
-
+        navigheazaLaAutor(autorId);
         return;
-
     }
-
 
     if (tip === "Operă") {
-
-        const { data: opera } =
-            await supabaseClient
-                .from("opere")
-                .select("autor_id")
-                .eq("id", operaId)
-                .single();
-
-
-        if (!opera) {
-            return;
-        }
-
-
-        const { data: autor } =
-            await supabaseClient
-                .from("autori")
-                .select("categorie")
-                .eq("id", opera.autor_id)
-                .single();
-
-
-        if (!autor) {
-            return;
-        }
-
-
-        const categorie =
-            String(
-                autor.categorie || ""
-            )
-                .trim()
-                .toLowerCase();
-
-
-        if (
-            ["poezie", "proza", "teatru"]
-                .includes(categorie)
-        ) {
-
-            window.location.hash =
-                categorie;
-
-        }
-
+        const target = '#carte-' + encodeURIComponent(String(operaId));
+        window.location.hash = target;
+        afiseazaPagina(target);
     }
-
 }
-
-

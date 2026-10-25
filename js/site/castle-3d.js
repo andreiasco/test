@@ -30,6 +30,20 @@ window.CastleQuiz3D = (() => {
     let ambientPulse = 0;
     let usingGlbHero = false;
     let usingGlbMonster = false;
+    let currentWorld = 'castle';
+    let sceneVersion = 0;
+
+    function disposeRoom(group) {
+        if (!group) return;
+        const geometries = new Set(), materials = new Set();
+        group.traverse(obj => {
+            if (obj.geometry) geometries.add(obj.geometry);
+            if (Array.isArray(obj.material)) obj.material.forEach(material => materials.add(material));
+            else if (obj.material) materials.add(obj.material);
+        });
+        geometries.forEach(geometry => geometry.dispose?.());
+        materials.forEach(material => material.dispose?.());
+    }
 
     const MONSTER_COLORS = {
         goblin: 0x6f9f47,
@@ -447,11 +461,16 @@ window.CastleQuiz3D = (() => {
 
     function buildRoom(index = 0, boss = false) {
         if (!scene) return;
-        if (roomGroup) scene.remove(roomGroup);
+        if (roomGroup) { scene.remove(roomGroup); disposeRoom(roomGroup); }
         if (roomMoodLight) scene.remove(roomMoodLight);
         roomGroup = new THREE.Group();
         roomGroup.name = "encounterRoom";
         scene.add(roomGroup);
+
+        if (currentWorld !== 'castle') {
+            window.QuizWorldScenery.buildRoom({ THREE, scene, parent: roomGroup, world: currentWorld, index, boss, mat, makeMesh });
+            return;
+        }
 
         const theme = boss ? { id: "throne", name: "Sala Dragonului", accent: 0xd66b3d } : ROOM_THEMES[index % ROOM_THEMES.length];
         const stone = mat(boss ? 0x332b2d : 0x383743, 0.95, 0.02);
@@ -666,6 +685,11 @@ window.CastleQuiz3D = (() => {
     const t = (time - clockStart) / 1000;
 
     scene.traverse((obj) => {
+        if (obj.userData?.snow) {
+            obj.position.y -= .006 + (obj.userData.phase % 3) * .001;
+            obj.position.x += Math.sin(t + obj.userData.phase) * .001;
+            if (obj.position.y < .1) obj.position.y = 4.8;
+        }
         if (obj.userData?.flame) {
             const s =
                 0.92 +
@@ -755,18 +779,27 @@ window.CastleQuiz3D = (() => {
         });
     }
 
-    async function init(targetCanvas) {
+    async function init(targetCanvas, world = 'castle') {
         dispose(false);
+        const version = sceneVersion;
+        currentWorld = window.QuizWorlds?.normalize(world) || 'castle';
         canvas = targetCanvas;
         if (!canvas) return false;
         const loading = document.getElementById("castleLoading");
         loading?.classList.remove("ascuns");
         const lib = await loadThree();
+        if (version !== sceneVersion) return false;
         if (!lib) {
             if (loading) loading.textContent = "Scena 3D nu a putut fi incarcata. Quiz-ul poate continua fara animatie.";
             return false;
         }
-        renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false, powerPreference: "high-performance" });
+        try {
+            renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false, powerPreference: "high-performance" });
+        } catch (error) {
+            if (loading) loading.textContent = 'Scena 3D nu este disponibilă. Quiz-ul poate continua fără animație.';
+            console.error(error);
+            return false;
+        }
         renderer.shadowMap.enabled = true;
         renderer.shadowMap.type = THREE.PCFShadowMap;
         renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -776,9 +809,15 @@ window.CastleQuiz3D = (() => {
         camera = new THREE.PerspectiveCamera(50, 16 / 9, 0.1, 60);
         camera.position.set(0, 2.35, 7.8);
         camera.lookAt(0, 1.2, -1.8);
-        buildCastle();
+        if (currentWorld === 'castle') buildCastle();
+        else {
+            const environment = window.QuizWorldScenery.buildEnvironment({ THREE, scene, world: currentWorld, mat, makeMesh });
+            door = environment.door; particles = environment.particles;
+        }
         buildRoom(0, false);
-        hero = await createHeroModel();
+        const heroModel = await createHeroModel();
+        if (version !== sceneVersion) { disposeRoom(heroModel); return false; }
+        hero = heroModel;
         hero.position.set(0, hero.userData?.baseY || 0, 4.2);
         scene.add(hero);
         resize();
@@ -1030,12 +1069,13 @@ window.CastleQuiz3D = (() => {
     }
 
     function getRoomName(index = 0, boss = false) {
-        return boss ? "Sala Dragonului" : ROOM_THEMES[index % ROOM_THEMES.length].name;
+        return window.QuizWorlds?.room(currentWorld, index, boss).name || (boss ? "Sala Dragonului" : ROOM_THEMES[index % ROOM_THEMES.length].name);
     }
 
     function skip() { activeTween?.cancel?.(); }
 
     function dispose(clearCanvas = true) {
+        sceneVersion++;
         activeTween?.cancel?.(); activeTween = null;
         if (animationId) cancelAnimationFrame(animationId); animationId = null;
         resizeObserver?.disconnect?.(); resizeObserver = null;

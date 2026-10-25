@@ -1,0 +1,1032 @@
+-- 12 quiz-uri publicate: 4 tipuri pentru fiecare nivel nou (Zăpadă, Deșert, Junglă).
+-- Câte 5 provocări: cele 4 camere obișnuite și camera finală.
+-- Rulează DUPĂ quiz-worlds.sql. Nu modifică quiz-uri existente și nu creează duplicate.
+begin;
+lock table public.quizzes in share row exclusive mode;
+do $seed$
+declare
+    admin_id uuid;
+begin
+    if not exists (select 1 from information_schema.columns where table_schema='public' and table_name='quizzes' and column_name='world_theme') then
+        raise exception 'Rulează mai întâi supabase/quiz-worlds.sql.';
+    end if;
+    select id into admin_id from public.profiles where role='admin' order by id limit 1;
+    if admin_id is null then
+        raise exception 'Nu există un profil cu rol admin pentru atribuirea quiz-urilor.';
+    end if;
+    insert into public.quizzes
+        (title, description, grade, game_mode, world_theme, difficulty, lives, seconds_per_question, published, questions, created_by, updated_at)
+    select demo.title, demo.description, demo.grade, demo.game_mode, demo.world_theme, demo.difficulty,
+           demo.lives, demo.seconds_per_question, demo.published, demo.questions, admin_id, now()
+    from jsonb_to_recordset($quiz_demo$
+[
+  {
+    "title": "[TEST] Zăpadă — Alege răspunsul",
+    "description": "Quiz demonstrativ: cinci provocări pentru testarea camerelor din nivelul Zăpadă. Ultima provocare are loc în camera finală.",
+    "grade": "general",
+    "game_mode": "castle_choice",
+    "world_theme": "snow",
+    "difficulty": "medium",
+    "lives": 3,
+    "seconds_per_question": 45,
+    "published": true,
+    "questions": [
+      {
+        "type": "multiple_choice",
+        "monster": "golem",
+        "boss": false,
+        "correctMessage": "Corect! Drumul spre următoarea cameră este liber.",
+        "wrongMessage": "Ai pierdut o viață. Citește explicația și continuă aventura.",
+        "text": "Care cuvânt este substantiv?",
+        "answers": [
+          "carte",
+          "repede",
+          "citește",
+          "frumos"
+        ],
+        "correctIndex": 0,
+        "explanation": "„Carte” denumește un lucru."
+      },
+      {
+        "type": "multiple_choice",
+        "monster": "ghost",
+        "boss": false,
+        "correctMessage": "Corect! Drumul spre următoarea cameră este liber.",
+        "wrongMessage": "Ai pierdut o viață. Citește explicația și continuă aventura.",
+        "text": "Care cuvânt este verb?",
+        "answers": [
+          "lectură",
+          "citește",
+          "vesel",
+          "ieri"
+        ],
+        "correctIndex": 1,
+        "explanation": "„Citește” exprimă o acțiune."
+      },
+      {
+        "type": "multiple_choice",
+        "monster": "knight",
+        "boss": false,
+        "correctMessage": "Corect! Drumul spre următoarea cameră este liber.",
+        "wrongMessage": "Ai pierdut o viață. Citește explicația și continuă aventura.",
+        "text": "Care cuvânt este adjectiv?",
+        "answers": [
+          "elev",
+          "merge",
+          "atent",
+          "aici"
+        ],
+        "correctIndex": 2,
+        "explanation": "„Atent” exprimă o însușire."
+      },
+      {
+        "type": "multiple_choice",
+        "monster": "bat",
+        "boss": false,
+        "correctMessage": "Corect! Drumul spre următoarea cameră este liber.",
+        "wrongMessage": "Ai pierdut o viață. Citește explicația și continuă aventura.",
+        "text": "Care este antonimul cuvântului „cald”?",
+        "answers": [
+          "fierbinte",
+          "călduros",
+          "luminos",
+          "rece"
+        ],
+        "correctIndex": 3,
+        "explanation": "„Rece” are sens opus cuvântului „cald”."
+      },
+      {
+        "type": "multiple_choice",
+        "monster": "dragon",
+        "boss": true,
+        "correctMessage": "Corect! Drumul spre următoarea cameră este liber.",
+        "wrongMessage": "Ai pierdut o viață. Citește explicația și continuă aventura.",
+        "text": "Care este un sinonim pentru „bucuros”?",
+        "answers": [
+          "vesel",
+          "trist",
+          "obosit",
+          "tăcut"
+        ],
+        "correctIndex": 0,
+        "explanation": "„Vesel” și „bucuros” au sens asemănător."
+      }
+    ]
+  },
+  {
+    "title": "[TEST] Zăpadă — Adevărat / Fals",
+    "description": "Quiz demonstrativ: cinci provocări pentru testarea camerelor din nivelul Zăpadă. Ultima provocare are loc în camera finală.",
+    "grade": "general",
+    "game_mode": "castle_true_false",
+    "world_theme": "snow",
+    "difficulty": "medium",
+    "lives": 3,
+    "seconds_per_question": 45,
+    "published": true,
+    "questions": [
+      {
+        "type": "true_false",
+        "monster": "golem",
+        "boss": false,
+        "correctMessage": "Corect! Drumul spre următoarea cameră este liber.",
+        "wrongMessage": "Ai pierdut o viață. Citește explicația și continuă aventura.",
+        "text": "Substantivul poate denumi ființe și lucruri.",
+        "answers": [
+          "Adevărat",
+          "Fals"
+        ],
+        "correctIndex": 0,
+        "explanation": "Substantive precum „elev” și „carte” denumesc ființe și lucruri."
+      },
+      {
+        "type": "true_false",
+        "monster": "ghost",
+        "boss": false,
+        "correctMessage": "Corect! Drumul spre următoarea cameră este liber.",
+        "wrongMessage": "Ai pierdut o viață. Citește explicația și continuă aventura.",
+        "text": "În enunțul „Ana citește”, cuvântul „citește” este substantiv.",
+        "answers": [
+          "Adevărat",
+          "Fals"
+        ],
+        "correctIndex": 1,
+        "explanation": "„Citește” este verb."
+      },
+      {
+        "type": "true_false",
+        "monster": "knight",
+        "boss": false,
+        "correctMessage": "Corect! Drumul spre următoarea cameră este liber.",
+        "wrongMessage": "Ai pierdut o viață. Citește explicația și continuă aventura.",
+        "text": "Adjectivul exprimă o însușire a unui substantiv.",
+        "answers": [
+          "Adevărat",
+          "Fals"
+        ],
+        "correctIndex": 0,
+        "explanation": "Adjectivele pot exprima însușiri, ca în „carte interesantă”."
+      },
+      {
+        "type": "true_false",
+        "monster": "bat",
+        "boss": false,
+        "correctMessage": "Corect! Drumul spre următoarea cameră este liber.",
+        "wrongMessage": "Ai pierdut o viață. Citește explicația și continuă aventura.",
+        "text": "„Rece” și „cald” sunt sinonime.",
+        "answers": [
+          "Adevărat",
+          "Fals"
+        ],
+        "correctIndex": 1,
+        "explanation": "Cele două cuvinte au sensuri opuse: sunt antonime."
+      },
+      {
+        "type": "true_false",
+        "monster": "dragon",
+        "boss": true,
+        "correctMessage": "Corect! Drumul spre următoarea cameră este liber.",
+        "wrongMessage": "Ai pierdut o viață. Citește explicația și continuă aventura.",
+        "text": "Un text dramatic poate conține indicații scenice.",
+        "answers": [
+          "Adevărat",
+          "Fals"
+        ],
+        "correctIndex": 0,
+        "explanation": "Indicațiile scenice oferă informații despre jocul actorilor și decor."
+      }
+    ]
+  },
+  {
+    "title": "[TEST] Zăpadă — Spânzurătoarea",
+    "description": "Quiz demonstrativ: cinci provocări pentru testarea camerelor din nivelul Zăpadă. Ultima provocare are loc în camera finală.",
+    "grade": "general",
+    "game_mode": "castle_hangman",
+    "world_theme": "snow",
+    "difficulty": "medium",
+    "lives": 3,
+    "seconds_per_question": 90,
+    "published": true,
+    "questions": [
+      {
+        "type": "hangman",
+        "monster": "golem",
+        "boss": false,
+        "correctMessage": "Corect! Drumul spre următoarea cameră este liber.",
+        "wrongMessage": "Ai pierdut o viață. Citește explicația și continuă aventura.",
+        "text": "Partea de vorbire care denumește ființe, lucruri și noțiuni.",
+        "target": "SUBSTANTIV",
+        "explanation": "Răspuns: SUBSTANTIV."
+      },
+      {
+        "type": "hangman",
+        "monster": "ghost",
+        "boss": false,
+        "correctMessage": "Corect! Drumul spre următoarea cameră este liber.",
+        "wrongMessage": "Ai pierdut o viață. Citește explicația și continuă aventura.",
+        "text": "Partea de vorbire care poate exprima o acțiune.",
+        "target": "VERB",
+        "explanation": "Răspuns: VERB."
+      },
+      {
+        "type": "hangman",
+        "monster": "knight",
+        "boss": false,
+        "correctMessage": "Corect! Drumul spre următoarea cameră este liber.",
+        "wrongMessage": "Ai pierdut o viață. Citește explicația și continuă aventura.",
+        "text": "Partea de vorbire care exprimă însușirea unui substantiv.",
+        "target": "ADJECTIV",
+        "explanation": "Răspuns: ADJECTIV."
+      },
+      {
+        "type": "hangman",
+        "monster": "bat",
+        "boss": false,
+        "correctMessage": "Corect! Drumul spre următoarea cameră este liber.",
+        "wrongMessage": "Ai pierdut o viață. Citește explicația și continuă aventura.",
+        "text": "Cuvinte cu sens asemănător.",
+        "target": "SINONIME",
+        "explanation": "Răspuns: SINONIME."
+      },
+      {
+        "type": "hangman",
+        "monster": "dragon",
+        "boss": true,
+        "correctMessage": "Corect! Drumul spre următoarea cameră este liber.",
+        "wrongMessage": "Ai pierdut o viață. Citește explicația și continuă aventura.",
+        "text": "Cuvinte cu sens opus.",
+        "target": "ANTONIME",
+        "explanation": "Răspuns: ANTONIME."
+      }
+    ]
+  },
+  {
+    "title": "[TEST] Zăpadă — Pune în ordine",
+    "description": "Quiz demonstrativ: cinci provocări pentru testarea camerelor din nivelul Zăpadă. Ultima provocare are loc în camera finală.",
+    "grade": "general",
+    "game_mode": "castle_ordering",
+    "world_theme": "snow",
+    "difficulty": "medium",
+    "lives": 3,
+    "seconds_per_question": 60,
+    "published": true,
+    "questions": [
+      {
+        "type": "ordering",
+        "monster": "golem",
+        "boss": false,
+        "correctMessage": "Corect! Drumul spre următoarea cameră este liber.",
+        "wrongMessage": "Ai pierdut o viață. Citește explicația și continuă aventura.",
+        "text": "Ordonează părțile unei compuneri.",
+        "items": [
+          "Introducere",
+          "Cuprins",
+          "Încheiere"
+        ],
+        "explanation": "Ordinea corectă: Introducere → Cuprins → Încheiere."
+      },
+      {
+        "type": "ordering",
+        "monster": "ghost",
+        "boss": false,
+        "correctMessage": "Corect! Drumul spre următoarea cameră este liber.",
+        "wrongMessage": "Ai pierdut o viață. Citește explicația și continuă aventura.",
+        "text": "Așază etichetele temporale de la început la sfârșit.",
+        "items": [
+          "Mai întâi",
+          "Apoi",
+          "La final"
+        ],
+        "explanation": "Ordinea corectă: Mai întâi → Apoi → La final."
+      },
+      {
+        "type": "ordering",
+        "monster": "knight",
+        "boss": false,
+        "correctMessage": "Corect! Drumul spre următoarea cameră este liber.",
+        "wrongMessage": "Ai pierdut o viață. Citește explicația și continuă aventura.",
+        "text": "Reconstituie enunțul „Elevul citește o carte.”",
+        "items": [
+          "Elevul",
+          "citește",
+          "o",
+          "carte."
+        ],
+        "explanation": "Ordinea corectă: Elevul → citește → o → carte.."
+      },
+      {
+        "type": "ordering",
+        "monster": "bat",
+        "boss": false,
+        "correctMessage": "Corect! Drumul spre următoarea cameră este liber.",
+        "wrongMessage": "Ai pierdut o viață. Citește explicația și continuă aventura.",
+        "text": "Ordonează pașii scrierii unui text, de la plan la verificare.",
+        "items": [
+          "Planific ideile",
+          "Scriu prima variantă",
+          "Recitesc textul",
+          "Corectez greșelile"
+        ],
+        "explanation": "Ordinea corectă: Planific ideile → Scriu prima variantă → Recitesc textul → Corectez greșelile."
+      },
+      {
+        "type": "ordering",
+        "monster": "dragon",
+        "boss": true,
+        "correctMessage": "Corect! Drumul spre următoarea cameră este liber.",
+        "wrongMessage": "Ai pierdut o viață. Citește explicația și continuă aventura.",
+        "text": "Ordonează alfabetic aceste cuvinte.",
+        "items": [
+          "apă",
+          "carte",
+          "elev",
+          "munte"
+        ],
+        "explanation": "Ordinea corectă: apă → carte → elev → munte."
+      }
+    ]
+  },
+  {
+    "title": "[TEST] Deșert — Alege răspunsul",
+    "description": "Quiz demonstrativ: cinci provocări pentru testarea camerelor din nivelul Deșert. Ultima provocare are loc în camera finală.",
+    "grade": "general",
+    "game_mode": "castle_choice",
+    "world_theme": "desert",
+    "difficulty": "medium",
+    "lives": 3,
+    "seconds_per_question": 45,
+    "published": true,
+    "questions": [
+      {
+        "type": "multiple_choice",
+        "monster": "goblin",
+        "boss": false,
+        "correctMessage": "Corect! Drumul spre următoarea cameră este liber.",
+        "wrongMessage": "Ai pierdut o viață. Citește explicația și continuă aventura.",
+        "text": "Care cuvânt este pronume personal?",
+        "answers": [
+          "copil",
+          "el",
+          "aleargă",
+          "verde"
+        ],
+        "correctIndex": 1,
+        "explanation": "„El” este pronume personal."
+      },
+      {
+        "type": "multiple_choice",
+        "monster": "spider",
+        "boss": false,
+        "correctMessage": "Corect! Drumul spre următoarea cameră este liber.",
+        "wrongMessage": "Ai pierdut o viață. Citește explicația și continuă aventura.",
+        "text": "Care este pluralul substantivului „carte”?",
+        "answers": [
+          "cartea",
+          "cărții",
+          "cărți",
+          "cărților"
+        ],
+        "correctIndex": 2,
+        "explanation": "Forma de plural nearticulată este „cărți”."
+      },
+      {
+        "type": "multiple_choice",
+        "monster": "skeleton",
+        "boss": false,
+        "correctMessage": "Corect! Drumul spre următoarea cameră este liber.",
+        "wrongMessage": "Ai pierdut o viață. Citește explicația și continuă aventura.",
+        "text": "Care enunț exprimă o acțiune trecută?",
+        "answers": [
+          "Ana citește.",
+          "Ana va citi.",
+          "Ana citea.",
+          "Ana va începe să citească."
+        ],
+        "correctIndex": 2,
+        "explanation": "„Citea” este o formă verbală de trecut."
+      },
+      {
+        "type": "multiple_choice",
+        "monster": "wizard",
+        "boss": false,
+        "correctMessage": "Corect! Drumul spre următoarea cameră este liber.",
+        "wrongMessage": "Ai pierdut o viață. Citește explicația și continuă aventura.",
+        "text": "Ce semn încheie, de regulă, o întrebare directă?",
+        "answers": [
+          "virgula",
+          "punctul și virgula",
+          "două puncte",
+          "semnul întrebării"
+        ],
+        "correctIndex": 3,
+        "explanation": "Întrebarea directă se încheie de regulă cu semnul întrebării."
+      },
+      {
+        "type": "multiple_choice",
+        "monster": "dragon",
+        "boss": true,
+        "correctMessage": "Corect! Drumul spre următoarea cameră este liber.",
+        "wrongMessage": "Ai pierdut o viață. Citește explicația și continuă aventura.",
+        "text": "Care cuvânt este un diminutiv?",
+        "answers": [
+          "căsuță",
+          "casă",
+          "locuință",
+          "clădire"
+        ],
+        "correctIndex": 0,
+        "explanation": "„Căsuță” este diminutivul cuvântului „casă”."
+      }
+    ]
+  },
+  {
+    "title": "[TEST] Deșert — Adevărat / Fals",
+    "description": "Quiz demonstrativ: cinci provocări pentru testarea camerelor din nivelul Deșert. Ultima provocare are loc în camera finală.",
+    "grade": "general",
+    "game_mode": "castle_true_false",
+    "world_theme": "desert",
+    "difficulty": "medium",
+    "lives": 3,
+    "seconds_per_question": 45,
+    "published": true,
+    "questions": [
+      {
+        "type": "true_false",
+        "monster": "goblin",
+        "boss": false,
+        "correctMessage": "Corect! Drumul spre următoarea cameră este liber.",
+        "wrongMessage": "Ai pierdut o viață. Citește explicația și continuă aventura.",
+        "text": "„Eu” este pronume personal.",
+        "answers": [
+          "Adevărat",
+          "Fals"
+        ],
+        "correctIndex": 0,
+        "explanation": "„Eu” este pronume personal, persoana I, singular."
+      },
+      {
+        "type": "true_false",
+        "monster": "spider",
+        "boss": false,
+        "correctMessage": "Corect! Drumul spre următoarea cameră este liber.",
+        "wrongMessage": "Ai pierdut o viață. Citește explicația și continuă aventura.",
+        "text": "Forma de plural a cuvântului „carte” este „cărți”.",
+        "answers": [
+          "Adevărat",
+          "Fals"
+        ],
+        "correctIndex": 0,
+        "explanation": "„Cărți” este pluralul nearticulat al substantivului „carte”."
+      },
+      {
+        "type": "true_false",
+        "monster": "skeleton",
+        "boss": false,
+        "correctMessage": "Corect! Drumul spre următoarea cameră este liber.",
+        "wrongMessage": "Ai pierdut o viață. Citește explicația și continuă aventura.",
+        "text": "Naratorul este întotdeauna aceeași persoană cu autorul.",
+        "answers": [
+          "Adevărat",
+          "Fals"
+        ],
+        "correctIndex": 1,
+        "explanation": "Naratorul este vocea textului și nu trebuie confundat automat cu autorul."
+      },
+      {
+        "type": "true_false",
+        "monster": "wizard",
+        "boss": false,
+        "correctMessage": "Corect! Drumul spre următoarea cameră este liber.",
+        "wrongMessage": "Ai pierdut o viață. Citește explicația și continuă aventura.",
+        "text": "Semnul întrebării poate încheia o întrebare directă.",
+        "answers": [
+          "Adevărat",
+          "Fals"
+        ],
+        "correctIndex": 0,
+        "explanation": "Este semnul obișnuit pentru încheierea unei întrebări directe."
+      },
+      {
+        "type": "true_false",
+        "monster": "dragon",
+        "boss": true,
+        "correctMessage": "Corect! Drumul spre următoarea cameră este liber.",
+        "wrongMessage": "Ai pierdut o viață. Citește explicația și continuă aventura.",
+        "text": "„Căsuță” este un diminutiv.",
+        "answers": [
+          "Adevărat",
+          "Fals"
+        ],
+        "correctIndex": 0,
+        "explanation": "Cuvântul este format de la „casă”."
+      }
+    ]
+  },
+  {
+    "title": "[TEST] Deșert — Spânzurătoarea",
+    "description": "Quiz demonstrativ: cinci provocări pentru testarea camerelor din nivelul Deșert. Ultima provocare are loc în camera finală.",
+    "grade": "general",
+    "game_mode": "castle_hangman",
+    "world_theme": "desert",
+    "difficulty": "medium",
+    "lives": 3,
+    "seconds_per_question": 90,
+    "published": true,
+    "questions": [
+      {
+        "type": "hangman",
+        "monster": "goblin",
+        "boss": false,
+        "correctMessage": "Corect! Drumul spre următoarea cameră este liber.",
+        "wrongMessage": "Ai pierdut o viață. Citește explicația și continuă aventura.",
+        "text": "„Eu”, „tu” și „el” sunt exemple de ... personale.",
+        "target": "PRONUME",
+        "explanation": "Răspuns: PRONUME."
+      },
+      {
+        "type": "hangman",
+        "monster": "spider",
+        "boss": false,
+        "correctMessage": "Corect! Drumul spre următoarea cameră este liber.",
+        "wrongMessage": "Ai pierdut o viață. Citește explicația și continuă aventura.",
+        "text": "Text literar organizat frecvent în versuri.",
+        "target": "POEZIE",
+        "explanation": "Răspuns: POEZIE."
+      },
+      {
+        "type": "hangman",
+        "monster": "skeleton",
+        "boss": false,
+        "correctMessage": "Corect! Drumul spre următoarea cameră este liber.",
+        "wrongMessage": "Ai pierdut o viață. Citește explicația și continuă aventura.",
+        "text": "Formă de exprimare literară în care se scriu romane și nuvele.",
+        "target": "PROZĂ",
+        "explanation": "Răspuns: PROZĂ."
+      },
+      {
+        "type": "hangman",
+        "monster": "wizard",
+        "boss": false,
+        "correctMessage": "Corect! Drumul spre următoarea cameră este liber.",
+        "wrongMessage": "Ai pierdut o viață. Citește explicația și continuă aventura.",
+        "text": "Vocea care relatează întâmplările într-un text narativ.",
+        "target": "NARATOR",
+        "explanation": "Răspuns: NARATOR."
+      },
+      {
+        "type": "hangman",
+        "monster": "dragon",
+        "boss": true,
+        "correctMessage": "Corect! Drumul spre următoarea cameră este liber.",
+        "wrongMessage": "Ai pierdut o viață. Citește explicația și continuă aventura.",
+        "text": "Ființă sau entitate care participă la acțiunea unei opere.",
+        "target": "PERSONAJ",
+        "explanation": "Răspuns: PERSONAJ."
+      }
+    ]
+  },
+  {
+    "title": "[TEST] Deșert — Pune în ordine",
+    "description": "Quiz demonstrativ: cinci provocări pentru testarea camerelor din nivelul Deșert. Ultima provocare are loc în camera finală.",
+    "grade": "general",
+    "game_mode": "castle_ordering",
+    "world_theme": "desert",
+    "difficulty": "medium",
+    "lives": 3,
+    "seconds_per_question": 60,
+    "published": true,
+    "questions": [
+      {
+        "type": "ordering",
+        "monster": "goblin",
+        "boss": false,
+        "correctMessage": "Corect! Drumul spre următoarea cameră este liber.",
+        "wrongMessage": "Ai pierdut o viață. Citește explicația și continuă aventura.",
+        "text": "Reconstituie enunțul „Ana deschide încet fereastra.”",
+        "items": [
+          "Ana",
+          "deschide",
+          "încet",
+          "fereastra."
+        ],
+        "explanation": "Ordinea corectă: Ana → deschide → încet → fereastra.."
+      },
+      {
+        "type": "ordering",
+        "monster": "spider",
+        "boss": false,
+        "correctMessage": "Corect! Drumul spre următoarea cameră este liber.",
+        "wrongMessage": "Ai pierdut o viață. Citește explicația și continuă aventura.",
+        "text": "Ordonează pașii cronologici ai împrumutării unei cărți.",
+        "items": [
+          "Aleg cartea",
+          "O împrumut",
+          "O citesc",
+          "O returnez"
+        ],
+        "explanation": "Ordinea corectă: Aleg cartea → O împrumut → O citesc → O returnez."
+      },
+      {
+        "type": "ordering",
+        "monster": "skeleton",
+        "boss": false,
+        "correctMessage": "Corect! Drumul spre următoarea cameră este liber.",
+        "wrongMessage": "Ai pierdut o viață. Citește explicația și continuă aventura.",
+        "text": "Ordonează zilele de luni până joi.",
+        "items": [
+          "Luni",
+          "Marți",
+          "Miercuri",
+          "Joi"
+        ],
+        "explanation": "Ordinea corectă: Luni → Marți → Miercuri → Joi."
+      },
+      {
+        "type": "ordering",
+        "monster": "wizard",
+        "boss": false,
+        "correctMessage": "Corect! Drumul spre următoarea cameră este liber.",
+        "wrongMessage": "Ai pierdut o viață. Citește explicația și continuă aventura.",
+        "text": "Reconstituie enunțul „Noi învățăm cu plăcere.”",
+        "items": [
+          "Noi",
+          "învățăm",
+          "cu",
+          "plăcere."
+        ],
+        "explanation": "Ordinea corectă: Noi → învățăm → cu → plăcere.."
+      },
+      {
+        "type": "ordering",
+        "monster": "dragon",
+        "boss": true,
+        "correctMessage": "Corect! Drumul spre următoarea cameră este liber.",
+        "wrongMessage": "Ai pierdut o viață. Citește explicația și continuă aventura.",
+        "text": "Ordonează alfabetic aceste cuvinte.",
+        "items": [
+          "bibliotecă",
+          "dialog",
+          "personaj",
+          "vers"
+        ],
+        "explanation": "Ordinea corectă: bibliotecă → dialog → personaj → vers."
+      }
+    ]
+  },
+  {
+    "title": "[TEST] Junglă — Alege răspunsul",
+    "description": "Quiz demonstrativ: cinci provocări pentru testarea camerelor din nivelul Junglă. Ultima provocare are loc în camera finală.",
+    "grade": "general",
+    "game_mode": "castle_choice",
+    "world_theme": "jungle",
+    "difficulty": "medium",
+    "lives": 3,
+    "seconds_per_question": 45,
+    "published": true,
+    "questions": [
+      {
+        "type": "multiple_choice",
+        "monster": "bat",
+        "boss": false,
+        "correctMessage": "Corect! Drumul spre următoarea cameră este liber.",
+        "wrongMessage": "Ai pierdut o viață. Citește explicația și continuă aventura.",
+        "text": "Care este pluralul substantivului „copac”?",
+        "answers": [
+          "copacul",
+          "copaci",
+          "copacului",
+          "copacilor"
+        ],
+        "correctIndex": 1,
+        "explanation": "Forma de plural nearticulată este „copaci”."
+      },
+      {
+        "type": "multiple_choice",
+        "monster": "spider",
+        "boss": false,
+        "correctMessage": "Corect! Drumul spre următoarea cameră este liber.",
+        "wrongMessage": "Ai pierdut o viață. Citește explicația și continuă aventura.",
+        "text": "Care pronume indică persoana I, singular?",
+        "answers": [
+          "tu",
+          "el",
+          "noi",
+          "eu"
+        ],
+        "correctIndex": 3,
+        "explanation": "„Eu” indică persoana I, singular."
+      },
+      {
+        "type": "multiple_choice",
+        "monster": "goblin",
+        "boss": false,
+        "correctMessage": "Corect! Drumul spre următoarea cameră este liber.",
+        "wrongMessage": "Ai pierdut o viață. Citește explicația și continuă aventura.",
+        "text": "Ce tip de text folosește replici și indicații scenice?",
+        "answers": [
+          "text dramatic",
+          "text de dicționar",
+          "buletin meteo",
+          "listă de cumpărături"
+        ],
+        "correctIndex": 0,
+        "explanation": "Replicile și indicațiile scenice sunt specifice textului dramatic."
+      },
+      {
+        "type": "multiple_choice",
+        "monster": "demon",
+        "boss": false,
+        "correctMessage": "Corect! Drumul spre următoarea cameră este liber.",
+        "wrongMessage": "Ai pierdut o viață. Citește explicația și continuă aventura.",
+        "text": "Cine relatează întâmplările într-un text narativ?",
+        "answers": [
+          "cititorul în mod obligatoriu",
+          "naratorul",
+          "tipograful",
+          "editorul în mod obligatoriu"
+        ],
+        "correctIndex": 1,
+        "explanation": "Naratorul este vocea care relatează întâmplările."
+      },
+      {
+        "type": "multiple_choice",
+        "monster": "dragon",
+        "boss": true,
+        "correctMessage": "Corect! Drumul spre următoarea cameră este liber.",
+        "wrongMessage": "Ai pierdut o viață. Citește explicația și continuă aventura.",
+        "text": "Ce reprezintă o strofă?",
+        "answers": [
+          "un semn de punctuație",
+          "o listă de personaje",
+          "un grup de versuri",
+          "titlul unei nuvele"
+        ],
+        "correctIndex": 2,
+        "explanation": "Strofa este un grup de versuri."
+      }
+    ]
+  },
+  {
+    "title": "[TEST] Junglă — Adevărat / Fals",
+    "description": "Quiz demonstrativ: cinci provocări pentru testarea camerelor din nivelul Junglă. Ultima provocare are loc în camera finală.",
+    "grade": "general",
+    "game_mode": "castle_true_false",
+    "world_theme": "jungle",
+    "difficulty": "medium",
+    "lives": 3,
+    "seconds_per_question": 45,
+    "published": true,
+    "questions": [
+      {
+        "type": "true_false",
+        "monster": "bat",
+        "boss": false,
+        "correctMessage": "Corect! Drumul spre următoarea cameră este liber.",
+        "wrongMessage": "Ai pierdut o viață. Citește explicația și continuă aventura.",
+        "text": "O strofă poate fi alcătuită din mai multe versuri.",
+        "answers": [
+          "Adevărat",
+          "Fals"
+        ],
+        "correctIndex": 0,
+        "explanation": "Strofa grupează versuri."
+      },
+      {
+        "type": "true_false",
+        "monster": "spider",
+        "boss": false,
+        "correctMessage": "Corect! Drumul spre următoarea cameră este liber.",
+        "wrongMessage": "Ai pierdut o viață. Citește explicația și continuă aventura.",
+        "text": "„Trist” și „vesel” au sensuri opuse.",
+        "answers": [
+          "Adevărat",
+          "Fals"
+        ],
+        "correctIndex": 0,
+        "explanation": "Sunt antonime în sensul lor obișnuit."
+      },
+      {
+        "type": "true_false",
+        "monster": "goblin",
+        "boss": false,
+        "correctMessage": "Corect! Drumul spre următoarea cameră este liber.",
+        "wrongMessage": "Ai pierdut o viață. Citește explicația și continuă aventura.",
+        "text": "Dialogul presupune o singură replică și un singur vorbitor în orice situație.",
+        "answers": [
+          "Adevărat",
+          "Fals"
+        ],
+        "correctIndex": 1,
+        "explanation": "Dialogul presupune schimbul de replici între interlocutori."
+      },
+      {
+        "type": "true_false",
+        "monster": "demon",
+        "boss": false,
+        "correctMessage": "Corect! Drumul spre următoarea cameră este liber.",
+        "wrongMessage": "Ai pierdut o viață. Citește explicația și continuă aventura.",
+        "text": "Un personaj poate participa la întâmplările unui text narativ.",
+        "answers": [
+          "Adevărat",
+          "Fals"
+        ],
+        "correctIndex": 0,
+        "explanation": "Personajele participă la acțiunea relatată."
+      },
+      {
+        "type": "true_false",
+        "monster": "dragon",
+        "boss": true,
+        "correctMessage": "Corect! Drumul spre următoarea cameră este liber.",
+        "wrongMessage": "Ai pierdut o viață. Citește explicația și continuă aventura.",
+        "text": "Un enunț începe în mod obișnuit cu literă mică.",
+        "answers": [
+          "Adevărat",
+          "Fals"
+        ],
+        "correctIndex": 1,
+        "explanation": "În scrierea obișnuită, enunțul începe cu majusculă."
+      }
+    ]
+  },
+  {
+    "title": "[TEST] Junglă — Spânzurătoarea",
+    "description": "Quiz demonstrativ: cinci provocări pentru testarea camerelor din nivelul Junglă. Ultima provocare are loc în camera finală.",
+    "grade": "general",
+    "game_mode": "castle_hangman",
+    "world_theme": "jungle",
+    "difficulty": "medium",
+    "lives": 3,
+    "seconds_per_question": 90,
+    "published": true,
+    "questions": [
+      {
+        "type": "hangman",
+        "monster": "bat",
+        "boss": false,
+        "correctMessage": "Corect! Drumul spre următoarea cameră este liber.",
+        "wrongMessage": "Ai pierdut o viață. Citește explicația și continuă aventura.",
+        "text": "Schimb de replici între interlocutori.",
+        "target": "DIALOG",
+        "explanation": "Răspuns: DIALOG."
+      },
+      {
+        "type": "hangman",
+        "monster": "spider",
+        "boss": false,
+        "correctMessage": "Corect! Drumul spre următoarea cameră este liber.",
+        "wrongMessage": "Ai pierdut o viață. Citește explicația și continuă aventura.",
+        "text": "Grup de versuri într-o poezie.",
+        "target": "STROFĂ",
+        "explanation": "Răspuns: STROFĂ."
+      },
+      {
+        "type": "hangman",
+        "monster": "goblin",
+        "boss": false,
+        "correctMessage": "Corect! Drumul spre următoarea cameră este liber.",
+        "wrongMessage": "Ai pierdut o viață. Citește explicația și continuă aventura.",
+        "text": "Un rând al unei poezii.",
+        "target": "VERS",
+        "explanation": "Răspuns: VERS."
+      },
+      {
+        "type": "hangman",
+        "monster": "demon",
+        "boss": false,
+        "correctMessage": "Corect! Drumul spre următoarea cameră este liber.",
+        "wrongMessage": "Ai pierdut o viață. Citește explicația și continuă aventura.",
+        "text": "Titlul și numele celui care a scris cartea: titlu și ... .",
+        "target": "AUTOR",
+        "explanation": "Răspuns: AUTOR."
+      },
+      {
+        "type": "hangman",
+        "monster": "dragon",
+        "boss": true,
+        "correctMessage": "Corect! Drumul spre următoarea cameră este liber.",
+        "wrongMessage": "Ai pierdut o viață. Citește explicația și continuă aventura.",
+        "text": "Locul din școală în care sunt păstrate și împrumutate cărți.",
+        "target": "BIBLIOTECĂ",
+        "explanation": "Răspuns: BIBLIOTECĂ."
+      }
+    ]
+  },
+  {
+    "title": "[TEST] Junglă — Pune în ordine",
+    "description": "Quiz demonstrativ: cinci provocări pentru testarea camerelor din nivelul Junglă. Ultima provocare are loc în camera finală.",
+    "grade": "general",
+    "game_mode": "castle_ordering",
+    "world_theme": "jungle",
+    "difficulty": "medium",
+    "lives": 3,
+    "seconds_per_question": 60,
+    "published": true,
+    "questions": [
+      {
+        "type": "ordering",
+        "monster": "bat",
+        "boss": false,
+        "correctMessage": "Corect! Drumul spre următoarea cameră este liber.",
+        "wrongMessage": "Ai pierdut o viață. Citește explicația și continuă aventura.",
+        "text": "Ordonează anotimpurile, începând cu primăvara.",
+        "items": [
+          "Primăvară",
+          "Vară",
+          "Toamnă",
+          "Iarnă"
+        ],
+        "explanation": "Ordinea corectă: Primăvară → Vară → Toamnă → Iarnă."
+      },
+      {
+        "type": "ordering",
+        "monster": "spider",
+        "boss": false,
+        "correctMessage": "Corect! Drumul spre următoarea cameră este liber.",
+        "wrongMessage": "Ai pierdut o viață. Citește explicația și continuă aventura.",
+        "text": "Reconstituie enunțul „Copiii descoperă o poveste nouă.”",
+        "items": [
+          "Copiii",
+          "descoperă",
+          "o poveste",
+          "nouă."
+        ],
+        "explanation": "Ordinea corectă: Copiii → descoperă → o poveste → nouă.."
+      },
+      {
+        "type": "ordering",
+        "monster": "goblin",
+        "boss": false,
+        "correctMessage": "Corect! Drumul spre următoarea cameră este liber.",
+        "wrongMessage": "Ai pierdut o viață. Citește explicația și continuă aventura.",
+        "text": "Ordonează pașii unei prezentări orale.",
+        "items": [
+          "Salut publicul",
+          "Anunț tema",
+          "Prezint ideile",
+          "Închei prezentarea"
+        ],
+        "explanation": "Ordinea corectă: Salut publicul → Anunț tema → Prezint ideile → Închei prezentarea."
+      },
+      {
+        "type": "ordering",
+        "monster": "demon",
+        "boss": false,
+        "correctMessage": "Corect! Drumul spre următoarea cameră este liber.",
+        "wrongMessage": "Ai pierdut o viață. Citește explicația și continuă aventura.",
+        "text": "Ordonează alfabetic aceste cuvinte.",
+        "items": [
+          "autor",
+          "narator",
+          "poezie",
+          "teatru"
+        ],
+        "explanation": "Ordinea corectă: autor → narator → poezie → teatru."
+      },
+      {
+        "type": "ordering",
+        "monster": "dragon",
+        "boss": true,
+        "correctMessage": "Corect! Drumul spre următoarea cameră este liber.",
+        "wrongMessage": "Ai pierdut o viață. Citește explicația și continuă aventura.",
+        "text": "Reconstituie enunțul „Cartea ne deschide lumi noi.”",
+        "items": [
+          "Cartea",
+          "ne deschide",
+          "lumi",
+          "noi."
+        ],
+        "explanation": "Ordinea corectă: Cartea → ne deschide → lumi → noi.."
+      }
+    ]
+  }
+]
+$quiz_demo$::jsonb) as demo(
+        title text, description text, grade text, game_mode text, world_theme text, difficulty text,
+        lives integer, seconds_per_question integer, published boolean, questions jsonb
+    )
+    where not exists (
+        select 1 from public.quizzes existing
+        where existing.title=demo.title and existing.world_theme=demo.world_theme and existing.game_mode=demo.game_mode
+    );
+end;
+$seed$;
+commit;
+
+-- Verificare: 12 rânduri, cu câte un quiz pentru fiecare combinație nivel/tip.
+select title, world_theme, game_mode, jsonb_array_length(questions::jsonb) as provocari, published
+from public.quizzes
+where (title,world_theme,game_mode) in (
+    ('[TEST] Zăpadă — Alege răspunsul', 'snow', 'castle_choice'),
+    ('[TEST] Zăpadă — Adevărat / Fals', 'snow', 'castle_true_false'),
+    ('[TEST] Zăpadă — Spânzurătoarea', 'snow', 'castle_hangman'),
+    ('[TEST] Zăpadă — Pune în ordine', 'snow', 'castle_ordering'),
+    ('[TEST] Deșert — Alege răspunsul', 'desert', 'castle_choice'),
+    ('[TEST] Deșert — Adevărat / Fals', 'desert', 'castle_true_false'),
+    ('[TEST] Deșert — Spânzurătoarea', 'desert', 'castle_hangman'),
+    ('[TEST] Deșert — Pune în ordine', 'desert', 'castle_ordering'),
+    ('[TEST] Junglă — Alege răspunsul', 'jungle', 'castle_choice'),
+    ('[TEST] Junglă — Adevărat / Fals', 'jungle', 'castle_true_false'),
+    ('[TEST] Junglă — Spânzurătoarea', 'jungle', 'castle_hangman'),
+    ('[TEST] Junglă — Pune în ordine', 'jungle', 'castle_ordering')
+)
+order by world_theme,game_mode;

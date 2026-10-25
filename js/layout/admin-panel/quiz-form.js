@@ -4,7 +4,7 @@ const ADMIN_QUIZ_FORM_HTML = `
     <div class="admin-section-heading">
         <div>
             <h3>🎬 Creator quiz animat</h3>
-            <p>Alege tipul jocului, apoi creează provocările. Toate modurile folosesc aventura din castel și cele 3 vieți.</p>
+            <p>Alege tipul întrebărilor și nivelul vizual, apoi creează provocările. Fiecare aventură păstrează cele 3 vieți.</p>
         </div>
     </div>
 
@@ -19,6 +19,13 @@ const ADMIN_QUIZ_FORM_HTML = `
         </div>
         <input type="hidden" id="quizGameMode" value="castle_choice">
 
+        <fieldset class="quiz-world-picker"><legend>Nivelul aventurii</legend>
+            <label for="quizWorldTheme">Decor 3D<select id="quizWorldTheme">${Object.entries(QUIZ_WORLDS).map(([key, world]) => `<option value="${key}">${world.label}</option>`).join('')}</select></label>
+            <p id="quizWorldDescription" class="quiz-world-description">${QUIZ_WORLDS.castle.description}</p>
+            <div id="quizWorldRooms" class="quiz-world-rooms"></div>
+            <p class="quiz-admin-hint">Camerele se schimbă la fiecare provocare. Alegerea decorului păstrează întrebările deja introduse.</p>
+        </fieldset>
+
         <div class="quiz-admin-grid quiz-admin-grid-main">
             <label>Titlu quiz<input id="quizTitlu" type="text" maxlength="120" required placeholder="Ex.: Aventura verbului"></label>
             <label>Clasa<select id="quizClasa" required><option value="5">Clasa a V-a</option><option value="6">Clasa a VI-a</option><option value="7">Clasa a VII-a</option><option value="8">Clasa a VIII-a</option><option value="general">General</option></select></label>
@@ -29,12 +36,12 @@ const ADMIN_QUIZ_FORM_HTML = `
 
         <div id="quizModeDescription" class="quiz-admin-rule-card"></div>
 
-        <div class="quiz-ai-generator">
+        <details class="quiz-ai-generator admin-disclosure"><summary><strong>Generare cu AI (opțional)</strong><span class="admin-disclosure-indicator" aria-hidden="true">+</span></summary><div class="admin-disclosure-content">
             <div class="quiz-ai-generator-head">
                 <div><h4>✨ Generează provocările cu AI</h4><p>AI-ul completează editorul. Verifică întrebările înainte să salvezi sau să publici.</p></div>
             </div>
             <div class="ai-local-card">
-        <strong>AI gratuit, pe acest calculator</strong>
+        <strong>AI local, pe acest calculator</strong>
         <p>Prima activare descarcă aproximativ 2,5 GB. Ai nevoie de un calculator cu memorie grafică suficientă (circa 4 GB) și de un browser compatibil. Mesajele sunt procesate local. Răspunsurile pot conține greșeli.</p>
         <button type="button" data-ai-activate data-ai-status="quizLocalStatus">Activează AI local</button>
         <button type="button" data-ai-stop data-ai-status="quizLocalStatus">Oprește AI</button>
@@ -55,9 +62,9 @@ const ADMIN_QUIZ_FORM_HTML = `
                 <label>Fișa elevului<textarea id="aiWorksheetText" rows="16"></textarea></label>
                 <details><summary>Barem de corectare și notare</summary><textarea id="aiWorksheetAnswers" rows="12" aria-label="Barem editabil"></textarea></details>
             </section>
-        </div>
+        </div></details>
 
-        <label>Descriere / introducerea aventurii<textarea id="quizDescriere" rows="2" maxlength="300" placeholder="Ex.: Intră în castel și treci de toate provocările!"></textarea></label>
+        <label>Descriere / introducerea aventurii<textarea id="quizDescriere" rows="2" maxlength="300" placeholder="Ex.: Intră în aventură și treci de toate provocările!"></textarea></label>
 
         <div class="quiz-question-editor-head">
             <div><h4 id="quizEditorHeading">Provocări</h4><p id="quizEditorHelp">Fiecare provocare reprezintă o întâlnire cu un monstru.</p></div>

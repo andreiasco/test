@@ -28,7 +28,7 @@ async function incarcaAutoriAdmin() {
     if (error) {
 
         container.innerHTML =
-            `<p style="color:#c62828">
+            `<p style="color:var(--admin-error, #c62828)">
                 ${escapeHTML(error.message)}
             </p>`;
 
@@ -54,7 +54,7 @@ async function incarcaAutoriAdmin() {
         autori.map(
             autor => `
 
-                <div class="admin-autor">
+                <details class="admin-autor admin-disclosure"><summary>
 
                     <strong>
                         ${escapeHTML(
@@ -64,7 +64,7 @@ async function incarcaAutoriAdmin() {
                         ${escapeHTML(
                 autor.nume
             )}
-                    </strong>
+                    </strong><span class="admin-disclosure-indicator" aria-hidden="true">+</span></summary><div class="admin-disclosure-content">
 
                     <p>
                         Gen literar:
@@ -107,12 +107,6 @@ async function incarcaAutoriAdmin() {
                         Salvează localitatea
                     </button>
 
-                    <p>
-                        ${escapeHTML(
-                autor.descriere
-            )}
-                    </p>
-
                     <label>
                         Descriere autor:
                     </label>
@@ -141,7 +135,7 @@ async function incarcaAutoriAdmin() {
                         ID: ${autor.id}
                     </small>
 
-                </div>
+                </div></details>
 
             `
         ).join("");
@@ -228,7 +222,7 @@ async function actualizeazaDescriereAutor(autorId) {
             "Trebuie să fii autentificat ca administrator.";
 
         status.style.color =
-            "#c62828";
+            "var(--admin-error, #c62828)";
 
         return;
 
@@ -239,7 +233,7 @@ async function actualizeazaDescriereAutor(autorId) {
         "Se salvează descrierea...";
 
     status.style.color =
-        "#7b2450";
+        "var(--ink-soft)";
 
 
     try {
@@ -268,7 +262,7 @@ async function actualizeazaDescriereAutor(autorId) {
             "Descrierea a fost actualizată.";
 
         status.style.color =
-            "#2e7d32";
+            "var(--admin-success, #2e7d32)";
 
 
         await incarcaAutori();
@@ -285,7 +279,7 @@ async function actualizeazaDescriereAutor(autorId) {
             error.message;
 
         status.style.color =
-            "#c62828";
+            "var(--admin-error, #c62828)";
 
     }
 }

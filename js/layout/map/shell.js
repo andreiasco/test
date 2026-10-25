@@ -24,15 +24,15 @@ const MAP_SUFFIX_HTML = `
 
                 </g>
                 <g class="map-region-labels-svg" aria-hidden="true">
-                    <text x="320" y="798">BANAT</text>
-                    <text x="400" y="462">CRIȘANA</text>
-                    <text x="700" y="154" font-size="29">MARAMUREȘ</text>
-                    <text x="860" y="588">TRANSILVANIA</text>
-                    <text x="640" y="1106">OLTENIA</text>
-                    <text x="1220" y="1064">MUNTENIA</text>
-                    <text x="1700" y="1036" transform="rotate(-78 1700 1036)">DOBROGEA</text>
-                    <text x="1440" y="476">MOLDOVA</text>
-                    <text x="1100" y="210" font-size="29">BUCOVINA</text>
+                    <text x="280" y="826">BANAT</text>
+                    <text x="371" y="437">CRIȘANA</text>
+                    <text x="693" y="133" font-size="29">MARAMUREȘ</text>
+                    <text x="850" y="568">TRANSILVANIA</text>
+                    <text x="670" y="1105">OLTENIA</text>
+                    <text x="1206" y="1054">MUNTENIA</text>
+                    <text x="1728" y="1057" transform="rotate(-78 1728 1057)">DOBROGEA</text>
+                    <text x="1411" y="448">MOLDOVA</text>
+                    <text x="1090" y="173" font-size="29">BUCOVINA</text>
                 </g>
             </svg>
         </div>
@@ -40,7 +40,7 @@ const MAP_SUFFIX_HTML = `
                 <p class="harta-panel-eyebrow">DESCOPERĂ ROMÂNIA</p>
                 <button type="button" class="harta-popup-inchide" aria-label="Închide popup-ul">×</button>
                 <h3 id="hartaPopupTitlu">Fiecare regiune are o poveste</h3>
-                <div id="hartaPopupLista" aria-live="polite"><p>Selectează o regiune de pe hartă pentru a descoperi autorii și locurile în care s-au născut.</p></div>
+                <div id="hartaPopupLista" aria-live="polite"><p>Selectează o regiune de pe hartă pentru a descoperi autorii și locurile în care <span class='harta-birth-phrase'>s-au născut.</span></p></div>
             </aside>
     </div>
 
