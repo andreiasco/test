@@ -5,6 +5,7 @@
 site.innerHTML = [
     NAV_HTML,
     HOME_HTML,
+    ALMA_HUBS_HTML,
     LANGUAGE_HTML,
     LITERATURE_HTML,
     MAP_HTML,

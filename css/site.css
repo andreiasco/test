@@ -19,6 +19,8 @@
 @import url("components/buttons.css");
 @import url("themes/dark-components.css");
 @import url("pages/map.css");
+@import url("themes/modern.css");
+@import url("themes/alma.css");
 
 /* Etichetă accesibilă, ascunsă doar vizual. */
 .sr-only {

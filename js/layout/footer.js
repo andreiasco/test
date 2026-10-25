@@ -1,20 +1,3 @@
-// Componentă de layout: footer.js
 const FOOTER_HTML = `
-
-<footer>
-
-    <h2>
-        Limba și Literatura Română 
-    </h2>
-
-    <p>
-        Un proiect dedicat frumuseții limbii române.
-    </p>
-
-    <p>
-        © 2026
-    </p>
-
-</footer>
-
+<footer class="alma-footer"><div class="alma-footer-content"><a href="#acasa" class="alma-footer-brand"><img src="assets/edu-alma-emblem.png" width="80" height="80" alt="Sigla EDU ALMA"><span><strong>EDU ALMA</strong><small>Educație Digitală Utilă</small></span></a><p>Educația prinde viață.<br>Activități, lecții, materiale și aplicații.</p><div class="alma-footer-links"><a href="#elevi">Elevi</a><a href="#profesori">Profesori</a><a href="#despre-noi">Despre noi</a><a href="#ajutor">Ajutor</a></div></div><div class="alma-footer-bottom"><span>© 2026 EDU ALMA</span><span>Creativitate · Interactivitate · Educație</span></div></footer>
 `;

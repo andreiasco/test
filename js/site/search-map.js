@@ -80,7 +80,9 @@ function inchideHartaPopup() {
     });
 
     if (popup) {
-        popup.classList.add("ascuns");
+        popup.classList.add("is-empty");
+        document.getElementById("hartaPopupTitlu").textContent = "Fiecare regiune are o poveste";
+        document.getElementById("hartaPopupLista").innerHTML = "<p>Selectează o regiune de pe hartă pentru a descoperi autorii și locurile în care s-au născut.</p>";
     }
 }
 
@@ -113,29 +115,7 @@ function deschideHartaPopup(regiune, element) {
     lista.innerHTML = autori.length > 0
         ? `<ul>${autori.map(autor => `<li><a href="#literatura" onclick="navigheazaLaAutor(${autor.id}); return false;" style="text-decoration:none;color:inherit;cursor:pointer;"><strong style="text-decoration:underline">${escapeHTML(autor.nume)}</strong></a>${autor.localitate_nastere ? `<small>${escapeHTML(autor.localitate_nastere)}</small>` : ""}</li>`).join("")}</ul>`
         : "<p>Nu există încă autori înscriși în această regiune.</p>";
-    popup.classList.remove("ascuns");
-
-    if (element) {
-        const isMobile = window.innerWidth <= 700;
-
-        if (isMobile) {
-            popup.style.left = "12px";
-            popup.style.top = "12px";
-            popup.style.width = "calc(100% - 24px)";
-            popup.style.maxHeight = "calc(100vh - 24px)";
-            return;
-        }
-
-        const bounds = element.getBoundingClientRect();
-        const canvas = element.closest(".harta-canvas");
-        if (!canvas) {
-            return;
-        }
-
-        const canvasBounds = canvas.getBoundingClientRect();
-        popup.style.left = `${Math.min(Math.max(bounds.left - canvasBounds.left, 12), canvasBounds.width - 340)}px`;
-        popup.style.top = `${Math.min(Math.max(bounds.top - canvasBounds.top + 20, 12), canvasBounds.height - 250)}px`;
-    }
+    popup.classList.remove("is-empty");
 }
 
 function navigheazaLaAutor(autorId) {

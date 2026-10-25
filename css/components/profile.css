@@ -255,32 +255,15 @@ body.dark .profile-close {
     }
 }
 
-.material-progress-btn {
-    width: 100%;
-    margin-top: 8px;
-    padding: 7px 9px;
-    border: 1px solid var(--teal);
-    border-radius: 2px;
-    background: transparent;
-    color: var(--teal);
-    cursor: pointer;
-    font-size: 12px;
-    font-weight: 700;
-}
-
-.material-progress-btn:hover,
-.material-progress-btn.is-complete {
+/* Use the shared PDF button style; retain a visible completed state. */
+.opera-btn.material-progress-btn.is-complete {
     background: var(--teal);
+    border-color: var(--teal);
     color: #fffaf0;
 }
 
-body.dark .material-progress-btn {
-    border-color: #8bd0c4;
-    color: #8bd0c4;
-}
-
-body.dark .material-progress-btn:hover,
-body.dark .material-progress-btn.is-complete {
+body.dark .opera-btn.material-progress-btn.is-complete {
     background: #287f7d;
+    border-color: #8bd0c4;
     color: #fffaf0;
 }
