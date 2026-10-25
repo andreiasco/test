@@ -7,6 +7,7 @@
 window.CastleQuiz3D = (() => {
     let THREE = null;
     let GLTFLoaderClass = null;
+    let mergeGeometries = null;
     let renderer = null;
     let scene = null;
     let camera = null;
@@ -249,7 +250,7 @@ window.CastleQuiz3D = (() => {
     }
 
     async function loadThree() {
-    if (THREE && GLTFLoaderClass) {
+    if (THREE && GLTFLoaderClass && mergeGeometries) {
         return THREE;
     }
 
@@ -266,6 +267,10 @@ window.CastleQuiz3D = (() => {
             );
 
             GLTFLoaderClass = loaderModule.GLTFLoader;
+        }
+
+        if (!mergeGeometries) {
+            ({ mergeGeometries } = await import("three/addons/utils/BufferGeometryUtils.js"));
         }
 
         console.log("Three.js și GLTFLoader încărcate cu succes.");
@@ -334,6 +339,24 @@ window.CastleQuiz3D = (() => {
     async function createMonsterModel(type = "goblin", boss = false) {
         const chosen = boss ? "dragon" : type;
         const asset = window.CastleQuizAssets?.monsters?.[chosen];
+        // A custom GLB keeps priority. Bundled primitive assets remain a fallback.
+        const bundled = !asset?.path || asset.path === `assets/quiz3d/${chosen}.glb`;
+        if (bundled && asset?.detailed !== false) {
+            try {
+                const detailed = window.CastleQuizMonsters?.create(THREE, mergeGeometries, chosen, { lowDetail, boss });
+                if (detailed) {
+                    // Stand on the room floor or raised podium, rather than clipping through it.
+                    const ray = new THREE.Raycaster(new THREE.Vector3(0, 0.7, boss ? -3.85 : -3.55), new THREE.Vector3(0, -1, 0), 0, 1);
+                    roomGroup?.updateWorldMatrix(true, true);
+                    const groundY = Math.max(0, ray.intersectObject(roomGroup, true)[0]?.point.y || 0);
+                    detailed.userData.baseY += groundY;
+                    detailed.userData.groundY = groundY;
+                    usingGlbMonster = false; return detailed;
+                }
+            } catch (error) {
+                console.warn(`Modelul detaliat ${chosen} nu este disponibil; folosesc modelul de rezervă.`, error);
+            }
+        }
         const glbMonster = await loadGlbModel(asset, "monster", chosen);
         if (glbMonster) { usingGlbMonster = true; return glbMonster; }
         usingGlbMonster = false; return buildMonster(chosen, boss);
@@ -793,9 +816,9 @@ window.CastleQuiz3D = (() => {
         ud.previousPosition = previous.copy(monster.position);
         ud.gaitPhase = (ud.gaitPhase || 0) + Math.min(distance, 0.5) * 5;
         if (type === "bat") {
-            if (ud.wingL) ud.wingL.rotation.z = 1.3 + Math.sin(t * 8) * 0.62;
-            if (ud.wingR) ud.wingR.rotation.z = -1.3 - Math.sin(t * 8) * 0.62;
-            monster.position.y = (ud.baseY || 0.65) + Math.sin(t * 3.2) * 0.18;
+            if (ud.wingL) ud.wingL.rotation.z = (ud.wingRestL ?? 1.3) + Math.sin(t * 8) * 0.62;
+            if (ud.wingR) ud.wingR.rotation.z = (ud.wingRestR ?? -1.3) - Math.sin(t * 8) * 0.62;
+            monster.position.y = (ud.baseY ?? 0.65) + Math.sin(t * 3.2) * 0.18;
         } else if (type === "spider") {
             ud.legs?.forEach((leg, i) => { leg.rotation.y = Math.sin(t * 5 + i) * 0.18; });
             monster.position.y = (ud.baseY || 0) + Math.abs(Math.sin(t * 4)) * 0.009;
@@ -803,10 +826,10 @@ window.CastleQuiz3D = (() => {
             monster.position.y = (ud.baseY || 0.55) + Math.sin(t * 2.2) * 0.16;
             monster.rotation.z = Math.sin(t * 1.4) * 0.04;
         } else if (type === "dragon") {
-            if (ud.wingL) ud.wingL.rotation.z = 1.25 + Math.sin(t * 3.4) * 0.28;
-            if (ud.wingR) ud.wingR.rotation.z = -1.25 - Math.sin(t * 3.4) * 0.28;
+            if (ud.wingL) ud.wingL.rotation.z = (ud.wingRestL ?? 1.25) + Math.sin(t * 3.4) * 0.28;
+            if (ud.wingR) ud.wingR.rotation.z = (ud.wingRestR ?? -1.25) - Math.sin(t * 3.4) * 0.28;
             if (ud.jaw) ud.jaw.rotation.x = Math.max(0, Math.sin(t * 2.1)) * 0.22;
-            if (ud.tail) ud.tail.rotation.z = Math.sin(t * 2) * 0.12;
+            if (ud.tail) ud.tail.rotation[ud.tailAxis || "z"] = Math.sin(t * 2) * 0.12;
             monster.position.y = (ud.baseY || 0) + Math.sin(t * 2) * 0.012;
         } else {
             const armL = ud.armL, armR = ud.armR;
@@ -855,7 +878,10 @@ window.CastleQuiz3D = (() => {
         if (heroShadow && hero) { heroShadow.position.x = hero.position.x; heroShadow.position.z = hero.position.z; }
         if (monsterShadow) {
             monsterShadow.visible = Boolean(monster);
-            if (monster) { monsterShadow.position.x = monster.position.x; monsterShadow.position.z = monster.position.z; monsterShadow.material.opacity = 0.32 / (1 + Math.max(0, monster.position.y)); }
+            if (monster) {
+                monsterShadow.position.set(monster.position.x, (monster.userData.groundY || 0) + 0.012, monster.position.z);
+                monsterShadow.material.opacity = 0.32 / (1 + Math.max(0, monster.position.y - (monster.userData.groundY || 0)));
+            }
         }
         if (roomMoodLight) roomMoodLight.intensity = roomMoodLight.userData.baseIntensity * (1 + Math.sin(t * 5) * 0.035 * ambientPulse * motion);
         ambientPulse = Math.max(0, ambientPulse - delta * 0.7);
@@ -962,8 +988,8 @@ window.CastleQuiz3D = (() => {
             const wingL = ud.wingL, wingR = ud.wingR, jaw = ud.jaw;
             await tween(900, (p) => {
                 monster.rotation.y = Math.sin(p * Math.PI) * 0.28;
-                if (wingL) wingL.rotation.z = 0.35 + p * 1.05;
-                if (wingR) wingR.rotation.z = -0.35 - p * 1.05;
+                if (wingL) wingL.rotation.z = ud.detailedMonster ? (ud.wingRestL ?? 0) - Math.sin(p * Math.PI) * 0.55 : 0.35 + p * 1.05;
+                if (wingR) wingR.rotation.z = ud.detailedMonster ? (ud.wingRestR ?? 0) + Math.sin(p * Math.PI) * 0.55 : -0.35 - p * 1.05;
                 if (jaw) jaw.rotation.x = Math.sin(p * Math.PI) * 0.32;
                 camera.position.y = 2.45 + Math.sin(p * Math.PI) * 0.45;
                 camera.lookAt(0, 1.75, monster.position.z);
@@ -975,10 +1001,10 @@ window.CastleQuiz3D = (() => {
             const startY = base - 1.15;
             monster.position.y = startY;
             monster.scale.multiplyScalar(0.58);
-            const targetScale = (window.CastleQuizAssets?.monsters?.ghost?.scale || 1.08);
+            const targetScale = ud.detailedMonster ? 1 : (window.CastleQuizAssets?.monsters?.ghost?.scale || 1.08);
             await tween(1050, (p) => {
                 monster.position.y = startY + p * 1.15;
-                monster.rotation.y = p * Math.PI * 0.35;
+                monster.rotation.y = Math.sin(p * Math.PI) * Math.PI * 0.35;
                 const sc = targetScale * (0.58 + p * 0.42);
                 monster.scale.setScalar(sc);
             });
@@ -987,10 +1013,10 @@ window.CastleQuiz3D = (() => {
         if (type === "bat") {
             const startY = 3.7; monster.position.y = startY;
             await tween(1000, (p) => {
-                monster.position.y = startY - p * 3.0;
+                monster.position.y = startY - p * (startY - (ud.baseY ?? 0.7));
                 monster.position.x = Math.sin(p * Math.PI * 4) * (1-p) * 1.1;
-                if (ud.wingL) ud.wingL.rotation.z = 0.45 + Math.sin(p * Math.PI * 8) * 0.75;
-                if (ud.wingR) ud.wingR.rotation.z = -0.45 - Math.sin(p * Math.PI * 8) * 0.75;
+                if (ud.wingL) ud.wingL.rotation.z = (ud.wingRestL ?? 0.45) + Math.sin(p * Math.PI * 8) * 0.75;
+                if (ud.wingR) ud.wingR.rotation.z = (ud.wingRestR ?? -0.45) - Math.sin(p * Math.PI * 8) * 0.75;
             });
             return;
         }
@@ -998,12 +1024,12 @@ window.CastleQuiz3D = (() => {
             const base = monster.userData.baseY || 0; monster.position.y = 3.5;
             await tween(1100, (p) => {
                 monster.position.y = 3.5 - p * (3.5 - base);
-                ud.legs?.forEach((leg, i) => leg.rotation.z = Math.sin(p * Math.PI * 5 + i) * 0.22);
+                ud.legs?.forEach((leg, i) => leg.rotation.z = Math.sin(p * Math.PI * 5 + i) * Math.sin(p * Math.PI) * 0.22);
             });
             return;
         }
         if (type === "wizard") {
-            const targetScale = window.CastleQuizAssets?.monsters?.wizard?.scale || 1;
+            const targetScale = ud.detailedMonster ? 1 : (window.CastleQuizAssets?.monsters?.wizard?.scale || 1);
             monster.scale.setScalar(0.08);
             magicRing(monster.position.clone().add(new THREE.Vector3(0, 0.25, 0)), 0xb793ff, 0.92);
             await tween(900, (p) => {

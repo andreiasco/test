@@ -14,7 +14,11 @@ Profesorul AI al elevilor apelează OpenAI Responses API prin funcția Supabase 
 
 # Quiz Castel — materiale, mișcare și sunet
 
-Scena folosește hărți PBR generate local, cu seed-uri stabile, pentru piatră, dale și lemn (`js/site/castle-materials.js`): culoare, relief și rugozitate. Arcadele, lumina caldă a torțelor și reflexiile discrete dau coridorului mai multă profunzime. Sunt păstrate modelele GLB locale; nu sunt adăugate pachete externe de texturi sau sunete.
+Scena folosește hărți PBR generate local, cu seed-uri stabile, pentru piatră, dale și lemn (`js/site/castle-materials.js`): culoare, relief și rugozitate. Arcadele, lumina caldă a torțelor și reflexiile discrete dau coridorului mai multă profunzime. Nu sunt adăugate pachete externe de texturi sau sunete.
+
+Monștrii incluși folosesc modelele anatomice din `castle-monsters-humanoids.js` și `castle-monsters-creatures.js`: fețe orientate spre jucător, membre rotunjite, coaste, armură stratificată, țesătură, coarne și aripi cu membrane și degete de susținere. `castle-monsters.js` generează relieful suprafețelor și unește geometria statică pe materiale, păstrând articulațiile pentru animații. Profilul mobil reduce geometria. Modelele sunt create în proiect, fără descărcări suplimentare de personaje.
+
+Un `path` GLB personalizat din `CastleQuizAssets.monsters` păstrează prioritatea. Pentru revenirea la unul dintre GLB-urile originale, se adaugă `detailed: false` la descriptorul său. GLB-urile și variantele procedurale simple rămân disponibile dacă modelul detaliat nu se poate construi; eroul folosește în continuare modelul său local.
 
 - `js/site/castle-rig.js` ancorează pivoturile membrelor GLB la articulații, păstrând geometria atașată corpului în timpul animației.
 - Mersul și apelurile `CastleQuizAudio.footstep()` urmăresc distanța parcursă. Ușa se deschide în jurul balamalei, iar pașii programați sunt opriți când mișcarea este sărită.
@@ -30,7 +34,7 @@ NODE_PATH="/workspace/.cloud-onboarding/test/node_modules${NODE_PATH:+:$NODE_PAT
   node tests/ai-dom-check.cjs
 ```
 
-Prima comandă include regresiile pentru rig (`tests/castle-rig.test.cjs`) și ciclul de viață audio (`tests/quiz-audio.test.cjs`). Aspectul WebGL și tranzițiile se verifică separat în browser, pentru camerele tematice, dimensiuni desktop/mobil și preferința de mișcare redusă.
+Prima comandă include regresiile pentru rig (`tests/castle-rig.test.cjs`), geometria și articulațiile monștrilor (`tests/castle-monsters.test.cjs`) și ciclul de viață audio (`tests/quiz-audio.test.cjs`). Aspectul WebGL și tranzițiile se verifică separat în browser, pentru camerele tematice, dimensiuni desktop/mobil și preferința de mișcare redusă.
 
 # Site modularizat
 
