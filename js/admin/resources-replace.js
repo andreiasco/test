@@ -38,7 +38,7 @@ async function inlocuiestePDF(
             status.textContent =
                 "Selectează un fișier PDF.";
             status.style.color =
-                "#c62828";
+                "var(--admin-error, #c62828)";
         }
 
         return;
@@ -60,7 +60,7 @@ async function inlocuiestePDF(
             status.textContent =
                 "Fișierul selectat nu este PDF.";
             status.style.color =
-                "#c62828";
+                "var(--admin-error, #c62828)";
         }
 
         return;
@@ -77,7 +77,7 @@ async function inlocuiestePDF(
             status.textContent =
                 "Trebuie să fii administrator.";
             status.style.color =
-                "#c62828";
+                "var(--admin-error, #c62828)";
         }
 
         return;
@@ -90,7 +90,7 @@ async function inlocuiestePDF(
             status.textContent =
                 "Se încarcă noul PDF...";
             status.style.color =
-                "#7b2450";
+                "var(--ink-soft)";
         }
 
 
@@ -283,7 +283,7 @@ async function inlocuiestePDF(
                 "PDF-ul a fost înlocuit cu succes!";
 
             status.style.color =
-                "#2e7d32";
+                "var(--admin-success, #2e7d32)";
         }
 
 
@@ -310,7 +310,7 @@ async function inlocuiestePDF(
                 error.message;
 
             status.style.color =
-                "#c62828";
+                "var(--admin-error, #c62828)";
         }
 
     }
@@ -366,7 +366,7 @@ async function inlocuiesteFisierOpera(
 
     if (!fisier) {
         status.textContent = "Selectează un fișier.";
-        status.style.color = "#c62828";
+        status.style.color = "var(--admin-error, #c62828)";
         return;
     }
 
@@ -384,7 +384,7 @@ async function inlocuiesteFisierOpera(
             : esteDocumentPDF
                 ? "Fișierul selectat nu este un PDF valid."
                 : "Fișierul selectat nu este o imagine validă.";
-        status.style.color = "#c62828";
+        status.style.color = "var(--admin-error, #c62828)";
         return;
     }
 
@@ -392,7 +392,7 @@ async function inlocuiesteFisierOpera(
 
     if (!user) {
         status.textContent = "Trebuie să fii administrator.";
-        status.style.color = "#c62828";
+        status.style.color = "var(--admin-error, #c62828)";
         return;
     }
 
@@ -401,7 +401,7 @@ async function inlocuiesteFisierOpera(
     try {
 
         status.textContent = "Se încarcă noul fișier...";
-        status.style.color = "#7b2450";
+        status.style.color = "var(--ink-soft)";
 
         const { data: opera, error: operaError } =
             await supabaseClient
@@ -505,7 +505,7 @@ async function inlocuiesteFisierOpera(
 
         input.value = "";
         status.textContent = "Resursa a fost înlocuită cu succes!";
-        status.style.color = "#2e7d32";
+        status.style.color = "var(--admin-success, #2e7d32)";
 
         await incarcaOpereAdmin();
         await incarcaAutori();
@@ -518,7 +518,7 @@ async function inlocuiesteFisierOpera(
 
         console.error("Eroare înlocuire resursă:", error);
         status.textContent = "Nu am putut înlocui resursa: " + error.message;
-        status.style.color = "#c62828";
+        status.style.color = "var(--admin-error, #c62828)";
     }
 }
 
@@ -541,7 +541,7 @@ async function inlocuiesteLinkOpera(operaId, coloana, inputId) {
 
     if (!valoare || !/^https?:\/\//i.test(valoare)) {
         status.textContent = "Introdu un link care începe cu http:// sau https://.";
-        status.style.color = "#c62828";
+        status.style.color = "var(--admin-error, #c62828)";
         return;
     }
 
@@ -549,14 +549,14 @@ async function inlocuiesteLinkOpera(operaId, coloana, inputId) {
 
     if (!user) {
         status.textContent = "Trebuie să fii administrator.";
-        status.style.color = "#c62828";
+        status.style.color = "var(--admin-error, #c62828)";
         return;
     }
 
     try {
 
         status.textContent = "Se salvează noul link...";
-        status.style.color = "#7b2450";
+        status.style.color = "var(--ink-soft)";
 
         const { error } = await supabaseClient
             .from("opere")
@@ -569,7 +569,7 @@ async function inlocuiesteLinkOpera(operaId, coloana, inputId) {
 
         input.value = "";
         status.textContent = "Linkul a fost înlocuit cu succes!";
-        status.style.color = "#2e7d32";
+        status.style.color = "var(--admin-success, #2e7d32)";
 
         await incarcaOpereAdmin();
         await incarcaAutori();
@@ -577,7 +577,7 @@ async function inlocuiesteLinkOpera(operaId, coloana, inputId) {
     } catch (error) {
         console.error("Eroare înlocuire link:", error);
         status.textContent = "Nu am putut înlocui linkul: " + error.message;
-        status.style.color = "#c62828";
+        status.style.color = "var(--admin-error, #c62828)";
     }
 }
 

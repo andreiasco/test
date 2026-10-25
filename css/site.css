@@ -21,6 +21,13 @@
 @import url("pages/map.css");
 @import url("themes/modern.css");
 @import url("themes/alma.css");
+@import url("themes/alma-buttons.css");
+@import url("themes/alma-navigation.css");
+@import url("themes/alma-responsive.css");
+@import url("themes/alma-admin.css");
+@import url("themes/alma-icons.css");
+@import url("themes/alma-education.css");
+@import url("themes/alma-quiz-worlds.css");
 
 /* Etichetă accesibilă, ascunsă doar vizual. */
 .sr-only {

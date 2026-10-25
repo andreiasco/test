@@ -21,6 +21,7 @@ const ADMIN_WORK_FORM_HTML = `
 
         </select>
 
+        <label for="operaTitlu">Titlul operei</label>
         <input
             type="text"
             id="operaTitlu"

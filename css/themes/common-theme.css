@@ -6,8 +6,9 @@
     --navy: #142c54;
     --navy-deep: #0e2343;
     --teal: #2d6d68;
-    --terracotta: #b44b38;
-    --gold: #d59b2e;
+    --accent-gold: #e6ca8e;
+    --terracotta: var(--accent-gold);
+    --gold: var(--accent-gold);
     --paper: #fffaf0;
     --paper-alt: #f4e7c7;
     --ink-soft: #536271;

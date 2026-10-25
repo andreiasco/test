@@ -218,7 +218,7 @@ async function incarcaListaPDF() {
         );
 
         container.innerHTML =
-            "<p style='color:#c62828'>" +
+            "<p style='color:var(--admin-error, #c62828)'>" +
             "Nu am putut încărca lista PDF-urilor." +
             "</p>";
 

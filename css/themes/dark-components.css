@@ -43,7 +43,7 @@ body.dark .subtitlu {
 
 body.dark .clasa-limba-box .icon,
 body.dark .quiz-card h3 {
-    color: #f1a15d;
+    color: var(--accent-gold);
 }
 
 body.dark .capitol-limba,
@@ -103,8 +103,8 @@ body.dark .pdf-preview-download {
 }
 
 body.dark .pdf-preview-download:hover {
-    background: #d06a47;
-    border-color: #d06a47;
+    background: var(--accent-gold);
+    border-color: var(--accent-gold);
 }
 
 body.dark .pdf-preview-pages {
@@ -173,7 +173,7 @@ body.dark .theme-btn {
 }
 
 body.dark .theme-btn:hover {
-    background: #d06a47;
+    background: var(--accent-gold);
     color: #fffaf0;
 }
 

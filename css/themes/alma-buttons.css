@@ -1,0 +1,126 @@
+/* Shared controls, loaded after component and legacy theme styles.
+   Keep component sizing/layout; use the EDU ALMA navy, blue and gold palette. */
+:root {
+    --accent-gold: #e6ca8e;
+    --action-bg: #172f56;
+    --action-hover: #2a4a77;
+    --action-text: #fff;
+    --action-soft: #edf2f8;
+    --action-soft-hover: #e0e8f2;
+    --action-ink: #365782;
+    --action-line: #c8d5e5;
+    --action-gold: #e3c585;
+}
+body.dark {
+    --action-bg: #2a4a77;
+    --action-hover: #365d91;
+    --action-soft: #263f5c;
+    --action-soft-hover: #314e6e;
+    --action-ink: #c5d9f0;
+    --action-line: #536d8b;
+}
+
+body:is(.dark, :not(.dark)) :is(button, input[type="submit"], input[type="button"], .buton, .home-cta, .kahoot-link, .opera-link) {
+    background: var(--action-bg);
+    color: var(--action-text);
+    border: 1px solid var(--action-line);
+    border-radius: 10px;
+    box-shadow: none;
+    font-family: inherit;
+    font-weight: 650;
+    text-decoration: none;
+    text-shadow: none;
+    cursor: pointer;
+    transition: background-color .18s ease, border-color .18s ease, color .18s ease;
+}
+body:is(.dark, :not(.dark)) :is(button, input[type="submit"], input[type="button"], .buton, .home-cta, .kahoot-link, .opera-link):hover:not(:disabled):not([aria-disabled="true"]) {
+    background: var(--action-hover);
+    border-color: var(--accent-gold);
+    color: var(--action-text);
+    transform: none;
+}
+
+/* Resource actions and secondary controls echo the Explore links and cards. */
+body:is(.dark, :not(.dark)) :is(.opera-btn, .opera-link, .secondary, .reset-btn, .auth-tab, .quiz-tab, .admin-object-tab, .ai-quick-actions button, .quiz-answer-btn, .hangman-keyboard button, .ordering-chip) {
+    background: var(--action-soft);
+    border-color: var(--action-line);
+    color: var(--action-ink);
+}
+body:is(.dark, :not(.dark)) :is(.opera-btn, .opera-link, .secondary, .reset-btn, .auth-tab, .quiz-tab, .admin-object-tab, .ai-quick-actions button, .quiz-answer-btn, .hangman-keyboard button, .ordering-chip):hover:not(:disabled) {
+    background: var(--action-soft-hover);
+    color: var(--action-ink);
+    border-color: var(--accent-gold);
+}
+body:is(.dark, :not(.dark)) :is(.auth-tab.activ, .quiz-tab.activ, .admin-object-tab.is-active, .material-progress-btn.is-complete) {
+    background: var(--action-bg);
+    color: var(--action-text);
+    border-color: var(--accent-gold);
+    box-shadow: inset 0 -3px 0 var(--action-gold);
+}
+
+/* Preserve the hero and navbar as the reference for the rest of the site. */
+body .alma-hero .alma-primary {
+    background: var(--action-gold);
+    border-color: transparent;
+    color: #172b47;
+}
+body .alma-hero .alma-primary:hover { background: #f0d79f; color: #172b47; }
+body:is(.dark, :not(.dark)) nav :is(button, .account-menu summary) {
+    background: transparent;
+    color: #f5f7fc;
+    border-color: #ffffff35;
+}
+body:is(.dark, :not(.dark)) nav button:hover:not(:disabled) {
+    background: #ffffff18;
+    color: #fff;
+    border-color: #d7b66f;
+}
+body:is(.dark, :not(.dark)) nav .account-actions button {
+    background: var(--action-soft);
+    color: var(--action-ink);
+    border-color: var(--action-line);
+}
+body:is(.dark, :not(.dark)) nav .account-actions button:hover {
+    background: var(--action-soft-hover);
+    color: var(--action-ink);
+}
+
+/* Compact dismiss controls retain their original position and size. */
+body:is(.dark, :not(.dark)) :is(.inchide-login, .autor-popup-inchide, .profile-close, .ai-assistant-close, .pdf-preview-inchide, .harta-popup-inchide, .quiz-remove-question) {
+    background: var(--action-soft);
+    color: var(--action-ink);
+    border-color: var(--action-line);
+}
+
+/* Destructive actions share the same shape with an explicit warning colour. */
+body:is(.dark, :not(.dark)) :is(.danger, .sterge-opera-btn, .sterge-btn, .quiz-remove-question) {
+    background: #f8eded;
+    color: #973b3b;
+    border-color: #ddbdbd;
+}
+body:is(.dark, :not(.dark)) :is(.danger, .sterge-opera-btn, .sterge-btn, .quiz-remove-question):hover:not(:disabled) {
+    background: #f0dada;
+    color: #7b2929;
+    border-color: #bd8585;
+}
+body.dark :is(.danger, .sterge-opera-btn, .sterge-btn, .quiz-remove-question) { background: #50373f; color: #ffd4d4; border-color: #98616b; }
+body.dark :is(.danger, .sterge-opera-btn, .sterge-btn, .quiz-remove-question):hover:not(:disabled) { background: #65424b; color: #fff; }
+
+/* Game feedback remains distinguishable after controls adopt the shared theme. */
+body:is(.dark, :not(.dark)) .quiz-answer-btn > span { background: var(--action-soft-hover); color: var(--action-ink); }
+body:is(.dark, :not(.dark)) .quiz-answer-btn.corect { background: #e6f3eb; border-color: #4d8664; color: #24533a; }
+body:is(.dark, :not(.dark)) .quiz-answer-btn.gresit { background: #f8eaea; border-color: #b96868; color: #863535; }
+body.dark .quiz-answer-btn.corect { background: #264b40; color: #d4f0df; }
+body.dark .quiz-answer-btn.gresit { background: #573b45; color: #ffdddd; }
+body #quizNextButton { background: var(--action-bg); border: 1px solid var(--action-line); color: var(--action-text); }
+body #quizNextButton:hover:not(:disabled) { background: var(--action-hover); color: var(--action-text); }
+
+body:is(.dark, :not(.dark)) :is(button, input[type="submit"], input[type="button"]):disabled,
+body [aria-disabled="true"] { opacity: .55; cursor: not-allowed; transform: none; }
+body :is(button, input[type="submit"], input[type="button"], .buton, .home-cta, .kahoot-link, .opera-link, .alma-text-link):focus-visible {
+    outline: 3px solid var(--accent-gold);
+    outline-offset: 3px;
+}
+@media (prefers-reduced-motion: reduce) {
+    body :is(button, input[type="submit"], input[type="button"], .buton, .home-cta, .kahoot-link, .opera-link) { transition: none; }
+}

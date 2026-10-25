@@ -10,7 +10,7 @@ function renderLayout() {
     const scripts = [...read('index.html').matchAll(/<script src="(js\/layout\/[^"]+)"/g)].map(m => m[1]);
     const context = vm.createContext({ estePaginaAdmin: false });
     scripts.forEach(file => vm.runInContext(read(file), context, { filename: file }));
-    const html = vm.runInContext('[NAV_HTML, HOME_HTML, ALMA_HUBS_HTML, LANGUAGE_HTML, LITERATURE_HTML, MAP_HTML, QUIZ_HTML, MAGAZINE_HTML, ADMIN_PANEL_HTML, LOGIN_MODAL_HTML, PDF_MODAL_HTML, AUTHOR_MODAL_HTML, AI_ASSISTANT_HTML, FOOTER_HTML].join("")', context);
+    const html = vm.runInContext('[NAV_HTML, HOME_HTML, ALMA_HUBS_HTML, EDUCATION_PAGES_HTML, LANGUAGE_HTML, LITERATURE_HTML, MAP_HTML, QUIZ_HTML, MAGAZINE_HTML, ADMIN_PANEL_HTML, LOGIN_MODAL_HTML, PDF_MODAL_HTML, AUTHOR_MODAL_HTML, AI_ASSISTANT_HTML, FOOTER_HTML].join("")', context);
     return { context, html };
 }
 
@@ -37,9 +37,9 @@ test('new hubs and original libraries each select exactly one correct page', () 
         'scoala-altfel': 'pagina-scoala-altfel', jocuri: 'pagina-quiz',
         'profesor-ai': 'pagina-profesor-ai', abonamente: 'pagina-abonamente',
         ajutor: 'pagina-ajutor', contact: 'pagina-contact', literatura: 'pagina-literatura',
-        limba: 'pagina-limba', harta: 'pagina-harta', revista: 'pagina-revista', quiz: 'pagina-quiz',
+        limba: 'pagina-limba', harta: 'pagina-harta', revista: 'pagina-revista', quiz: 'pagina-quiz', carti: 'pagina-carti',
         'biblioteca-vizuala': 'pagina-elevi', 'analiza-diagnoza': 'pagina-profesori',
-        'numere-publicate': 'pagina-revista', 'limba-clasa-8': 'pagina-limba'
+        'numere-publicate': 'pagina-numere-publicate', 'limba-clasa-8': 'pagina-limba'
     };
     for (const [route, page] of Object.entries(expected)) {
         active = [];

@@ -64,7 +64,7 @@ section {
 }
 
 .rol-card.profesor {
-    border-top-color: #d17a00;
+    border-top-color: var(--accent-gold);
 }
 
 .rol-eticheta {
@@ -85,7 +85,7 @@ section {
 
 .rol-card.profesor .rol-eticheta {
     background: #fff0d2;
-    color: #9a5b00;
+    color: var(--accent-gold);
 }
 
 .rol-card details,

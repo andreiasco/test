@@ -1,0 +1,145 @@
+/* Admin uses the same surfaces, typography and controls as the public libraries. */
+#adminPanel {
+    --admin-heading: var(--alma-blue);
+    --admin-success: #286341;
+    --admin-error: #a03535;
+    --admin-success-bg: #e6f3eb;
+    background: var(--paper);
+    color: var(--admin-heading);
+    border: 1px solid var(--line);
+    border-top: 3px solid var(--accent-gold);
+    border-radius: 20px;
+    box-shadow: var(--shadow-soft);
+    width: calc(100% - 32px);
+    padding: clamp(16px, 3vw, 32px);
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    line-height: 1.6;
+}
+body.dark #adminPanel {
+    --admin-heading: #edf3f9;
+    --admin-success: #a5dbb8;
+    --admin-error: #ffb6b6;
+    --admin-success-bg: #264b40;
+}
+#adminPanel :is(h2, h3, h4, label, .admin-stat-card strong) {
+    color: var(--admin-heading);
+    font-family: inherit;
+}
+#adminPanel h2 { font-size: clamp(25px, 3vw, 34px); letter-spacing: -.035em; }
+#adminPanel :is(.admin-eyebrow, .admin-object-kicker) { color: var(--accent-gold); opacity: 1; font-size: 11px; letter-spacing: .12em; }
+#adminPanel :is(.admin-object-page-heading p, .admin-object-tab small, .quiz-optional, .quiz-admin-hint, .quiz-admin-list-item p) { color: var(--ink-soft); opacity: 1; }
+#adminPanel :is(.admin-box, .admin-section, .quiz-admin-list-item) {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    box-shadow: none;
+    color: var(--admin-heading);
+}
+#adminPanel .admin-box { padding: clamp(18px, 3vw, 28px); }
+#adminPanel .admin-object-page { margin: 24px 0 0; padding: 0; max-width: none; }
+#adminPanel [hidden] { display: none !important; }
+#adminPanel .admin-disclosure {
+    margin-block: 16px;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: var(--surface);
+    padding: 0;
+}
+#adminPanel .admin-disclosure > summary {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 18px;
+    cursor: pointer;
+    list-style: none;
+    color: var(--admin-heading);
+    font-size: 15px;
+    font-weight: 650;
+}
+#adminPanel .admin-disclosure > summary::-webkit-details-marker { display: none; }
+#adminPanel .admin-disclosure-indicator { flex: 0 0 auto; margin-left: auto; color: var(--accent-gold); font-size: 22px; }
+#adminPanel .admin-disclosure[open] > summary > .admin-disclosure-indicator { transform: rotate(45deg); }
+#adminPanel .admin-disclosure[open] > summary { border-bottom: 1px solid var(--line); }
+#adminPanel .admin-disclosure-content { padding: 18px; min-width: 0; }
+#adminPanel .admin-disclosure-content > .admin-box { border: 0; padding: 0; box-shadow: none; }
+#adminPanel .admin-disclosure > summary .alma-icon { width: 36px; height: 36px; border-radius: 10px; }
+#adminPanel .admin-disclosure > summary .alma-icon svg { width: 21px; height: 21px; }
+#adminPanel :is(.admin-quiz-section, .admin-quiz-list-section) { padding: clamp(18px, 3vw, 28px); margin-block: 20px; }
+#adminPanel .quiz-admin-grid-main { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+#adminPanel .quiz-admin-grid-main > label:first-child { grid-column: 1 / -1; }
+#adminPanel .quiz-admin-publish { grid-column: 1 / -1; display: flex; align-items: center; justify-content: flex-start; gap: 12px; }
+#adminPanel .quiz-admin-publish input { width: 20px; }
+#adminPanel .quiz-dialog-settings { margin: 0; }
+#adminPanel .quiz-dialog-settings .quiz-admin-dialog-grid { padding: 16px; }
+#adminPanel .quiz-ai-generator-head h4 { margin-top: 0; }
+#adminPanel .admin-filter-status { color: var(--ink-soft); font-size: 13px; margin: 4px 0 12px; }
+#adminPanel .admin-filter-status:empty { display: none; }
+#adminPanel .admin-status:empty, #adminPanel .admin-message:empty { min-height: 0; margin: 0; }
+#adminPanel .admin-object-nav { background: var(--surface); border: 1px solid var(--line); box-shadow: none; }
+#adminPanel .admin-object-tab {
+    background: var(--action-soft);
+    color: var(--action-ink);
+    border: 1px solid var(--action-line);
+    border-radius: 10px;
+    box-shadow: none;
+    text-align: left;
+}
+#adminPanel .admin-object-tab:hover { background: var(--action-soft-hover); border-color: var(--accent-gold); color: var(--action-ink); }
+#adminPanel .admin-object-tab.is-active { background: var(--action-bg); color: white; border-color: var(--accent-gold); box-shadow: inset 0 -3px 0 var(--accent-gold); }
+#adminPanel .admin-object-tab.is-active small { color: #d0dbea; }
+#adminPanel .admin-object-tab-icon { background: var(--action-soft); color: var(--action-ink); }
+#adminPanel .admin-object-tab-icon svg { width: 24px; height: 24px; }
+#adminPanel :is(.admin-object-page-heading, .admin-autor, .admin-opera, .admin-stat-card, .admin-role-row, .admin-audit-row, .pdf-item) {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--accent-gold);
+    border-radius: 14px;
+    color: var(--admin-heading);
+    box-shadow: none;
+}
+#adminPanel .admin-object-page-heading { background: var(--action-soft); }
+#adminPanel :is(input:not([type='radio']):not([type='checkbox']), textarea, select) {
+    background: var(--surface);
+    color: var(--admin-heading);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 11px 13px;
+    font: inherit;
+}
+#adminPanel input::file-selector-button {
+    background: var(--action-soft); color: var(--action-ink); border: 1px solid var(--action-line);
+    border-radius: 8px; padding: 8px 12px; margin-right: 10px; font: inherit; cursor: pointer;
+}
+#adminPanel :is(input[type='radio'], input[type='checkbox']) { accent-color: var(--alma-blue); width: 20px; height: 20px; margin: 0; flex-shrink: 0; }
+#adminPanel :is(input, select, textarea, button, summary):focus-visible { outline: 3px solid var(--accent-gold); outline-offset: 3px; }
+#adminPanel :is(.admin-opera-titlu, .quiz-mode-badge, .quiz-mode-option span, .quiz-answer-editor-row span) {
+    background: var(--action-soft);
+    color: var(--action-ink);
+    border-color: var(--line);
+}
+#adminPanel .admin-opera-titlu:hover,
+#adminPanel .admin-opera-titlu[aria-expanded='true'] { background: var(--action-soft-hover); color: var(--action-ink); border-color: var(--accent-gold); }
+#adminPanel .admin-opera-detalii { background: var(--surface); border-color: var(--line); }
+#adminPanel :is(.quiz-question-editor, .quiz-ai-generator, .ai-local-card, .quiz-admin-rule-card, .quiz-tf-admin label) {
+    background: var(--paper);
+    color: var(--admin-heading);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    box-shadow: none;
+}
+#adminPanel .castle-question-editor-admin { border-left: 3px solid var(--accent-gold); }
+#adminPanel .quiz-boss-editor { background: var(--action-soft); border-left-color: var(--accent-gold); }
+#adminPanel .quiz-mode-option input:checked + span { border-color: var(--accent-gold); outline: 2px solid var(--accent-gold); transform: none; background: var(--action-soft); }
+#adminPanel .quiz-mode-option input:focus-visible + span { outline: 3px solid var(--accent-gold); outline-offset: 3px; }
+#adminPanel .quiz-admin-list-meta span { background: var(--action-soft); color: var(--action-ink); }
+#adminPanel :is(.pdf-exista, .admin-message.success, .quiz-ai-generator-status.success) { color: var(--admin-success); }
+#adminPanel :is(.pdf-lipsa, .admin-message.error, .quiz-ai-generator-status.error) { color: var(--admin-error); }
+#adminPanel .quiz-admin-list-meta .published { background: var(--admin-success-bg); color: var(--admin-success); }
+#adminPanel .quiz-admin-list-meta .draft { background: var(--action-soft); color: var(--action-ink); border: 1px solid var(--accent-gold); }
+@media (max-width: 600px) {
+    #adminPanel { width: calc(100% - 24px); }
+    #adminPanel .admin-object-page { padding: 0; }
+    #adminPanel .quiz-admin-grid-main { grid-template-columns: minmax(0, 1fr); }
+    #adminPanel .admin-disclosure > summary { padding: 14px; }
+    #adminPanel .admin-disclosure-content { padding: 14px; }
+}

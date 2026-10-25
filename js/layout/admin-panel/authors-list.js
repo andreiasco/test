@@ -17,7 +17,9 @@ const ADMIN_AUTHORS_LIST_HTML = `
 
         </button>
 
-        <div id="listaAutoriAdmin"></div>
+        <label for="filtru-listaAutoriAdmin">Filtrează autori</label><input type="search" id="filtru-listaAutoriAdmin" data-admin-filter="listaAutoriAdmin" placeholder="Scrie un nume sau un titlu...">
+<p data-admin-filter-status="listaAutoriAdmin" class="admin-filter-status" role="status"></p>
+<div id="listaAutoriAdmin"></div>
 
     </div>
 `;
