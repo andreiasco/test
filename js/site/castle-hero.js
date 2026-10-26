@@ -12,6 +12,7 @@ window.CastleQuizHero = (() => {
         const leather = k.material("leather", 0x493b31, { roughness: 0.92 });
         const dark = k.material("shadow", 0x19212a, { roughness: 0.98 });
         const wood = k.material("wood", 0x68503a, { roughness: 0.9 });
+        const smallPlate = k.lowDetail ? steel : polished;
         const sides = k.lowDetail ? 12 : 20;
 
         function oval(parent, material, position, scale) {
@@ -93,29 +94,53 @@ window.CastleQuizHero = (() => {
             root.userData[`arm${suffix}`] = arm;
             const elbow = [side*0.04,-0.32,-0.025];
             const wrist = [side*0.045,-0.60,side < 0 ? -0.19 : -0.065];
+            const forearm = k.group(arm, `Forearm${suffix}`, elbow);
+            const handJoint = k.group(forearm, `Hand${suffix}`, wrist.map((value, axis) => value - elbow[axis]));
+            root.userData[`forearm${suffix}`] = forearm;
+            root.userData[`hand${suffix}`] = handJoint;
+            const forearmMeshes = [], handMeshes = [];
             k.bone(arm,dark,[0,-0.025,0],elbow,0.09,0.067);
-            k.bone(arm,leather,elbow,wrist,0.066,0.051);
+            forearmMeshes.push(k.bone(arm,leather,elbow,wrist,0.066,0.051));
             oval(arm,steel,[side*0.025,-0.03,0],[0.16,0.13,0.165]);
             oval(arm,polished,[side*0.032,-0.13,-0.005],[0.138,0.075,0.15]);
             k.bone(arm,steel,[side*0.028,-0.14,-0.002],[side*0.04,-0.28,-0.018],0.087,0.075);
             oval(arm,polished,elbow,[0.09,0.076,0.09]);
-            k.bone(arm,steel,[elbow[0],elbow[1]-0.045,elbow[2]],wrist,0.082,0.059);
+            forearmMeshes.push(k.bone(arm,steel,[elbow[0],elbow[1]-0.045,elbow[2]],wrist,0.082,0.059));
             const hand = [wrist[0],-0.66,wrist[2]-0.012];
-            oval(arm,leather,hand,[0.061,0.082,0.061]);
-            oval(arm,steel,[hand[0],hand[1]+0.025,hand[2]+0.039],[0.064,0.062,0.028]);
-            for(let finger=0;finger<3;finger++) oval(arm,polished,[hand[0]+(finger-1)*0.033,hand[1]-0.028,hand[2]-0.034],[0.018,0.032,0.024]);
+            handMeshes.push(oval(arm,leather,hand,[0.061,0.082,0.061]));
+            handMeshes.push(oval(arm,steel,[hand[0],hand[1]+0.025,hand[2]+0.039],[0.064,0.062,0.028]));
+            for(let finger=0;finger<3;finger++) handMeshes.push(oval(arm,smallPlate,[hand[0]+(finger-1)*0.033,hand[1]-0.028,hand[2]-0.034],[0.018,0.032,0.024]));
             rivet(arm,[side*0.14,-0.04,0.08],gold,0.011);
+            // Reparent the existing shells without moving their rest geometry.
+            // The grip now turns with the gauntlet, while the elbow bends below the pauldron.
+            forearmMeshes.forEach(mesh => forearm.attach(mesh));
+            handMeshes.forEach(mesh => handJoint.attach(mesh));
 
             const leg = k.group(root,`Leg${suffix}`,[side*0.145,1.00,0]);
             root.userData[`leg${suffix}`] = leg;
-            k.bone(leg,blue,[0,-0.015,0],[0,-0.86,0],0.105,0.064);
+            const knee = [0,-0.46,-0.015], ankle = [0,-0.89,-0.025];
+            const shin = k.group(leg,`Shin${suffix}`,knee);
+            const foot = k.group(shin,`Foot${suffix}`,ankle.map((value, axis) => value - knee[axis]));
+            root.userData[`shin${suffix}`] = shin;
+            root.userData[`foot${suffix}`] = foot;
+            root.userData[`footSole${suffix}`] = k.group(foot,`FootSole${suffix}`,[0,-0.11,-0.07]);
+            const kneeRadius = 0.105 + (0.064 - 0.105) * (0.46 - 0.015) / (0.86 - 0.015);
+            k.bone(leg,blue,[0,-0.015,0],[0,-0.46,0],0.105,kneeRadius);
+            const shinMeshes = [k.bone(leg,blue,[0,-0.46,0],[0,-0.86,0],kneeRadius,0.064)];
             oval(leg,steel,[0,-0.22,-0.015],[0.12,0.245,0.115]);
-            oval(leg,polished,[side*0.014,-0.46,-0.058],[0.112,0.09,0.12]);
-            k.bone(leg,steel,[0,-0.52,-0.01],[0,-0.84,-0.006],0.089,0.067);
-            k.bone(leg,polished,[0,-0.52,-0.095],[0,-0.84,-0.073],0.012,0.009);
-            oval(leg,leather,[0,-0.915,-0.055],[0.095,0.085,0.16]);
-            oval(leg,steel,[0,-0.925,-0.095],[0.103,0.075,0.19]);
-            for(let plate=0;plate<2;plate++) oval(leg,polished,[0,-0.9+plate*0.035,-0.14+plate*0.057],[0.104,0.022,0.067]);
+            oval(leg,smallPlate,[side*0.014,-0.46,-0.058],[0.112,0.09,0.12]);
+            shinMeshes.push(k.bone(leg,steel,[0,-0.52,-0.01],[0,-0.84,-0.006],0.089,0.067));
+            shinMeshes.push(k.bone(leg,smallPlate,[0,-0.52,-0.095],[0,-0.84,-0.073],0.012,0.009));
+            const footMeshes = [oval(leg,leather,[0,-0.915,-0.055],[0.095,0.085,0.16]), oval(leg,steel,[0,-0.925,-0.095],[0.103,0.075,0.19])];
+            for(let plate=0;plate<2;plate++) footMeshes.push(oval(leg,smallPlate,[0,-0.9+plate*0.035,-0.14+plate*0.057],[0.104,0.022,0.067]));
+            shinMeshes.forEach(mesh => shin.attach(mesh));
+            footMeshes.forEach(mesh => foot.attach(mesh));
+            root.userData[`limbLengths${suffix}`] = {
+                upperArm: new THREE.Vector3(...elbow).length(),
+                forearm: new THREE.Vector3(...wrist).sub(new THREE.Vector3(...elbow)).length(),
+                thigh: new THREE.Vector3(...knee).length(),
+                shin: new THREE.Vector3(...ankle).sub(new THREE.Vector3(...knee)).length()
+            };
         }
 
         const sword = k.group(root.userData.armR,"Sword",[0.045,-0.66,-0.076]);
@@ -157,6 +182,8 @@ window.CastleQuizHero = (() => {
 
         const swordTip = k.group(sword, "SwordTip", [0,-0.78,0]);
         const shieldContact = k.group(shield, "ShieldContact", [0,0,-0.10]);
+        root.userData.handR.attach(sword);
+        root.userData.handL.attach(shield);
         Object.assign(root.userData, {
             detailedHero:true, type:"hero", front:"-Z", baseY:0,
             helmet, sword, shield, swordTip, shieldContact, armSwingL:0.28, armSwingR:0.5

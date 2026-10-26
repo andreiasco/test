@@ -628,6 +628,7 @@ window.CastleQuiz3D = (() => {
 
         if (currentWorld !== 'castle') {
             window.QuizWorldScenery.buildRoom({ THREE, scene, parent: roomGroup, world: currentWorld, index, boss, mat, makeMesh });
+            decorateRoom(index, boss);
             return;
         }
 
@@ -638,8 +639,8 @@ window.CastleQuiz3D = (() => {
 
         roomProp(new THREE.BoxGeometry(6.0, 0.16, 6.3), darkStone, 0, -0.08, -3.55);
         roomProp(new THREE.BoxGeometry(6.0, 0.25, 0.25), stone, 0, 4.72, -6.35);
-        roomProp(new THREE.BoxGeometry(0.32, 4.8, 6.2), stone, -2.82, 2.35, -3.55);
-        roomProp(new THREE.BoxGeometry(0.32, 4.8, 6.2), stone, 2.82, 2.35, -3.55);
+        roomProp(new THREE.BoxGeometry(0.32, 4.8, 6.2), stone, -3.03, 2.35, -3.55);
+        roomProp(new THREE.BoxGeometry(0.32, 4.8, 6.2), stone, 3.03, 2.35, -3.55);
 
         roomMoodLight = new THREE.PointLight(theme.accent, boss ? 5.5 : 3.4, boss ? 11 : 8, 2);
         roomMoodLight.position.set(0, boss ? 3.5 : 2.8, -3.8);
@@ -709,6 +710,11 @@ window.CastleQuiz3D = (() => {
             window.rotation.x=0;
         }
         roomGroup.userData.theme = theme;
+        decorateRoom(index, boss);
+    }
+
+    function decorateRoom(index, boss) {
+        window.CastleQuizAtmosphere?.decorate({ THREE, parent: roomGroup, world: currentWorld, index, boss, lowDetail, surface, flames });
     }
 
     function buildCastle() {
@@ -806,7 +812,7 @@ window.CastleQuiz3D = (() => {
     function resetHeroPose() {
         if (!hero) return;
         hero.rotation.set(0, 0, 0);
-        for (const field of ["armL", "armR", "legL", "legR"]) hero.userData[field]?.rotation.set(0, 0, 0);
+        for (const field of ["armL", "armR", "forearmL", "forearmR", "handL", "handR", "legL", "legR", "shinL", "shinR", "footL", "footR"]) hero.userData[field]?.rotation.set(0, 0, 0);
         delete hero.userData.floorSample;
     }
 
@@ -844,6 +850,14 @@ window.CastleQuiz3D = (() => {
             const baseY = hero.userData.baseY || 0;
             if (heroState === "idle") hero.position.y += (baseY - hero.position.y) * blend;
             if (cape) cape.rotation.x += (-0.025 - cape.rotation.x) * blend;
+        }
+        for (const [side, sign] of [["L", 1], ["R", -1]]) {
+            const forearm = hero.userData[`forearm${side}`];
+            if (forearm) forearm.rotation.x += ((side === "L" ? 0.12 : 0.18) - forearm.rotation.x) * blend;
+            const shin = hero.userData[`shin${side}`], foot = hero.userData[`foot${side}`], leg = hero.userData[`leg${side}`];
+            const flex = moving && !reducedMotion() ? Math.max(0, Math.sin(heroPhase) * sign) * 0.48 : 0;
+            if (shin) shin.rotation.x = -flex;
+            if (foot && leg && shin) foot.rotation.x = -leg.rotation.x - shin.rotation.x;
         }
     }
 
@@ -1083,28 +1097,22 @@ window.CastleQuiz3D = (() => {
             return;
         }
         if (type === "spider") {
-            const base = monster.userData.baseY || 0; monster.position.y = 3.5;
-            await tween(1100, (p) => {
-                monster.position.y = 3.5 - p * (3.5 - base);
-                ud.legs?.forEach((leg, i) => leg.rotation.z = Math.sin(p * Math.PI * 5 + i) * Math.sin(p * Math.PI) * 0.22);
+            await tween(700, (p) => {
+                ud.legs?.forEach((leg, i) => leg.rotation.y = Math.sin(p * Math.PI * 3 + i) * Math.sin(p * Math.PI) * 0.12);
             });
             return;
         }
         if (type === "wizard") {
-            const targetScale = ud.detailedMonster ? 1 : (window.CastleQuizAssets?.monsters?.wizard?.scale || 1);
-            monster.scale.setScalar(0.08);
-            magicRing(monster.position.clone().add(new THREE.Vector3(0, 0.25, 0)), 0xb793ff, 0.92);
-            await tween(900, (p) => {
-                monster.scale.setScalar(Math.max(0.08, targetScale * p));
-                monster.rotation.y = (1-p) * Math.PI * 2;
+            await tween(650, (p) => {
+                if (ud.armR) ud.armR.rotation.x = -Math.sin(p * Math.PI) * 0.22;
+                monster.rotation.y = Math.sin(p * Math.PI) * 0.08;
             });
             return;
         }
         const startY = monster.position.y;
         await tween(720, (p) => {
-            monster.position.y = startY + Math.sin(p * Math.PI) * 0.13;
-            if (ud.armR) ud.armR.rotation.x = -Math.sin(p * Math.PI) * 1.25;
-            monster.rotation.y = Math.sin(p * Math.PI) * 0.16;
+            if (ud.armR) ud.armR.rotation.x = -Math.sin(p * Math.PI) * 0.28;
+            monster.rotation.y = Math.sin(p * Math.PI) * 0.06;
         });
         monster.position.y = startY;
     }
@@ -1122,7 +1130,8 @@ window.CastleQuiz3D = (() => {
         monster = loaded;
         monster.position.x = 0;
         monster.position.y = monster.userData?.baseY || 0;
-        monster.position.z = -8.0;
+        const enemyStartZ = boss ? -4.0 : -4.9;
+        monster.position.z = enemyStartZ;
         monster.userData.previousPosition = monster.position.clone();
         scene.add(monster);
 
@@ -1131,11 +1140,11 @@ window.CastleQuiz3D = (() => {
         hero.position.set(-0.65, hero.userData?.baseY || 0, 4.2);
         heroPreviousPosition = hero.position.clone(); heroPhase = 0;
         camera.position.set(0.9, 2.15, 7.4); camera.lookAt(0, 1.3, -1.8);
-        await tween(2100, (p) => {
-            hero.position.z = 4.2 - p * 2.9;
+        await tween(2800, (p) => {
+            hero.position.z = 4.2 - p * 4.4;
             camera.position.x = 0.9 + Math.sin(p * Math.PI) * 0.18;
             camera.position.y = 2.15 + Math.sin(p * Math.PI) * 0.035;
-            camera.position.z = 7.4 - p * 1.5;
+            camera.position.z = 7.4 - p * 2.95;
             camera.lookAt(0, 1.3, -1.8);
         });
         heroState = "idle";
@@ -1143,25 +1152,22 @@ window.CastleQuiz3D = (() => {
 
         // reveal monster + dolly-in
         if (boss) {
-            pulseScene("castle-boss-awaken", 900);
-            ambientPulse = 1;
-            magicRing(new THREE.Vector3(0, 0.18, -4.15), 0xff6f45, 1.05);
-            burst(new THREE.Vector3(0, 1.15, -4.0), 0xff8a4b, 42, 2.0, 1.15, 0.065);
+            ambientPulse = 0.25;
         }
         monsterState = "approach";
-        await tween(boss ? 1300 : 950, (p) => {
-            monster.position.z = -8 + p * (boss ? 4.15 : 4.45);
+        await tween(boss ? 900 : 1100, (p) => {
+            monster.position.z = enemyStartZ + p * ((boss ? -3.85 : -3.55) - enemyStartZ);
             monster.rotation.y = Math.sin(p * Math.PI) * (boss ? 0.34 : 0.12);
             camera.position.x = 0.9 + Math.sin(p * Math.PI) * 0.12;
             camera.position.y = 2.15 + p * (boss ? 0.25 : 0.03);
-            camera.position.z = 5.9 - p * (boss ? 0.15 : 0.05);
+            camera.position.z = 4.45 + p * (boss ? 0.2 : 0);
             camera.lookAt(monster.position.x * 0.3, boss ? 1.65 : 1.35, -2.25);
         });
         monsterState = "entrance";
         await playMonsterEntrance(boss ? "dragon" : type, boss);
         monsterState = "taunt";
         monster.userData.tauntAt = (performance.now() - clockStart) / 1000;
-        camera.position.set(0.9, boss ? 2.4 : 2.18, boss ? 5.75 : 5.85);
+        camera.position.set(0.9, boss ? 2.4 : 2.18, boss ? 4.65 : 4.45);
         camera.lookAt(0, boss ? 1.65 : 1.35, -2.25);
     }
 
@@ -1194,11 +1200,13 @@ window.CastleQuiz3D = (() => {
         }
         const startX = monster.position.x;
         const startZ = monster.position.z;
-        await cameraShot([0, 2.25, 6.15], [0.65, 2.05, 5.5], [0, 1.35, -2], [0, 1.15, -1.5], 380);
+        const lookFrom = camera.getWorldDirection(new THREE.Vector3()).multiplyScalar(4).add(camera.position);
+        await cameraShot(camera.position.toArray(), [0.65, 2.05, 4.5], lookFrom.toArray(), [0, 1.35, -2], 220);
         await tween(780, (p) => {
             monster.position.x = startX + p * (monster.userData.type === "dragon" ? 0.8 : 1.7);
             monster.position.z = startZ - p * 0.65;
-            monster.rotation.y = p * 0.95;
+            const travelYaw = Math.atan2(monster.userData.type === "dragon" ? 0.8 : 1.7, -0.65);
+            monster.rotation.y = Math.sin(p * Math.PI) * travelYaw + p * 0.28;
         });
         monsterState = "idle";
         const leaf = door?.getObjectByName("doorLeaf");
@@ -1206,7 +1214,7 @@ window.CastleQuiz3D = (() => {
             window.CastleQuizAudio?.door?.();
             await tween(640, (p) => { leaf.rotation.y = p * Math.PI * 0.52; });
         }
-        await cameraShot([0.65, 2.05, 5.5], [0.9, 2.18, 5.85], [0, 1.15, -1.5], [0, 1.35, -2.25], 320);
+        await cameraShot(camera.position.toArray(), [0.9, 2.18, 4.45], [0, 1.35, -2], [0, 1.35, -2.25], 260);
     }
 
     async function wrong() {
@@ -1255,12 +1263,13 @@ window.CastleQuiz3D = (() => {
         }
         heroState = "run";
         const startZ = hero.position.z;
+        const cameraStart = camera.position.clone();
         heroPreviousPosition = hero.position.clone();
         await tween(2200, (p) => {
             hero.position.z = startZ + (-5.7 - startZ) * p;
-            camera.position.x = 0.9 - p * 0.45;
-            camera.position.z = 5.85 - p * 5.5;
-            camera.position.y = 2.18 - p * 0.18;
+            camera.position.x = cameraStart.x - p * 0.45;
+            camera.position.z = cameraStart.z - p * 5.1;
+            camera.position.y = cameraStart.y - p * 0.18;
             camera.lookAt(hero.position.x, 1.1, hero.position.z - 1.4);
         });
         heroState = "idle";
