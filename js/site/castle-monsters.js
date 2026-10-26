@@ -1,7 +1,7 @@
-// Sculpted fantasy creatures. Shared geometry helpers keep articulated models small
-// enough for the mobile scene; no external model or texture downloads are needed.
-window.CastleQuizMonsters = (() => {
-    function kit(THREE, mergeGeometries, lowDetail) {
+// Shared character geometry and surfaces, with per-actor resource ownership.
+// Static sibling meshes merge together while animated joint Groups keep their pivots.
+window.CastleQuizModelKit = (() => {
+    function create(THREE, mergeGeometries, lowDetail) {
         const segments = lowDetail ? 12 : 18;
         const materials = new Map(), textures = new Map();
 
@@ -131,18 +131,22 @@ window.CastleQuizMonsters = (() => {
                     const mesh = add(parent, combined, mat); mesh.name = `${parent.name}-${mat.name}`;
                 }
             }
-            root.userData.detailedMonster = true;
             return root;
         }
         return { THREE, lowDetail, segments, group, material, add, sphere, bone, taper, lathe, membrane, finish };
     }
 
+    return { create };
+})();
+
+window.CastleQuizMonsters = (() => {
     function create(THREE, mergeGeometries, type, options = {}) {
         if (typeof mergeGeometries !== "function") return null;
-        const k = kit(THREE, mergeGeometries, Boolean(options.lowDetail));
+        const k = window.CastleQuizModelKit.create(THREE, mergeGeometries, Boolean(options.lowDetail));
         const root = window.CastleQuizMonsterHumanoids?.build(k, type) || window.CastleQuizMonsterCreatures?.build(k, type);
         if (!root) return null;
         root.userData.type = type;
+        root.userData.detailedMonster = true;
         root.userData.baseY ??= 0;
         root.position.y = root.userData.baseY;
         return k.finish(root);
