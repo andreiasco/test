@@ -34,6 +34,10 @@ Eroul din `castle-hero.js` este un cavaler orientat spre adversari, cu coif înc
 
 `castle-combat.js` sincronizează apropierea, pregătirea loviturii, contactul și revenirea: un răspuns corect declanșează atacul cu sabia, iar unul greșit atacul adversarului și reacția cu scutul. Sunetele scurte de sabie, impact și armură pornesc în fazele corespunzătoare. Mișcarea redusă și sărirea animației evită efectele de contact; închiderea scenei oprește efectele active.
 
+Coatele, încheieturile, genunchii și gleznele au pivoturi proprii. Sabia și scutul păstrează priza în mână pe tot parcursul duelului; pașii urmăresc distanța, iar piciorul de sprijin rămâne pe podea în timpul loviturii. Contactul are o scurtă fază de rezistență, urmată de continuarea mișcării și o reacție adaptată masei adversarului. Adversarii așteaptă în interiorul încăperii, iar camera urmărește confruntarea fără saltul anterior dintre poziții fixe.
+
+`castle-atmosphere.js` adaugă flăcări modelate și suporturi de fier pentru torțe, butoaie și detalii de piatră, un cadru pentru fereastra sălii finale și elemente specifice zăpezii, deșertului și junglei. Detaliile sunt grupate pe materiale și păstrează liber culoarul duelului.
+
 - `js/site/castle-rig.js` ancorează pivoturile membrelor GLB la articulații, păstrând geometria atașată corpului în timpul animației.
 - Mersul și apelurile `CastleQuizAudio.footstep()` urmăresc distanța parcursă. Ușa se deschide în jurul balamalei, iar pașii programați sunt opriți când mișcarea este sărită.
 - Sunetul procedural include pași variați, reflexii scurte de încăpere și ambianță discretă. Dezactivarea sunetului, ascunderea paginii și ieșirea din quiz opresc sursele active.

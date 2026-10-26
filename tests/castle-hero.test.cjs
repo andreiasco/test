@@ -147,6 +147,47 @@ test('weapon and shield clear the floor through walking, running and victory pos
     }
 });
 
+test('elbows, wrists and knees articulate while hands keep a rigid grip on their equipment', async () => {
+    const { THREE, root } = await hero(), ud = root.userData;
+    for (const side of ['L', 'R']) for (const joint of ['forearm', 'hand', 'shin', 'foot']) {
+        const object = ud[`${joint}${side}`];
+        assert.ok(object?.isGroup, `${joint}${side} has an anatomical pivot`);
+        assert.ok(object.children.some(child => child.isMesh), `${joint}${side} carries visible anatomy`);
+    }
+    assert.equal(ud.sword.parent, ud.handR, 'the sword follows the gauntlet instead of rotating separately');
+    assert.equal(ud.shield.parent, ud.handL, 'the shield follows the supporting hand');
+    for (const [side, equipment] of [['R', ud.sword], ['L', ud.shield]]) {
+        const forearm = ud[`forearm${side}`], hand = ud[`hand${side}`];
+        root.updateWorldMatrix(true, true);
+        const elbow = forearm.getWorldPosition(new THREE.Vector3());
+        const wristBefore = hand.getWorldPosition(new THREE.Vector3());
+        equipment.updateMatrix(); const grip = equipment.matrix.clone();
+        forearm.rotation.x = 0.7;
+        root.updateWorldMatrix(true, true);
+        assert.ok(forearm.getWorldPosition(new THREE.Vector3()).distanceTo(elbow) < 1e-8, 'elbow stays anchored while bending');
+        assert.ok(hand.getWorldPosition(new THREE.Vector3()).distanceTo(wristBefore) > 0.1, 'forearm bend actually moves the wrist');
+        const wrist = hand.getWorldPosition(new THREE.Vector3());
+        const before = equipment.getWorldPosition(new THREE.Vector3());
+        hand.rotation.x = 0.25; hand.rotation.z = -0.15;
+        root.updateWorldMatrix(true, true);
+        assert.ok(hand.getWorldPosition(new THREE.Vector3()).distanceTo(wrist) < 1e-8, 'wrist pivot remains anchored');
+        closeMatrix(equipment.matrix, grip, 'equipment retains its fixed local grip');
+        assert.ok(equipment.getWorldPosition(new THREE.Vector3()).distanceTo(before) > 1e-4, 'equipment moves with the hand');
+    }
+    for (const side of ['L', 'R']) {
+        const shin = ud[`shin${side}`], foot = ud[`foot${side}`], thigh = ud[`leg${side}`];
+        root.updateWorldMatrix(true, true);
+        const knee = shin.getWorldPosition(new THREE.Vector3()), before = foot.getWorldPosition(new THREE.Vector3());
+        const upperPlate = thigh.children.find(child => child.isMesh), upperWorld = upperPlate.matrixWorld.clone();
+        shin.rotation.x = 0.65;
+        root.updateWorldMatrix(true, true);
+        assert.ok(shin.getWorldPosition(new THREE.Vector3()).distanceTo(knee) < 1e-8, 'knee remains anchored');
+        assert.ok(foot.getWorldPosition(new THREE.Vector3()).distanceTo(before) > 0.2, 'lower leg bend moves the boot');
+        closeMatrix(upperPlate.matrixWorld, upperWorld, 'bending the knee leaves the thigh plate in place');
+    }
+    release(root);
+});
+
 test('combat contact anchors follow their equipment and identify the blade tip and shield face', async () => {
     const { THREE, root } = await hero(), ud = root.userData;
     assert.ok(ud.swordTip?.isObject3D && descendant(ud.swordTip, ud.sword), 'blade tip is attached to sword');

@@ -95,21 +95,25 @@ async function fixture(type = 'goblin', options = {}) {
     camera.position.set(0.9, 2.18, 5.85);
     camera.lookAt(0, 1.35, -2.25);
     const effects = [], sounds = [];
-    let tweenCalls = 0;
+    let tweenCalls = 0, elapsed = 0, frameTime = 0;
     let skipping = false;
-    const tween = async (duration, update, easing = value => value) => {
+    const tween = async (duration, update, easing = value => value * value * (3 - 2 * value)) => {
         tweenCalls++;
-        for (let frame = 0; frame <= 16; frame++) {
+        const frames = options.frames ?? 16;
+        for (let frame = 0; frame <= frames; frame++) {
             if (options.cancelAt?.(tweenCalls, frame)) throw options.cancelError;
             if (options.cancelAfterImpact && effects.length && frame === 5) throw options.cancelError;
             if (options.skipAt?.(tweenCalls, frame)) skipping = true;
-            update(easing(skipping || options.reducedMotion ? 1 : frame / 16));
+            const progress = skipping || options.reducedMotion ? 1 : frame / frames;
+            frameTime = elapsed + duration * progress;
+            update(easing(progress));
             hero.updateWorldMatrix(true, true);
             monster.updateWorldMatrix(true, true);
-            options.onFrame?.({ hero, monster, camera, tweenCalls, frame });
+            options.onFrame?.({ THREE, hero, monster, camera, tweenCalls, frame, progress, duration, time: frameTime, effectCount: effects.length });
             await Promise.resolve();
             if (skipping || options.reducedMotion) break;
         }
+        elapsed += duration;
     };
     const combat = context.window.CastleQuizCombat.create({
         THREE, hero, monster, camera, tween,
@@ -122,7 +126,7 @@ async function fixture(type = 'goblin', options = {}) {
             monster.updateWorldMatrix(true, true);
             const effect = { kind, point: point.clone(), metadata };
             effects.push(effect);
-            options.onImpact?.({ THREE, hero, monster, camera, effect });
+            options.onImpact?.({ THREE, hero, monster, camera, effect, time: frameTime });
         }
     });
     return { THREE, hero, monster, camera, combat, effects, sounds, tweenCalls: () => tweenCalls };
@@ -135,6 +139,16 @@ test('legacy actors without sword and shield decline combat so the existing quiz
         THREE, hero: legacy, monster: new THREE.Group(), camera: new THREE.PerspectiveCamera(),
         tween: async (_, update) => update(1), reducedMotion: () => false, groundAt: () => 0
     }), null);
+});
+
+test('the shield response camera stays inside the clear corridor instead of entering its wall', async () => {
+    const f = await fixture('knight', {
+        onFrame({ camera }) {
+            assert.ok(Math.abs(camera.position.x) < 2.6, 'camera remains inside the corridor walls and torch brackets');
+        }
+    });
+    try { await f.combat.block(); }
+    finally { release(f.hero, f.monster); }
 });
 
 test('the real sword reaches each monster surface before one impact and all equipment poses are restored', async t => {
@@ -266,6 +280,85 @@ test('reduced motion and skipped combat avoid impact effects and retain the star
             assertRestored(before, f.hero, f.monster, f.camera);
         } finally { release(f.hero, f.monster); }
     });
+});
+
+test('intermediate combat poses keep the sword and shield rigidly gripped while elbows articulate', async t => {
+    for (const action of ['strike', 'block']) await t.test(action, async () => {
+        let grips, wristRest, forearmRest, maxElbowMotion = 0, maxWristMotion = 0;
+        const f = await fixture('knight', { onFrame({ hero }) {
+            const h = hero.userData;
+            for (const [name, equipment] of [['sword', h.sword], ['shield', h.shield]]) {
+                assert.ok(equipment.position.distanceTo(grips[name].position) < 1e-9, `${name} does not slide through the gauntlet`);
+                assert.ok(equipment.quaternion.angleTo(grips[name].quaternion) < 1e-7, `${name} does not spin independently of the hand`);
+            }
+            for (const side of ['L', 'R']) {
+                maxElbowMotion = Math.max(maxElbowMotion, h[`forearm${side}`].quaternion.angleTo(forearmRest[side]));
+                maxWristMotion = Math.max(maxWristMotion, h[`hand${side}`].quaternion.angleTo(wristRest[side]));
+            }
+        } });
+        const h = f.hero.userData;
+        grips = Object.fromEntries(['sword', 'shield'].map(name => [name, {
+            position: h[name].position.clone(), quaternion: h[name].quaternion.clone()
+        }]));
+        forearmRest = Object.fromEntries(['L', 'R'].map(side => [side, h[`forearm${side}`].quaternion.clone()]));
+        wristRest = Object.fromEntries(['L', 'R'].map(side => [side, h[`hand${side}`].quaternion.clone()]));
+        const before = snapshot(f.hero, f.monster, f.camera);
+        try {
+            await f.combat[action]();
+            assert.ok(maxElbowMotion > 0.15, `the ${action} uses elbow flexion instead of a rigid shoulder-only gesture`);
+            assert.ok(maxWristMotion < Math.PI / 3, 'the armored wrist stays within a plausible range');
+            assertRestored(before, f.hero, f.monster, f.camera);
+        } finally { release(f.hero, f.monster); }
+    });
+});
+
+test('a sword strike approaches at a grounded pace and carries its blade through contact before retreating', async t => {
+    const frames = [];
+    let impactTime = null, impactPoint, rootAtImpact;
+    const floor = 0.2;
+    const f = await fixture('knight', {
+        floor,
+        onFrame({ THREE, hero, time, effectCount }) {
+            const h = hero.userData;
+            const boots = ['L', 'R'].map(side => {
+                const foot = h[`foot${side}`];
+                const bounds = new THREE.Box3().setFromObject(foot, true);
+                return { center: bounds.getCenter(new THREE.Vector3()), minY: bounds.min.y };
+            });
+            frames.push({ time, root: hero.position.clone(), tip: h.swordTip.getWorldPosition(new THREE.Vector3()), boots, effectCount });
+        },
+        onImpact({ hero, effect, time }) {
+            impactTime = time; impactPoint = effect.point.clone(); rootAtImpact = hero.position.clone();
+        }
+    });
+    try {
+        await f.combat.strike();
+        assert.equal(f.effects.length, 1);
+        let maxSpeed = 0, movingSamples = 0, supportedSamples = 0, plantedSamples = 0;
+        for (let i = 1; i < frames.length; i++) {
+            const current = frames[i], previous = frames[i - 1], dt = (current.time - previous.time) / 1000;
+            if (dt <= 0 || current.effectCount) continue;
+            const distance = Math.hypot(current.root.x - previous.root.x, current.root.z - previous.root.z);
+            if (distance < 0.005) continue;
+            movingSamples++; maxSpeed = Math.max(maxSpeed, distance / dt);
+            if (current.boots.some(boot => Math.abs(boot.minY - floor) < 0.045)) supportedSamples++;
+            const bootSpeeds = current.boots.map((boot, side) => {
+                if (Math.abs(boot.minY - floor) > 0.045) return Infinity;
+                const before = previous.boots[side].center;
+                return Math.hypot(boot.center.x - before.x, boot.center.z - before.z) / dt;
+            });
+            if (Math.min(...bootSpeeds) < 0.75) plantedSamples++;
+            assert.ok(current.boots.every(boot => boot.minY >= floor - 0.035), 'boots do not pass substantially through the floor during approach');
+        }
+        assert.ok(movingSamples > 5, 'the approach is sampled over visible travel');
+        assert.ok(maxSpeed < 3.8, `armored approach has a plausible peak speed (${maxSpeed}m/s)`);
+        assert.ok(supportedSamples / movingSamples > 0.8, 'the approach keeps a supporting boot on the ground');
+        assert.ok(plantedSamples / movingSamples > 0.5, 'body travel comes from stepping rather than both boots sliding together');
+        assert.ok(frames.some(frame => frame.time - impactTime >= 35 && frame.time - impactTime <= 110 && frame.tip.distanceTo(impactPoint) < 0.1), 'the blade briefly resists at contact before recovery');
+        assert.ok(frames.some(frame => frame.time > impactTime + 90 && frame.time < impactTime + 500
+            && frame.root.distanceTo(rootAtImpact) < 0.2 && frame.tip.distanceTo(impactPoint) > 0.12), 'the blade visibly follows through while the stance remains planted');
+        t.diagnostic(JSON.stringify({ maxApproachSpeed: maxSpeed, movingSamples, supportedSamples, plantedSamples }));
+    } finally { release(f.hero, f.monster); }
 });
 
 test('repeated strike and block preserve authored scale and raised-floor poses without accumulating recoil', async () => {

@@ -1,13 +1,15 @@
 // Short, grounded combat gestures. Contact is solved against rendered geometry,
 // then every temporary pose is restored so quiz navigation can reuse the actors.
 window.CastleQuizCombat = (() => {
-    function create({ THREE, hero, monster, camera, tween, reducedMotion, groundAt = () => 0, audio, impact, isSkipping = () => false }) {
+    function create({ THREE, hero, monster, camera, tween, reducedMotion, groundAt = () => 0, audio, impact, isSkipping = () => false, setPhase }) {
         const h = hero?.userData, m = monster?.userData;
         if (!h?.sword || !h?.shield || !h.armR || !h.armL || !monster) return null;
         const clamp = THREE.MathUtils.clamp;
         const live = () => !reducedMotion?.() && !isSkipping();
         const pointOf = object => object.getWorldPosition(new THREE.Vector3());
         const tip = () => h.swordTip ? pointOf(h.swordTip) : h.sword.localToWorld(new THREE.Vector3(0, -0.78, 0));
+        const mass = { bat: 0.4, goblin: 0.7, skeleton: 0.75, spider: 0.65, ghost: 0.5, knight: 1.3, wizard: 0.85, demon: 1.5, golem: 2.5, dragon: 3 }[m.type] || 1;
+        const phase = name => { h.combatPhase = name; setPhase?.(name); };
 
         function snapshot() {
             const poses = new Map();
@@ -15,10 +17,12 @@ window.CastleQuizCombat = (() => {
                 if (object === actor || object.isGroup) poses.set(object, { p: object.position.clone(), q: object.quaternion.clone(), s: object.scale.clone() });
             });
             if (camera) poses.set(camera, { p: camera.position.clone(), q: camera.quaternion.clone(), s: camera.scale.clone() });
-            const heights = { baseY: h.baseY, groundY: h.groundY };
+            const heights = { baseY: h.baseY, groundY: h.groundY }, oldPhase = h.combatPhase;
             return { poses, restore() {
                 poses.forEach((pose, object) => { object.position.copy(pose.p); object.quaternion.copy(pose.q); object.scale.copy(pose.s); });
-                Object.assign(h, heights); hero.updateWorldMatrix(true, true); monster.updateWorldMatrix(true, true);
+                Object.assign(h, heights);
+                if (oldPhase === undefined) delete h.combatPhase; else h.combatPhase = oldPhase;
+                hero.updateWorldMatrix(true, true); monster.updateWorldMatrix(true, true);
             } };
         }
 
@@ -48,17 +52,62 @@ window.CastleQuizCombat = (() => {
             return ray.intersectObject(actor, true)[0]?.point.clone() || null;
         }
 
-        function aimSword(target) {
+        function swordPose(shoulder, elbow = 0.58, wrist = 0.12, spread = -0.08) {
+            h.armR.rotation.set(shoulder, 0, spread);
+            if (h.forearmR) h.forearmR.rotation.x = elbow;
+            if (h.handR) h.handR.rotation.set(wrist, 0, -0.08);
+        }
+
+        function footState() {
             hero.updateWorldMatrix(true, true);
-            const local = h.sword.parent.worldToLocal(target.clone()).sub(h.sword.position).normalize();
-            const blade = h.swordTip?.position.clone().normalize() || new THREE.Vector3(0, -1, 0);
-            h.sword.quaternion.setFromUnitVectors(blade, local);
+            return ["L", "R"].map(side => {
+                const foot = h[`foot${side}`], shin = h[`shin${side}`], leg = h[`leg${side}`];
+                if (!foot || !shin || !leg) return null;
+                const position = pointOf(foot);
+                return { foot, shin, leg, position, clearance: position.y - groundAt(position.x, position.z) };
+            }).filter(Boolean);
+        }
+
+        function plant(feet, goals = feet.map(foot => foot.position)) {
             hero.updateWorldMatrix(true, true);
+            feet.forEach((f, index) => {
+                const goal = hero.worldToLocal(goals[index].clone()).sub(f.leg.position), a = f.shin.position, b = f.foot.position;
+                const upper = Math.hypot(a.y, a.z), lower = Math.hypot(b.y, b.z);
+                const distance = clamp(Math.hypot(goal.y, goal.z), Math.abs(upper - lower) + 0.001, upper + lower - 0.0001);
+                const angle = Math.atan2(-goal.z, -goal.y);
+                const thigh = angle + Math.acos(clamp((upper * upper + distance * distance - lower * lower) / (2 * upper * distance), -1, 1));
+                const calf = angle - Math.acos(clamp((lower * lower + distance * distance - upper * upper) / (2 * lower * distance), -1, 1));
+                f.leg.rotation.x = thigh - Math.atan2(-a.z, -a.y);
+                f.shin.rotation.x = calf - Math.atan2(-b.z, -b.y) - f.leg.rotation.x;
+                f.foot.rotation.x = -f.leg.rotation.x - f.shin.rotation.x;
+            });
+        }
+
+        async function walk(from, to, offset, onProgress, backward = false) {
+            const distance = Math.hypot(to.x - from.x, to.z - from.z), feet = footState();
+            const cycles = Math.max(1, Math.ceil(distance / 0.56)), path = to.clone().sub(from); path.y = 0;
+            let step = 0;
+            await tween(Math.max(320, distance / (backward ? 1.65 : 1.85) * 1000), p => {
+                place(hero, from.clone().lerp(to, p), offset, -Math.sin(p * Math.PI) * 0.055);
+                if (feet.length === 2) {
+                    const goals = feet.map((f, i) => {
+                        const u = p * cycles + i * 0.5, fraction = u - Math.floor(u), swing = clamp((fraction - 0.52) / 0.48, 0, 1);
+                        const travelled = (Math.floor(u) + swing * swing * (3 - 2 * swing)) / cycles;
+                        const goal = f.position.clone().addScaledVector(path, travelled);
+                        goal.y = groundAt(goal.x, goal.z) + f.clearance + Math.sin(swing * Math.PI) * 0.065;
+                        return goal;
+                    });
+                    plant(feet, goals);
+                } else stride(hero, p, distance);
+                if (live() && Math.floor(p * cycles * 2) > step) { step = Math.floor(p * cycles * 2); audio?.footstep?.(); }
+                onProgress?.(p);
+            }, p => p);
         }
 
         function cameraFocus(target, p, original, side = 1) {
             if (!camera) return;
-            camera.position.lerpVectors(original, new THREE.Vector3(target.x + side * 1.8, target.y + 0.85, target.z + 4.2), p);
+            const sideX = clamp(target.x + side * 2, -2.35, 2.35);
+            camera.position.lerpVectors(original, new THREE.Vector3(sideX, target.y + 0.75, target.z + 3.8), p);
             camera.lookAt(target);
         }
 
@@ -71,55 +120,71 @@ window.CastleQuizCombat = (() => {
                 const targetY = box.min.y + size.y * 0.58;
                 const target = surface(monster, monster.position.x, targetY);
                 if (!target) return;
-                // Solve the grip height and blade reach before moving into range.
-                h.armR.rotation.z = -0.12;
-                let end = from.clone();
-                const length = h.swordTip?.position.length() || 0.78;
-                for (let iteration = 0; iteration < 3; iteration++) {
-                    place(hero, end, offset);
-                    let lo = 0, hi = 1.65;
-                    for (let i = 0; i < 18; i++) {
-                        h.armR.rotation.x = (lo + hi) / 2; hero.updateWorldMatrix(true, true);
-                        if (pointOf(h.sword).y < target.y + 0.18) lo = h.armR.rotation.x; else hi = h.armR.rotation.x;
+                // Shoulder and elbow aim the rigid hand/weapon assembly. The
+                // blade's local transform never changes during an attack.
+                let end = from.clone(), shoulder = 0;
+                const elbow = m.type === "spider" ? 0.32 : 0.58, wrist = 0.12;
+                for (let iteration = 0; iteration < 5; iteration++) {
+                    place(hero, end, offset, -0.035);
+                    let lo = -0.35, hi = 1.8;
+                    for (let i = 0; i < 24; i++) {
+                        shoulder = (lo + hi) / 2; swordPose(shoulder, elbow, wrist);
+                        hero.updateWorldMatrix(true, true);
+                        if (tip().y < target.y) lo = shoulder; else hi = shoulder;
                     }
-                    const grip = pointOf(h.sword), dy = target.y - grip.y;
-                    const reach = Math.sqrt(Math.max(0.035, length * length - dy * dy));
-                    end.x += target.x - grip.x; end.z += target.z + reach - grip.z;
+                    const difference = target.clone().sub(tip());
+                    end.x += difference.x; end.z += difference.z;
                 }
-                place(hero, end, offset); aimSword(target);
-                const armContact = h.armR.quaternion.clone(), swordContact = h.sword.quaternion.clone();
-                const armWindup = new THREE.Quaternion().setFromEuler(new THREE.Euler(h.armR.rotation.x + 0.5, 0.08, -0.48));
-                const swordWindup = new THREE.Quaternion().setFromEuler(new THREE.Euler(-2.2, 0.15, 0.25));
-                const distance = from.distanceTo(end), camFrom = camera?.position.clone();
-                saved.restore();
-                let step = 0;
-                await tween(Math.max(420, distance * 185), p => {
-                    place(hero, from.clone().lerp(end, p), offset, Math.abs(Math.sin(p * distance * 5)) * Math.sin(p * Math.PI) * 0.018);
-                    stride(hero, p, distance);
-                    cameraFocus(target, p, camFrom);
-                    if (live() && Math.floor(p * 3) > step) { step = Math.floor(p * 3); audio?.footstep?.(); }
+                place(hero, end, offset, -0.035); swordPose(shoulder, elbow, wrist);
+                const joints = [h.armR, h.forearmR, h.handR].filter(Boolean);
+                const contactPose = new Map(joints.map(joint => [joint, joint.quaternion.clone()]));
+                const camFrom = camera?.position.clone(), camQuaternion = camera?.quaternion.clone();
+                const originalYaw = hero.rotation.y;
+                saved.restore(); phase("approach");
+                await walk(from, end, offset, p => cameraFocus(target, p * 0.85, camFrom));
+                const feet = footState(), restPose = new Map(joints.map(joint => [joint, joint.quaternion.clone()]));
+                swordPose(shoulder + 0.48, 1.0, -0.12, -0.42);
+                const windup = new Map(joints.map(joint => [joint, joint.quaternion.clone()]));
+                phase("windup");
+                await tween(330, p => {
+                    for (const [joint, q] of windup) joint.quaternion.slerpQuaternions(restPose.get(joint), q, p);
+                    hero.rotation.y = originalYaw - 0.18 * p;
+                    place(hero, end, offset, -0.035 * p); plant(feet);
+                    cameraFocus(target, 0.85 + p * 0.15, camFrom);
                 });
-                const armRest = h.armR.quaternion.clone(), swordRest = h.sword.quaternion.clone();
-                await tween(240, p => { h.armR.quaternion.slerpQuaternions(armRest, armWindup, p); h.sword.quaternion.slerpQuaternions(swordRest, swordWindup, p); hero.rotation.y = p * 0.12; });
-                if (live()) audio?.swing?.();
-                await tween(155, p => { h.armR.quaternion.slerpQuaternions(armWindup, armContact, p); h.sword.quaternion.slerpQuaternions(swordWindup, swordContact, p); hero.rotation.y = (1 - p) * 0.12; }, p => p);
-                hero.updateWorldMatrix(true, true);
-                if (live()) { audio?.impact?.("blade"); impact?.("blade", target.clone(), { attackerPoint: tip() }); }
-                const armContactX = h.armR.rotation.x, recoilCam = camera?.position.clone(), enemyYaw = monster.rotation.y;
-                await tween(175, p => {
-                    const recoil = Math.sin(p * Math.PI);
-                    monster.position.z = enemyFrom.z - recoil * 0.13; monster.rotation.y = enemyYaw - recoil * 0.12;
-                    h.armR.rotation.x = armContactX + recoil * 0.04;
-                    if (camera) camera.position.x = recoilCam.x + Math.sin(p * Math.PI * 3) * (1 - p) * 0.012;
+                phase("release"); if (live()) audio?.swing?.();
+                await tween(190, p => {
+                    const cut = p * p;
+                    for (const [joint, q] of contactPose) joint.quaternion.slerpQuaternions(windup.get(joint), q, cut);
+                    hero.rotation.y = originalYaw - 0.18 * (1 - cut);
+                    place(hero, end, offset, -0.035); plant(feet);
                 }, p => p);
-                if (live()) audio?.armour?.();
-                await tween(Math.max(380, distance * 150), p => {
-                    place(hero, end.clone().lerp(from, p), offset);
-                    h.armR.quaternion.slerpQuaternions(armContact, saved.poses.get(h.armR).q, p);
-                    h.sword.quaternion.slerpQuaternions(swordContact, saved.poses.get(h.sword).q, p);
-                    stride(hero, p, distance, false);
+                hero.updateWorldMatrix(true, true); phase("contact");
+                if (live()) { audio?.impact?.("blade"); impact?.("blade", target.clone(), { attackerPoint: tip(), mass }); }
+                await tween(75, () => { plant(feet); }, p => p);
+                const recoilCam = camera?.position.clone(), enemyYaw = monster.rotation.y;
+                phase("followThrough");
+                await tween(260, p => {
+                    const recoil = Math.sin(p * Math.PI);
+                    monster.position.z = enemyFrom.z - recoil * 0.20 / Math.sqrt(mass);
+                    monster.rotation.y = enemyYaw - recoil * 0.13 / Math.sqrt(mass);
+                    monster.rotation.x = recoil * 0.045 / Math.sqrt(mass);
+                    h.armR.rotation.x = shoulder - recoil * 0.16;
+                    if (h.forearmR) h.forearmR.rotation.x = elbow - recoil * 0.11;
+                    if (h.handR) h.handR.rotation.x = wrist + recoil * 0.08;
+                    hero.rotation.y = originalYaw + recoil * 0.07;
+                    place(hero, end, offset, -0.035); plant(feet);
+                    if (camera) camera.position.x = recoilCam.x + Math.sin(p * Math.PI * 2) * (1 - p) * 0.006;
+                }, p => p);
+                phase("recover"); if (live()) audio?.armour?.();
+                const recovery = new Map(joints.map(joint => [joint, joint.quaternion.clone()]));
+                await walk(end, from, offset, p => {
+                    const eased = p * p * (3 - 2 * p);
+                    for (const [joint, q] of recovery) joint.quaternion.slerpQuaternions(q, saved.poses.get(joint).q, eased);
+                    hero.rotation.y = originalYaw;
                     cameraFocus(target, 1 - p, camFrom);
-                });
+                    if (camera) { const aimed = camera.quaternion.clone(); camera.quaternion.slerpQuaternions(camQuaternion, aimed, 1 - p); }
+                }, true);
             } finally { saved.restore(); }
         }
 
@@ -128,14 +193,17 @@ window.CastleQuizCombat = (() => {
             const saved = snapshot(), from = monster.position.clone(), heroFrom = hero.position.clone();
             const offset = from.y - groundAt(from.x, from.z), type = m.type;
             try {
-                const guard = type === "spider" ? -0.15 : type === "dragon" ? 1.15 : type === "goblin" ? 0.35 : 0.7;
+                const guard = type === "spider" ? -0.28 : type === "dragon" ? 1.15 : type === "goblin" ? 0.35 : 0.7;
+                const elbowGuard = type === "spider" ? 0.15 : 0.38;
                 const attackArm = m.armR;
-                const pose = p => {
+                const pose = (p, attack = p) => {
                     h.armL.rotation.x = guard * p; h.armL.rotation.z = -0.12 * p;
+                    if (h.forearmL) h.forearmL.rotation.x = elbowGuard * p;
+                    if (h.handL) h.handL.rotation.x = -0.06 * p;
                     h.armR.rotation.x = 0.15 * p;
-                    if (attackArm) attackArm.rotation.x = -1.1 * p;
-                    if (type === "dragon" && m.head) m.head.rotation.x = p * 0.9;
-                    if (m.jaw && type === "dragon") m.jaw.rotation.x = p * 0.18;
+                    if (attackArm) attackArm.rotation.x = -1.1 * attack;
+                    if (type === "dragon" && m.head) m.head.rotation.x = attack * 0.9;
+                    if (m.jaw && type === "dragon") m.jaw.rotation.x = attack * 0.18;
                 };
                 pose(1); hero.updateWorldMatrix(true, true); monster.updateWorldMatrix(true, true);
                 const hand = attackArm?.getObjectByName("Hand");
@@ -162,30 +230,42 @@ window.CastleQuizCombat = (() => {
                 }
                 const distance = from.distanceTo(end);
                 const camFrom = camera?.position.clone();
+                const camQuaternion = camera?.quaternion.clone();
                 saved.restore();
-                await tween(230, p => { pose(p); cameraFocus(contact, p * 0.25, camFrom, -1); });
-                if (live()) audio?.swing?.();
-                await tween(Math.max(360, distance * 165), p => {
+                const feet = footState(); phase("guard");
+                await tween(280, p => { pose(p, p * 0.25); plant(feet); cameraFocus(contact, p * 0.25, camFrom, -1); });
+                phase("approach"); let released = false;
+                await tween(Math.max(420, distance / 1.85 * 1000), p => {
                     place(monster, from.clone().lerp(end, p), offset);
-                    stride(monster, p, distance, false); pose(1);
+                    const release = clamp((p - 0.80) / 0.20, 0, 1);
+                    stride(monster, p, distance, false); pose(1, 0.25 + release * release * 0.75);
+                    if (live() && release > 0 && !released) { released = true; audio?.swing?.(); }
+                    plant(feet);
                     cameraFocus(contact, 0.25 + p * 0.75, camFrom, -1);
-                });
+                }, p => p);
                 monster.updateWorldMatrix(true, true); hero.updateWorldMatrix(true, true);
                 const actual = surface(monster, contact.x, contact.y);
-                if (live() && actual) { audio?.impact?.("shield"); impact?.("shield", contact.clone(), { attackerPoint: actual, shieldPoint: contact.clone() }); }
+                phase("contact");
+                if (live() && actual) { audio?.impact?.("shield"); impact?.("shield", contact.clone(), { attackerPoint: actual, shieldPoint: contact.clone(), mass }); }
+                await tween(70, () => { plant(feet); }, p => p);
                 const impactCam = camera?.position.clone();
-                await tween(165, p => {
+                phase("followThrough");
+                await tween(250, p => {
                     const recoil = Math.sin(p * Math.PI);
-                    hero.position.z = heroFrom.z + recoil * 0.055; hero.rotation.z = -recoil * 0.035;
-                    h.armL.rotation.x = guard - recoil * 0.09;
-                    if (camera) camera.position.x = impactCam.x + Math.sin(p * Math.PI * 3) * (1 - p) * 0.023;
+                    hero.position.z = heroFrom.z + recoil * (0.07 + Math.min(0.055, mass * 0.025)); hero.rotation.z = -recoil * 0.03;
+                    h.armL.rotation.x = guard - recoil * 0.13;
+                    if (h.forearmL) h.forearmL.rotation.x = elbowGuard - recoil * 0.12;
+                    plant(feet);
+                    if (camera) camera.position.x = impactCam.x + Math.sin(p * Math.PI * 2) * (1 - p) * 0.009;
                 }, p => p);
-                await tween(Math.max(390, distance * 135), p => {
+                phase("recover");
+                await tween(Math.max(420, distance / 1.65 * 1000), p => {
                     place(monster, end.clone().lerp(from, p), offset);
                     stride(monster, p, distance, false); pose(1 - p);
-                    hero.position.copy(heroFrom); hero.rotation.z = 0;
+                    hero.position.copy(heroFrom); hero.rotation.z = 0; plant(feet);
                     cameraFocus(contact, 1 - p, camFrom, -1);
-                });
+                    if (camera) { const aimed = camera.quaternion.clone(); camera.quaternion.slerpQuaternions(camQuaternion, aimed, 1 - p); }
+                }, p => p);
                 if (live()) audio?.armour?.();
             } finally { saved.restore(); }
         }
