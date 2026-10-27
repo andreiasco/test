@@ -38,6 +38,8 @@ Coatele, încheieturile, genunchii și gleznele au pivoturi proprii. Sabia și s
 
 `castle-atmosphere.js` adaugă flăcări modelate și suporturi de fier pentru torțe, butoaie și detalii de piatră, un cadru pentru fereastra sălii finale și elemente specifice zăpezii, deșertului și junglei. Detaliile sunt grupate pe materiale și păstrează liber culoarul duelului.
 
+Spânzurătoarea are o scenă SVG proprie (`hangman-view.js` și `hangman.css`), cu structură de lemn, frânghie și personaj completat progresiv. Desenul respectă viețile disponibile la începutul cuvântului; greșelile și literele găsite apar imediat, iar tastatura poate fi folosită și fizic. În timpul reacției 3D, cronometrul este oprit și apoi reia exact timpul rămas. Literele repetate, ieșirea din quiz și răspunsurile întârziate nu mai aplică penalizări repetate.
+
 - `js/site/castle-rig.js` ancorează pivoturile membrelor GLB la articulații, păstrând geometria atașată corpului în timpul animației.
 - Mersul și apelurile `CastleQuizAudio.footstep()` urmăresc distanța parcursă. Ușa se deschide în jurul balamalei, iar pașii programați sunt opriți când mișcarea este sărită.
 - Sunetul procedural include pași variați, reflexii scurte de încăpere și ambianță discretă. Dezactivarea sunetului, ascunderea paginii și ieșirea din quiz opresc sursele active.

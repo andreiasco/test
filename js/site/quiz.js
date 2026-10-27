@@ -30,7 +30,7 @@ function escapeQuizHtml(v) { return String(v ?? "").replaceAll("&", "&amp;").rep
 function stripDiacritics(s) { return String(s || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase(); }
 function shuffle(arr) { const a = [...arr]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1));[a[i], a[j]] = [a[j], a[i]]; } return a; }
 function modeMeta(q = quizActiv) { return QUIZ_MODES[q?.game_mode] || QUIZ_MODES.castle_choice; }
-function normalizeazaIntrebariQuiz(raw, gameMode) { if (!Array.isArray(raw)) return []; const forced = QUIZ_MODES[gameMode]?.type; return raw.map((item, index) => { const type = forced || item?.type || "multiple_choice"; const base = { type, text: String(item?.text || "").trim(), explanation: String(item?.explanation || "").trim(), monster: String(item?.monster || "goblin"), correctMessage: String(item?.correctMessage || "Corect! Poți trece mai departe.").trim(), wrongMessage: String(item?.wrongMessage || "De data aceasta te iert. Te las să treci mai departe.").trim(), boss: Boolean(item?.boss) }; if (type === "multiple_choice" || type === "true_false") { base.answers = Array.isArray(item?.answers) ? item.answers.map(a => String(a || "").trim()).filter(Boolean) : []; if (type === "true_false" && base.answers.length < 2) base.answers = ["Adevărat", "Fals"]; base.correctIndex = Number(item?.correctIndex); } else if (type === "hangman") base.target = String(item?.target || item?.answer || "").trim(); else if (type === "ordering") base.items = Array.isArray(item?.items) ? item.items.map(x => String(x || "").trim()).filter(Boolean) : (Array.isArray(item?.answers) ? item.answers.map(x => String(x || "").trim()).filter(Boolean) : []); return base; }).filter(q => { if (!q.text) return false; if (q.type === "hangman") return q.target.length >= 2; if (q.type === "ordering") return q.items.length >= 2; return q.answers?.length >= 2 && Number.isInteger(q.correctIndex) && q.correctIndex >= 0 && q.correctIndex < q.answers.length; }); }
+function normalizeazaIntrebariQuiz(raw, gameMode) { if (!Array.isArray(raw)) return []; const forced = QUIZ_MODES[gameMode]?.type; return raw.map((item, index) => { const type = forced || item?.type || "multiple_choice"; const base = { type, text: String(item?.text || "").trim(), explanation: String(item?.explanation || "").trim(), monster: String(item?.monster || "goblin"), correctMessage: String(item?.correctMessage || "Corect! Poți trece mai departe.").trim(), wrongMessage: String(item?.wrongMessage || "De data aceasta te iert. Te las să treci mai departe.").trim(), boss: Boolean(item?.boss) }; if (type === "multiple_choice" || type === "true_false") { base.answers = Array.isArray(item?.answers) ? item.answers.map(a => String(a || "").trim()).filter(Boolean) : []; if (type === "true_false" && base.answers.length < 2) base.answers = ["Adevărat", "Fals"]; base.correctIndex = Number(item?.correctIndex); } else if (type === "hangman") base.target = String(item?.target || item?.answer || "").trim(); else if (type === "ordering") base.items = Array.isArray(item?.items) ? item.items.map(x => String(x || "").trim()).filter(Boolean) : (Array.isArray(item?.answers) ? item.answers.map(x => String(x || "").trim()).filter(Boolean) : []); return base; }).filter(q => { if (!q.text) return false; if (q.type === "hangman") return q.target.length >= 2 && [...q.target].some(hangmanGuessable); if (q.type === "ordering") return q.items.length >= 2; return q.answers?.length >= 2 && Number.isInteger(q.correctIndex) && q.correctIndex >= 0 && q.correctIndex < q.answers.length; }); }
 function normalizeazaQuiz(q) { const game_mode = QUIZ_MODES[q?.game_mode] ? q.game_mode : (q?.game_mode === "castle_adventure" ? "castle_choice" : "castle_choice"); const questions = normalizeazaIntrebariQuiz(q?.questions, game_mode); if (questions.length) questions[questions.length - 1].boss = true; return { ...q, game_mode, world_theme: normalizeQuizWorld(q?.world_theme), difficulty: q?.difficulty || "medium", lives: 3, questions }; }
 async function incarcaQuizuri() { const lista = document.getElementById("quizInteractiveLista"); if (!lista) return; lista.innerHTML = '<p class="quiz-empty">Se încarcă quiz-urile...</p>'; try { const { data, error } = await incarcaQuizuriCuNivel(columns => supabaseClient.from("quizzes").select(columns).eq("published", true).order("created_at", { ascending: false })); if (error) throw error; quizuriPublice = (data || []).map(normalizeazaQuiz).filter(q => q.questions.length); randareListaQuizuri(); } catch (e) { console.error(e); lista.innerHTML = '<p class="quiz-empty quiz-error">Quiz-urile nu au putut fi încărcate.</p>'; } }
 function randareListaQuizuri() {
@@ -69,21 +69,105 @@ async function randareIntrebareQuiz() { if (!quizActiv || quizVieti <= 0) return
 function shellCard(q, boss, info, body) { const meta = modeMeta(); return `<div class="quiz-question-card castle-question-card quiz-enter"><div class="castle-monster-title"><span>${boss ? "🐉" : info.icon}</span><div><small>${boss ? "BOSS FINAL" : escapeQuizHtml(info.name)}</small><strong>${meta.icon} ${meta.label}</strong></div></div><h3>${escapeQuizHtml(q.text)}</h3>${body}<div id="quizFeedback" class="quiz-feedback" aria-live="polite"></div></div>`; }
 function randareProvocare(q, boss, info) {
     const stage = document.getElementById("quizQuestionStage"); if (!stage) return; if (q.type === "multiple_choice" || q.type === "true_false") { const letters = ["A", "B", "C", "D"]; stage.innerHTML = shellCard(q, boss, info, `<div class="quiz-answer-grid">${q.answers.map((a, i) => `<button type="button" class="quiz-answer-btn" data-answer-index="${i}"><span>${q.type === "true_false" ? (i === 0 ? "✓" : "✕") : letters[i]}</span><strong>${escapeQuizHtml(a)}</strong></button>`).join("")}</div>`); stage.querySelectorAll("[data-answer-index]").forEach(b => b.addEventListener("click", () => raspundeQuiz(Number(b.dataset.answerIndex)))); }
-    else if (q.type === "hangman") { hangmanState = { guessed: new Set(), target: q.target }; renderHangman(q, boss, info); }
+    else if (q.type === "hangman") { hangmanState = { guessed: new Set(), target: q.target, misses: 0, maxMistakes: quizVieti, result: "playing", pending: false, lastGuess: null }; renderHangman(q, boss, info); }
     else renderOrdering(q, boss, info);
 }
-function hangmanMask(target, guessed) { return [...target].map(ch => { if (/[\s\-–—']/u.test(ch)) return ch; return guessed.has(stripDiacritics(ch)) ? ch : "_"; }).join(" "); }
-function hangmanSolved(target, guessed) { return [...target].every(ch => /[\s\-–—']/u.test(ch) || guessed.has(stripDiacritics(ch))); }
-function renderHangman(q, boss, info) { const stage = document.getElementById("quizQuestionStage"); if (!stage || !hangmanState) return; const alphabet = "AĂÂBCDEFGHIÎJKLMNOPQRSȘTȚUVWXYZ"; const mask = hangmanMask(q.target, hangmanState.guessed); stage.innerHTML = shellCard(q, boss, info, `<div class="hangman-word" aria-label="Cuvânt de ghicit">${escapeQuizHtml(mask)}</div><div class="hangman-keyboard">${[...alphabet].map(l => `<button type="button" data-letter="${l}" ${hangmanState.guessed.has(stripDiacritics(l)) ? "disabled" : ""}>${l}</button>`).join("")}</div><p class="hangman-note">O literă greșită costă o viață.</p>`); stage.querySelectorAll("[data-letter]").forEach(b => b.addEventListener("click", () => ghicesteLitera(b.dataset.letter, q, boss, info))); }
-async function ghicesteLitera(letter, q, boss, info) { if (quizRaspunsBlocat) return; CastleQuizAudio?.click?.(); const key = stripDiacritics(letter); hangmanState.guessed.add(key); const targetNorm = stripDiacritics(q.target); if (targetNorm.includes(key)) { if (hangmanSolved(q.target, hangmanState.guessed)) { quizRaspunsBlocat = true; opresteTimerQuiz(); quizScor += 100; quizCorecte++; actualizeazaHudQuiz(); CastleQuizAudio?.correct?.(); await CastleQuiz3D?.correct?.(); renderHangman(q, boss, info); return afiseazaFeedbackAventura(true, q, false); } renderHangman(q, boss, info); } else { quizRaspunsBlocat = true; quizVieti--; actualizeazaHudQuiz(); CastleQuizAudio?.wrong?.(); document.getElementById("quizLives")?.classList.add("castle-life-hit"); setTimeout(() => document.getElementById("quizLives")?.classList.remove("castle-life-hit"), 600); await CastleQuiz3D?.wrong?.(); if (quizVieti <= 0) return finalizeazaQuiz(false, true); await afiseazaDialogCastel(info.icon, q.wrongMessage || "Ai pierdut o viață, dar poți continua să ghicești.", 900); renderHangman(q, boss, info); quizRaspunsBlocat = false; } }
+function hangmanGuessable(character) { return /^[A-Z]$/.test(stripDiacritics(character)); }
+function hangmanMask(target, guessed) { return [...String(target).normalize("NFC")].map(ch => !hangmanGuessable(ch) || guessed.has(stripDiacritics(ch)) ? ch : "_").join(" "); }
+function hangmanSolved(target, guessed) { return [...String(target).normalize("NFC")].every(ch => !hangmanGuessable(ch) || guessed.has(stripDiacritics(ch))); }
+function renderHangman(q, boss, info) {
+    const stage = document.getElementById("quizQuestionStage"), state = hangmanState;
+    if (!stage || !state) return;
+    const redraw = Boolean(state.rendered);
+    const focusWasInside = stage.contains(document.activeElement);
+    const focusedLetter = document.activeElement?.dataset?.letter || state.focusLetter;
+    if (focusWasInside && focusedLetter) state.focusLetter = focusedLetter;
+    const locked = state.pending || state.result !== "playing";
+    const alphabet = "AĂÂBCDEFGHIÎJKLMNOPQRSȘTȚUVWXYZ";
+    const markup = window.CastleQuizHangmanView?.render({
+        target: q.target, guessed: state.guessed, misses: state.misses,
+        maxMistakes: state.maxMistakes, remaining: quizVieti, locked,
+        result: state.result, lastGuess: state.lastGuess, timedOut: state.timedOut
+    }) || `<div class="hangman-play" tabindex="-1"><div class="hangman-word" aria-label="Cuvânt de ghicit">${escapeQuizHtml(hangmanMask(q.target, state.guessed))}</div><div class="hangman-keyboard">${[...alphabet].map(l => `<button type="button" data-letter="${l}" ${locked || state.guessed.has(stripDiacritics(l)) ? "disabled" : ""}>${l}</button>`).join("")}</div><p class="hangman-note">O literă greșită costă o viață.</p></div>`;
+    stage.innerHTML = shellCard(q, boss, info, markup);
+    if (redraw) stage.querySelector(".quiz-enter")?.classList.remove("quiz-enter");
+    state.rendered = true;
+    stage.querySelectorAll("[data-letter]").forEach(button => button.addEventListener("click", () => ghicesteLitera(button.dataset.letter, q, boss, info)));
+    stage.onkeydown = event => {
+        if (event.repeat || event.isComposing || event.ctrlKey || event.metaKey || event.altKey) return;
+        if (!event.target.closest?.(".hangman-play") || event.target.closest("input,textarea,select,[contenteditable=true]")) return;
+        if ([...String(event.key).normalize("NFC")].length !== 1 || !hangmanGuessable(event.key)) return;
+        event.preventDefault(); ghicesteLitera(event.key, q, boss, info);
+    };
+    if (focusWasInside) {
+        const next = [...stage.querySelectorAll("[data-letter]:not(:disabled)")].find(button => button.dataset.letter === focusedLetter) || stage.querySelector("[data-letter]:not(:disabled)") || stage.querySelector(".hangman-play");
+        next?.focus?.({ preventScroll: true });
+    }
+}
+async function ghicesteLitera(letter, q, boss, info) {
+    const state = hangmanState, activeQuiz = quizActiv, index = quizIndexIntrebare;
+    const raw = String(letter || "").normalize("NFC"), key = stripDiacritics(raw);
+    if (quizRaspunsBlocat || !state || state.result !== "playing" || quizVieti <= 0 || activeQuiz?.questions?.[index] !== q) return;
+    if ([...raw].length !== 1 || !hangmanGuessable(raw) || state.guessed.has(key)) return;
+    const current = () => quizActiv === activeQuiz && quizIndexIntrebare === index && hangmanState === state;
+    CastleQuizAudio?.click?.(); state.guessed.add(key); state.lastGuess = key;
+    if (stripDiacritics(q.target).includes(key)) {
+        if (!hangmanSolved(q.target, state.guessed)) { renderHangman(q, boss, info); return; }
+        quizRaspunsBlocat = true; state.result = "won"; state.pending = true;
+        opresteTimerQuiz(); quizScor += 100; quizCorecte++; actualizeazaHudQuiz();
+        renderHangman(q, boss, info); CastleQuizAudio?.correct?.();
+        await CastleQuiz3D?.correct?.();
+        if (current()) return afiseazaFeedbackAventura(true, q, false);
+        return;
+    }
+    const resumeTimer = Boolean(quizTimerId), remainingTime = quizTimpRamas;
+    opresteTimerQuiz(); quizRaspunsBlocat = true; state.pending = true;
+    state.misses++; quizVieti--; if (quizVieti <= 0) state.result = "lost";
+    actualizeazaHudQuiz(); renderHangman(q, boss, info); CastleQuizAudio?.wrong?.();
+    document.getElementById("quizLives")?.classList.add("castle-life-hit");
+    setTimeout(() => { if (current()) document.getElementById("quizLives")?.classList.remove("castle-life-hit"); }, 600);
+    await CastleQuiz3D?.wrong?.();
+    if (!current()) return;
+    if (quizVieti <= 0) return finalizeazaQuiz(false, true);
+    await afiseazaDialogCastel(info.icon, q.wrongMessage || "Ai pierdut o viață, dar poți continua să ghicești.", 900);
+    if (!current()) return;
+    state.pending = false; state.lastGuess = null; quizRaspunsBlocat = false; renderHangman(q, boss, info);
+    if (resumeTimer) pornesteTimerQuiz(remainingTime, true);
+}
 function renderOrdering(q, boss, info) { const stage = document.getElementById("quizQuestionStage"); if (!stage) return; const shuffled = shuffle(q.items).map((text, i) => ({ id: `${i}-${Math.random()}`, text })); stage.innerHTML = shellCard(q, boss, info, `<div class="ordering-game"><div id="orderingPool" class="ordering-pool">${shuffled.map(x => `<button type="button" class="ordering-chip" data-order-id="${escapeQuizHtml(x.id)}" data-text="${escapeQuizHtml(x.text)}">${escapeQuizHtml(x.text)}</button>`).join("")}</div><div id="orderingAnswer" class="ordering-answer" aria-label="Ordinea aleasă"><span>Atinge cuvintele în ordinea corectă</span></div><div class="ordering-actions"><button type="button" id="orderingReset" class="secondary">↺ Resetează</button><button type="button" id="orderingSubmit">✓ Verifică ordinea</button></div></div>`); const pool = stage.querySelector("#orderingPool"), answer = stage.querySelector("#orderingAnswer"); function move(btn, to) { if (to === answer && answer.querySelector("span")) answer.innerHTML = ""; to.appendChild(btn); } stage.querySelectorAll(".ordering-chip").forEach(b => b.addEventListener("click", () => { CastleQuizAudio?.click?.(); move(b, b.parentElement === pool ? answer : pool); })); stage.querySelector("#orderingReset")?.addEventListener("click", () => { [...answer.querySelectorAll(".ordering-chip")].forEach(b => pool.appendChild(b)); answer.innerHTML = '<span>Atinge cuvintele în ordinea corectă</span>'; }); stage.querySelector("#orderingSubmit")?.addEventListener("click", () => verificaOrdine(q)); }
 async function verificaOrdine(q) { if (quizRaspunsBlocat) return; const chosen = [...document.querySelectorAll("#orderingAnswer .ordering-chip")].map(b => b.dataset.text); if (chosen.length !== q.items.length) { const f = document.getElementById("quizFeedback"); if (f) f.innerHTML = '<div class="quiz-feedback-box gresit"><strong>Așază toate elementele înainte să verifici.</strong></div>'; return; } const ok = chosen.every((x, i) => x === q.items[i]); await raspundeRezultatGeneric(ok, q, false); }
-function pornesteTimerQuiz(seconds) { opresteTimerQuiz(); quizTimpRamas = Math.max(10, Math.min(120, Number(seconds) || 30)); actualizeazaTimerQuiz(); quizTimerId = setInterval(() => { quizTimpRamas--; actualizeazaTimerQuiz(); if (quizTimpRamas <= 5 && quizTimpRamas > 0) CastleQuizAudio?.tick?.(); if (quizTimpRamas <= 0) { opresteTimerQuiz(); expiraProvocare(); } }, 1000); }
+function pornesteTimerQuiz(seconds, resume = false) { opresteTimerQuiz(); quizTimpRamas = resume ? Math.max(0, Math.floor(Number(seconds) || 0)) : Math.max(10, Math.min(120, Number(seconds) || 30)); actualizeazaTimerQuiz(); if (quizTimpRamas <= 0) { expiraProvocare(); return; } quizTimerId = setInterval(() => { quizTimpRamas--; actualizeazaTimerQuiz(); if (quizTimpRamas <= 5 && quizTimpRamas > 0) CastleQuizAudio?.tick?.(); if (quizTimpRamas <= 0) { opresteTimerQuiz(); expiraProvocare(); } }, 1000); }
 function actualizeazaTimerQuiz() { const t = document.getElementById("quizTimer"); if (!t) return; t.textContent = `${quizTimpRamas}s`; t.classList.toggle("quiz-timer-warning", quizTimpRamas <= 5); }
 function opresteTimerQuiz() { if (quizTimerId) clearInterval(quizTimerId); quizTimerId = null; }
 async function expiraProvocare() { if (quizRaspunsBlocat || !quizActiv) return; const q = quizActiv.questions[quizIndexIntrebare]; quizRaspunsBlocat = true; if (q.type === "hangman") return raspundeRezultatGeneric(false, q, true, true); if (q.type === "ordering") return raspundeRezultatGeneric(false, q, true); return raspundeQuiz(-1, true); }
 async function raspundeQuiz(index, expirat = false) { if (quizRaspunsBlocat || !quizActiv) return; quizRaspunsBlocat = true; opresteTimerQuiz(); const q = quizActiv.questions[quizIndexIntrebare], ok = index === q.correctIndex; document.querySelectorAll("#quizQuestionStage .quiz-answer-btn").forEach((b, i) => { b.disabled = true; if (i === q.correctIndex) b.classList.add("corect"); if (i === index && !ok) b.classList.add("gresit"); }); await raspundeRezultatGeneric(ok, q, expirat); }
-async function raspundeRezultatGeneric(ok, q, expirat = false, hangmanTimeout = false) { quizRaspunsBlocat = true; opresteTimerQuiz(); if (ok) { quizScor += 100; quizCorecte++; actualizeazaHudQuiz(); CastleQuizAudio?.correct?.(); await CastleQuiz3D?.correct?.(); return afiseazaFeedbackAventura(true, q, expirat); } quizVieti--; actualizeazaHudQuiz(); CastleQuizAudio?.wrong?.(); document.getElementById("quizLives")?.classList.add("castle-life-hit"); setTimeout(() => document.getElementById("quizLives")?.classList.remove("castle-life-hit"), 600); await CastleQuiz3D?.wrong?.(); if (quizVieti <= 0) { await afiseazaDialogCastel("💀", "Ai rămas fără vieți. Aventura se încheie aici.", 1000); return finalizeazaQuiz(false, true); } await afiseazaDialogCastel("👹", q.wrongMessage || "De data aceasta te iert. Te las să treci mai departe.", 1200); return afiseazaFeedbackAventura(false, q, expirat); }
+async function raspundeRezultatGeneric(ok, q, expirat = false, hangmanTimeout = false) {
+    const activeQuiz = quizActiv, index = quizIndexIntrebare;
+    const current = () => quizActiv === activeQuiz && quizIndexIntrebare === index;
+    quizRaspunsBlocat = true; opresteTimerQuiz();
+    if (ok) {
+        quizScor += 100; quizCorecte++; actualizeazaHudQuiz(); CastleQuizAudio?.correct?.();
+        await CastleQuiz3D?.correct?.();
+        if (current()) return afiseazaFeedbackAventura(true, q, expirat);
+        return;
+    }
+    quizVieti--; actualizeazaHudQuiz();
+    if (hangmanTimeout && hangmanState) {
+        hangmanState.result = "lost"; hangmanState.pending = true; hangmanState.timedOut = true;
+        renderHangman(q, q.boss, QUIZ_MONSTERS[q.monster] || QUIZ_MONSTERS.goblin);
+    }
+    CastleQuizAudio?.wrong?.(); document.getElementById("quizLives")?.classList.add("castle-life-hit");
+    setTimeout(() => { if (current()) document.getElementById("quizLives")?.classList.remove("castle-life-hit"); }, 600);
+    await CastleQuiz3D?.wrong?.();
+    if (!current()) return;
+    if (quizVieti <= 0) {
+        await afiseazaDialogCastel("💀", "Ai rămas fără vieți. Aventura se încheie aici.", 1000);
+        if (current()) return finalizeazaQuiz(false, true);
+        return;
+    }
+    await afiseazaDialogCastel("👹", q.wrongMessage || "De data aceasta te iert. Te las să treci mai departe.", 1200);
+    if (current()) return afiseazaFeedbackAventura(false, q, expirat);
+}
 function quizExpectedAnswer(q) { if (q.type === "ordering") return q.items.join(" → "); if (q.type === "hangman") return q.target; if ((q.type === "multiple_choice" || q.type === "true_false") && q.answers?.length) return q.answers[q.correctIndex] || ""; return ""; }
 async function explicaQuizCuAI(q) {
     const { data } = await supabaseClient.auth.getSession();
@@ -102,5 +186,5 @@ async function explicaQuizCuAI(q) {
 function afiseazaFeedbackAventura(ok, q, expirat) { const f = document.getElementById("quizFeedback"); if (!f) return; let answerHint = ""; if (!ok && q.type === "ordering") answerHint = `<p><b>Ordinea corectă:</b> ${escapeQuizHtml(q.items.join(" → "))}</p>`; if (!ok && q.type === "hangman") answerHint = `<p><b>Răspuns:</b> ${escapeQuizHtml(q.target)}</p>`; if (!ok && (q.type === "multiple_choice" || q.type === "true_false")) answerHint = `<p><b>Răspuns corect:</b> ${escapeQuizHtml(quizExpectedAnswer(q))}</p>`; const title = ok ? (q.correctMessage || "Corect! Poți trece.") : (expirat ? "Timpul a expirat — pierzi o viață." : "Greșit — pierzi o viață."); f.innerHTML = `<div class="quiz-feedback-box ${ok ? "corect" : "gresit"}"><strong>${escapeQuizHtml(title)}</strong>${answerHint}${q.explanation ? `<p>${escapeQuizHtml(q.explanation)}</p>` : ""}${!ok ? `<button type="button" id="quizAiExplainButton" class="quiz-ai-explain">💡 Explică-mi cu AI</button><div id="quizAiExplanation" class="quiz-ai-explanation ascuns"></div>` : ""}<button type="button" id="quizNextButton">${quizIndexIntrebare + 1 < quizActiv.questions.length ? "🚪 Continuă filmul" : "🏆 Vezi finalul"}</button></div>`; document.getElementById("quizAiExplainButton")?.addEventListener("click", () => { document.getElementById("quizAiExplanation")?.classList.remove("ascuns"); explicaQuizCuAI(q); }); document.getElementById("quizNextButton")?.addEventListener("click", urmatoareaIntrebareQuiz); }
 async function urmatoareaIntrebareQuiz() { quizRaspunsBlocat = true; if (window.CastleQuiz3D) await CastleQuiz3D.nextRoom(); quizIndexIntrebare++; hangmanState = null; if (quizIndexIntrebare >= quizActiv.questions.length) finalizeazaQuiz(true); else randareIntrebareQuiz(); }
 async function finalizeazaQuiz(victorie = true, gameOver = false) { opresteTimerQuiz(); if (!quizActiv) return; quizRaspunsBlocat = true; CastleQuizAudio?.ambience?.(false); gameOver ? CastleQuizAudio?.gameOver?.() : CastleQuizAudio?.victory?.(); const total = quizActiv.questions.length, stage = document.getElementById("quizQuestionStage"), rez = document.getElementById("quizRezultat"), bar = document.getElementById("quizProgressBar"); if (victorie && bar) bar.style.width = "100%"; stage?.classList.add("ascuns"); if (!rez) return; if (gameOver) await CastleQuiz3D?.gameOver?.(); else await CastleQuiz3D?.victory?.(); const bonus = victorie ? quizVieti * 200 + 300 : 0, totalScore = quizScor + bonus; quizScor = totalScore; actualizeazaHudQuiz(); if (!quizEstePreview && typeof inregistreazaRezultatQuiz === "function") { inregistreazaRezultatQuiz({ quizId: quizActiv.id, title: quizActiv.title, score: totalScore, correct: quizCorecte, total, won: victorie }); } rez.innerHTML = `<div class="quiz-result-card quiz-result-pop castle-result ${gameOver ? "game-over" : "victory"}"><div class="quiz-result-medal">${gameOver ? "💀" : "🏆"}</div><p>${gameOver ? "GAME OVER" : "CASTEL CUCERIT!"}</p><h3>${escapeQuizHtml(quizActiv.title)}</h3><div class="quiz-result-score">${totalScore} <small>puncte</small></div><div class="castle-result-stats"><span>✅ ${quizCorecte} / ${total} provocări câștigate</span><span>❤️ ${quizVieti} vieți rămase</span>${victorie ? `<span>🎁 +${bonus} bonus final</span>` : ""}</div><div class="quiz-result-actions"><button type="button" id="quizRetryButton">↻ Încearcă din nou</button><button type="button" id="quizBackButton" class="secondary">← Ieși din castel</button></div></div>`; rez.classList.remove("ascuns"); document.getElementById("quizRetryButton")?.addEventListener("click", () => pornesteQuizCuDate(quizActiv, quizEstePreview)); document.getElementById("quizBackButton")?.addEventListener("click", inchideQuizPlayer); }
-function inchideQuizPlayer() { opresteTimerQuiz(); CastleQuizAudio?.dispose?.(); CastleQuiz3D?.dispose?.(); quizActiv = null; document.getElementById("quizPlayer")?.classList.add("ascuns"); document.getElementById("quizInteractiveLista")?.classList.remove("ascuns"); document.getElementById("quizQuestionStage")?.classList.remove("ascuns"); document.getElementById("quizRezultat")?.classList.add("ascuns"); }
+function inchideQuizPlayer() { quizLaunchVersion++; opresteTimerQuiz(); CastleQuizAudio?.dispose?.(); CastleQuiz3D?.dispose?.(); quizActiv = null; hangmanState = null; quizRaspunsBlocat = true; const stage = document.getElementById("quizQuestionStage"); if (stage) stage.onkeydown = null; document.getElementById("quizPlayer")?.classList.add("ascuns"); document.getElementById("quizInteractiveLista")?.classList.remove("ascuns"); stage?.classList.remove("ascuns"); document.getElementById("quizRezultat")?.classList.add("ascuns"); }
 function initializeazaQuizPlayer() { document.getElementById("quizCloseButton")?.addEventListener("click", inchideQuizPlayer); document.getElementById("castleSkipAnimation")?.addEventListener("click", () => CastleQuiz3D?.skip?.()); document.getElementById("quizSoundToggle")?.addEventListener("click", e => { quizSoundEnabled = !quizSoundEnabled; CastleQuizAudio?.setEnabled?.(quizSoundEnabled); CastleQuizAudio?.ambience?.(quizSoundEnabled && Boolean(quizActiv)); e.currentTarget.textContent = quizSoundEnabled ? "🔊 Sunet" : "🔇 Sunet"; e.currentTarget.setAttribute("aria-pressed", String(quizSoundEnabled)); }); }
