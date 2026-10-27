@@ -66,7 +66,7 @@ window.CastleQuizHangmanView = (() => {
 
     function render({ target = "", guessed = new Set(), misses = 0, maxMistakes = 3, remaining = 3, locked = false, result = "playing", lastGuess = null, timedOut = false } = {}) {
         const id = `quiz-hangman-${++serial}`;
-        const budget = number(maxMistakes, 3, 1, 99), errors = number(misses, 0, 0, budget), lives = number(remaining, budget - errors, 0, 99);
+        const budget = number(maxMistakes, 6, 1, 99), errors = number(misses, 0, 0, budget), lives = number(remaining, budget - errors, 0, 99);
         const outcome = ["won", "lost"].includes(result) ? result : "playing";
         const selected = new Set(Array.from(guessed || [], fold));
         const answer = String(target ?? "").normalize("NFC"), normalized = fold(answer);

@@ -7,7 +7,7 @@ const read = file => fs.readFileSync(path.join(__dirname, '..', file), 'utf8');
 test('merged 3D engine retains world selection and both particle formats', async () => {
     const ctx = context({ performance: { now: () => 0 } });
     const source = read('js/site/castle-3d.js').replace(
-        'return { init, encounter, correct, wrong, nextRoom, victory, gameOver, getRoomName, skip, dispose };',
+        'return { init, encounter, correct, wrong, nextRoom, victory, gameOver, getRoomName, showMap, skip, dispose };',
         'return { init, getRoomName, testParticles(value, t, motion) { particles = value; updateParticles(t, motion); particles = null; } };'
     );
     vm.runInContext(source, ctx);
@@ -174,8 +174,9 @@ test('demo SQL contains all 12 world/mode combinations and 60 playable questions
         const normalized = ctx.normalizeazaQuiz(row);
         assert.equal(normalized.questions.length, 5, row.title);
         assert.equal(normalized.world_theme, row.world_theme);
-        assert.equal(normalized.questions.filter(question => question.boss).length, 1);
-        assert.equal(normalized.questions[4].boss, true);
+        const adventure = row.game_mode === 'castle_choice' || row.game_mode === 'castle_adventure';
+        assert.equal(normalized.questions.filter(question => question.boss).length, adventure ? 1 : 0);
+        assert.equal(normalized.questions[4].boss, adventure);
         assert.ok(row.title.startsWith('[TEST]'));
         combinations.add(row.world_theme + '/' + row.game_mode);
     }

@@ -1,10 +1,10 @@
-// Formular pentru crearea și editarea quiz-urilor animate.
+// Formular pentru crearea și editarea celor patru tipuri de quiz.
 const ADMIN_QUIZ_FORM_HTML = `
 <section class="admin-section admin-quiz-section">
     <div class="admin-section-heading">
         <div>
-            <h3>🎬 Creator quiz animat</h3>
-            <p>Alege tipul întrebărilor și nivelul vizual, apoi creează provocările. Fiecare aventură păstrează cele 3 vieți.</p>
+            <h3>Creator de jocuri și quiz-uri</h3>
+            <p>Alege tipul jocului și creează provocările. Alege răspunsul include aventura 3D, iar Spânzurătoarea are 6 vieți pentru fiecare cuvânt.</p>
         </div>
     </div>
 
@@ -12,18 +12,18 @@ const ADMIN_QUIZ_FORM_HTML = `
         <input type="hidden" id="quizEditId" value="">
 
         <div class="quiz-mode-picker" role="radiogroup" aria-label="Tip quiz">
-            <label class="quiz-mode-option"><input type="radio" name="quizMode" value="castle_choice" checked><span><b>🎯 Alege răspunsul</b><small>Întrebare cu 2–4 variante.</small></span></label>
+            <label class="quiz-mode-option"><input type="radio" name="quizMode" value="castle_choice" checked><span><b>🎯 Alege răspunsul</b><small>Întrebări cu variante și lupte între erou și monștri.</small></span></label>
             <label class="quiz-mode-option"><input type="radio" name="quizMode" value="castle_true_false"><span><b>✅ Adevărat / Fals</b><small>Doar afirmații adevărate sau false.</small></span></label>
-            <label class="quiz-mode-option"><input type="radio" name="quizMode" value="castle_hangman"><span><b>🪢 Spânzurătoarea</b><small>Elevul descoperă cuvântul literă cu literă.</small></span></label>
-            <label class="quiz-mode-option"><input type="radio" name="quizMode" value="castle_ordering"><span><b>🔀 Pune în ordine</b><small>Elevul reconstruiește ordinea corectă.</small></span></label>
+            <label class="quiz-mode-option"><input type="radio" name="quizMode" value="castle_hangman"><span><b>🪢 Spânzurătoarea</b><small>Desen și cuvânt de descoperit, cu 6 vieți.</small></span></label>
+            <label class="quiz-mode-option"><input type="radio" name="quizMode" value="castle_ordering"><span><b>🔀 Pune în ordine</b><small>Cuvinte de așezat în ordinea corectă.</small></span></label>
         </div>
         <input type="hidden" id="quizGameMode" value="castle_choice">
 
-        <fieldset class="quiz-world-picker"><legend>Nivelul aventurii</legend>
+        <fieldset class="quiz-world-picker" id="quizWorldPicker"><legend>Nivelul aventurii</legend>
             <label for="quizWorldTheme">Decor 3D<select id="quizWorldTheme">${Object.entries(QUIZ_WORLDS).map(([key, world]) => `<option value="${key}">${world.label}</option>`).join('')}</select></label>
             <p id="quizWorldDescription" class="quiz-world-description">${QUIZ_WORLDS.castle.description}</p>
             <div id="quizWorldRooms" class="quiz-world-rooms"></div>
-            <p class="quiz-admin-hint">Camerele se schimbă la fiecare provocare. Alegerea decorului păstrează întrebările deja introduse.</p>
+            <p class="quiz-admin-hint">Eroul urmează traseul și întâlnește monștrii. Alegerea decorului păstrează întrebările deja introduse.</p>
         </fieldset>
 
         <div class="quiz-admin-grid quiz-admin-grid-main">
@@ -64,10 +64,10 @@ const ADMIN_QUIZ_FORM_HTML = `
             </section>
         </div></details>
 
-        <label>Descriere / introducerea aventurii<textarea id="quizDescriere" rows="2" maxlength="300" placeholder="Ex.: Intră în aventură și treci de toate provocările!"></textarea></label>
+        <label>Descriere / introducere<textarea id="quizDescriere" rows="2" maxlength="300" placeholder="Ex.: Intră în aventură și treci de toate provocările!"></textarea></label>
 
         <div class="quiz-question-editor-head">
-            <div><h4 id="quizEditorHeading">Provocări</h4><p id="quizEditorHelp">Fiecare provocare reprezintă o întâlnire cu un monstru.</p></div>
+            <div><h4 id="quizEditorHeading">Provocări</h4><p id="quizEditorHelp">Scrie cerințele și răspunsurile potrivite tipului de joc.</p></div>
             <button type="button" class="admin-btn" id="adaugaIntrebareQuiz">➕ Adaugă provocare</button>
         </div>
         <div id="quizQuestionsEditor" class="quiz-questions-editor"></div>
