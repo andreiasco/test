@@ -7,7 +7,7 @@ const read = file => fs.readFileSync(path.join(__dirname, '..', file), 'utf8');
 test('merged 3D engine retains world selection and both particle formats', async () => {
     const ctx = context({ performance: { now: () => 0 } });
     const source = read('js/site/castle-3d.js').replace(
-        'return { init, encounter, correct, wrong, nextRoom, victory, gameOver, getRoomName, skip, dispose };',
+        'return { init, encounter, correct, wrong, nextRoom, victory, gameOver, getRoomName, showMap, skip, dispose };',
         'return { init, getRoomName, testParticles(value, t, motion) { particles = value; updateParticles(t, motion); particles = null; } };'
     );
     vm.runInContext(source, ctx);

@@ -44,7 +44,15 @@ const QUIZ_HTML = `
                 </div>
             </div>
 
-            <div id="castleScene" class="castle-scene" aria-label="Scenă 3D într-un castel">
+            <section id="quizRouteHud" class="quiz-route-hud" aria-label="Traseul aventurii" hidden>
+                <div class="quiz-route-heading">
+                    <div><span class="quiz-route-eyebrow">Traseul aventurii</span><p id="quizRouteStatus" role="status" aria-live="polite"></p></div>
+                    <button type="button" id="quizMapToggle" class="quiz-route-toggle" aria-controls="castleCanvas" aria-pressed="false" disabled>Vezi harta</button>
+                </div>
+                <ol id="quizRouteStops" class="quiz-route-stops" aria-label="Întâlniri pe traseu"></ol>
+            </section>
+
+            <div id="castleScene" class="castle-scene" aria-label="Hartă 3D a aventurii">
                 <canvas id="castleCanvas"></canvas>
                 <div class="castle-vignette" aria-hidden="true"></div>
                 <div id="castleLoading" class="castle-loading">Se pregătește nivelul...</div>
