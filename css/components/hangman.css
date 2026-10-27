@@ -1,0 +1,157 @@
+/* Dedicated styles for the hangman board; other quiz controls keep their layout. */
+.hangman-play {
+    --hangman-line: #a18b5c55;
+    --hangman-text: #e6e5df;
+    --hangman-muted: #b7bcb6;
+    display: grid;
+    grid-template-columns: minmax(220px, .9fr) minmax(0, 1.3fr);
+    align-items: center;
+    gap: clamp(18px, 3vw, 32px);
+    margin-top: 20px;
+    padding: 18px;
+    border: 1px solid var(--hangman-line);
+    border-radius: 20px;
+    background: linear-gradient(135deg, #25383c, #1b292f);
+    box-shadow: inset 0 1px #ffffff08;
+    color: var(--hangman-text);
+}
+.hangman-play *, .hangman-play *::before, .hangman-play *::after { box-sizing: border-box; }
+.hangman-play:focus-visible { outline: 2px solid #d1bb84; outline-offset: 3px; }
+.hangman-play .hangman-scene {
+    min-width: 0;
+    margin: 0;
+    overflow: hidden;
+    border: 1px solid var(--hangman-line);
+    border-radius: 18px;
+    background: #252d2d;
+    box-shadow: 0 14px 28px #0003, inset 0 1px #ffffff0b;
+}
+.hangman-play .hangman-illustration { display: block; width: 100%; height: auto; }
+.hangman-play .hangman-scene figcaption {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 13px;
+    border-top: 1px solid #ffffff0c;
+    background: #182326;
+    color: #c7c8bc;
+    font-size: 12px;
+    letter-spacing: .025em;
+}
+.hangman-play .hangman-scene figcaption span:first-child { color: #d1b881; font-weight: 650; }
+.hangman-play .hangman-controls { min-width: 0; }
+.hangman-play .hangman-status {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    color: var(--hangman-muted);
+    font-size: 13px;
+    line-height: 1.5;
+    min-height: 22px;
+}
+.hangman-play .hangman-status-dot { width: 6px; height: 6px; border-radius: 50%; background: #d0b576; box-shadow: 0 0 0 4px #d0b57612; flex: 0 0 auto; }
+.hangman-play[data-result="won"] .hangman-status { color: #b0dbb4; }
+.hangman-play[data-result="won"] .hangman-status-dot { background: #a3cea8; }
+.hangman-play[data-result="lost"] .hangman-status { color: #e0b6a6; }
+.hangman-play[data-result="lost"] .hangman-status-dot { background: #dba28e; }
+.hangman-play .hangman-word {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 8px 0;
+    margin: 14px 0 20px;
+    padding: 0;
+    background: none;
+    border-radius: 0;
+    font-size: 0;
+    letter-spacing: normal;
+    line-height: 1.3;
+    word-break: normal;
+}
+.hangman-play .hangman-token { display: inline-flex; flex-wrap: wrap; justify-content: center; max-width: 100%; gap: 5px; }
+.hangman-play .hangman-word-gap { width: 15px; height: 1px; }
+.hangman-play .hangman-tile {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    min-height: 43px;
+    border: 1px solid #a18b5c40;
+    border-bottom: 3px solid #c4b07b;
+    border-radius: 6px 6px 4px 4px;
+    background: linear-gradient(155deg, #ffffff08, #00000014);
+    color: #bdc4c0;
+    font-family: inherit;
+    font-size: 20px;
+    font-weight: 750;
+    text-shadow: 0 1px 1px #0005;
+}
+.hangman-play .hangman-tile-revealed { color: #f3e5bd; border-color: #cbb57966; background: #bda06112; }
+.hangman-play .hangman-punctuation { align-self: center; font-size: 20px; color: #d3d6cd; padding: 0 2px; }
+.hangman-play .hangman-keyboard {
+    display: grid;
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+    justify-content: center;
+    gap: 7px;
+}
+body .hangman-play .hangman-keyboard button.hangman-key {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+    width: 100%;
+    min-height: 44px;
+    margin: 0;
+    padding: 6px 3px;
+    border: 1px solid #7d898866;
+    border-bottom: 3px solid #0b171bc9;
+    border-radius: 7px;
+    background: linear-gradient(#3a474a, #29373b);
+    box-shadow: inset 0 1px #ffffff0d, 0 2px 3px #0002;
+    color: #f0f0e7;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 650;
+    line-height: 1;
+    cursor: pointer;
+    transition: background .15s, border-color .15s, transform .15s;
+}
+body .hangman-play .hangman-keyboard button.hangman-key:hover:not(:disabled) { transform: translateY(-1px); background: linear-gradient(#4b5957, #354542); border-color: #c2ad78; }
+body .hangman-play .hangman-keyboard button.hangman-key:focus-visible { outline: 3px solid #dbc68e; outline-offset: 3px; z-index: 1; }
+body .hangman-play .hangman-keyboard button.hangman-key:active:not(:disabled) { transform: translateY(1px); }
+body .hangman-play .hangman-keyboard button.hangman-key:disabled { opacity: .62; cursor: default; }
+body .hangman-play .hangman-keyboard button.hangman-key-correct:disabled { color: #c4e2bd; border-color: #81a28466; border-bottom-color: #122b20; background: #294436; opacity: 1; }
+body .hangman-play .hangman-keyboard button.hangman-key-wrong:disabled { color: #e6b5a7; border-color: #ac817555; border-bottom-color: #2c211e; background: #493633; opacity: 1; }
+.hangman-play .hangman-key-mark { position: absolute; right: 3px; bottom: 3px; font-size: 10px; opacity: .9; }
+.hangman-play .hangman-note { margin: 14px 0 0; padding: 0; color: var(--hangman-muted); font-size: 12px; line-height: 1.6; text-align: center; opacity: 1; }
+.hangman-play .hangman-sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; border: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.hangman-play .hangman-part-new { animation: hangman-piece-arrive .3s ease-out both; transform-box: fill-box; transform-origin: center; }
+.hangman-play .hangman-mannequin-saved { opacity: .3; }
+@keyframes hangman-piece-arrive { from { opacity: 0; transform: translateY(-3px); } to { opacity: 1; transform: translateY(0); } }
+@media (max-width: 760px) {
+    #quizQuestionStage .castle-question-card:has(.hangman-play) { padding: 20px 14px; }
+    .hangman-play { grid-template-columns: minmax(0, 1fr); gap: 18px; padding: 14px; }
+    .hangman-play .hangman-scene { width: min(100%, 330px); margin-inline: auto; }
+    .hangman-play .hangman-illustration { height: auto; max-height: 210px; }
+    .hangman-play .hangman-scene figcaption { padding: 8px 11px; flex-wrap: wrap; gap: 4px 8px; }
+    .hangman-play .hangman-word { margin: 11px 0 17px; }
+    .hangman-play .hangman-keyboard { grid-template-columns: repeat(auto-fit, minmax(44px, 1fr)); gap: 6px; }
+    .hangman-play .hangman-tile { width: 28px; min-height: 40px; font-size: 18px; }
+}
+@media (max-width: 390px) {
+    #quizQuestionStage:has(.hangman-play) { padding: 10px; }
+    #quizQuestionStage .castle-question-card:has(.hangman-play) { padding-inline: 12px; }
+    .hangman-play { padding: 10px; }
+    .hangman-play .hangman-token { gap: 4px; }
+    .hangman-play .hangman-tile { width: clamp(22px, 7vw, 28px); font-size: 17px; }
+    .hangman-play .hangman-keyboard { grid-template-columns: repeat(auto-fit, minmax(44px, 1fr)); gap: 5px; }
+    body .hangman-play .hangman-keyboard button.hangman-key { min-height: 44px; }
+    .hangman-play .hangman-note { font-size: 11px; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .hangman-play .hangman-part-new { animation: none; }
+    body .hangman-play .hangman-keyboard button.hangman-key { transition: none; }
+}
