@@ -227,7 +227,11 @@ Camerele sunt selectate automat după numărul întrebării. Ultima întrebare f
 - Administratorul poate crea patru tipuri de quiz: `castle_choice`, `castle_true_false`, `castle_hangman`, `castle_ordering`.
 - Spânzurătoarea pierde o viață la fiecare literă greșită; 0 vieți încheie jocul.
 - Ordonarea folosește elemente selectabile prin tap/click și verifică ordinea exactă.
-- Toate modurile folosesc aventura 3D, 3 vieți și boss final.
+- Doar **Alege răspunsul** folosește harta 3D, eroul, monștrii și dragonul final, cu 3 vieți.
+- **Pune în ordine** afișează cuvintele selectabile și zona pentru ordinea aleasă.
+- **Adevărat / Fals** afișează afirmația și exact cele două răspunsuri.
+- **Spânzurătoarea** afișează desenul, cuvântul ascuns și tastatura. Fiecare cuvânt nou începe cu 6 vieți; fiecare literă greșită adaugă o parte a omului.
+- Cele trei moduri simple pornesc direct, inclusiv când motorul 3D nu este disponibil.
 
 ## Etapa 6 – personaje GLB + animații cinematice
 

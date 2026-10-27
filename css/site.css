@@ -30,6 +30,7 @@
 @import url("themes/alma-icons.css");
 @import url("themes/alma-education.css");
 @import url("themes/alma-quiz-worlds.css");
+@import url("components/quiz-modes.css");
 
 /* Etichetă accesibilă, ascunsă doar vizual. */
 .sr-only {

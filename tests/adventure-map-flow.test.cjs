@@ -65,10 +65,10 @@ function fixture() {
         close: () => dom.window.close() };
 }
 
-test('every quiz mode launches the map with normalized questions and its selected world', async t => {
+test('choose-answer adventures launch the map with normalized questions in every selected world', async t => {
     for (const [mode, world, type] of [
-        ['castle_choice', 'castle', 'multiple_choice'], ['castle_true_false', 'snow', 'true_false'],
-        ['castle_hangman', 'desert', 'hangman'], ['castle_ordering', 'jungle', 'ordering']
+        ['castle_choice', 'castle', 'multiple_choice'], ['castle_choice', 'snow', 'multiple_choice'],
+        ['castle_choice', 'desert', 'multiple_choice'], ['castle_choice', 'jungle', 'multiple_choice']
     ]) await t.test(`${mode} in ${world}`, async () => {
         const f = fixture();
         try {
@@ -244,8 +244,8 @@ test('overview pauses answers and resumes the exact remaining time only after re
     } finally { entering.resolve(); returning.resolve(); f.close(); }
 });
 
-test('choice and true/false timeouts after map browsing lose one life and allow the next stop', async t => {
-    for (const mode of ['castle_choice', 'castle_true_false']) await t.test(mode, async () => {
+test('choose-answer timeouts after map browsing lose one life and allow the next stop', async t => {
+    for (const mode of ['castle_choice']) await t.test(mode, async () => {
         const f = fixture(), reaction = deferred();
         let wrongCalls = 0;
         try {
@@ -325,28 +325,6 @@ test('camera controls wait for encounter dialogue and ready question input', asy
         assert.equal(f.state().locked, false);
         assert.equal(f.el('quizMapToggle').disabled, false);
         assert.ok(f.interval());
-    } finally { dialogue.resolve(); f.close(); }
-});
-
-test('hangman feedback cannot overlap an overview or restart its timer behind the map', async () => {
-    const f = fixture(), dialogue = deferred();
-    try {
-        await f.launch(rawQuiz('castle_hangman'));
-        const detail = { index: 0, total: 3, world: 'castle', completed: [], outcomes: {}, overview: false };
-        f.emit({ ...detail, phase: 'encounter' });
-        f.w.CastleQuiz3D.wrong = async () => {
-            f.emit({ ...detail, phase: 'combat' });
-            f.emit({ ...detail, phase: 'encounter' });
-        };
-        f.w.afiseazaDialogCastel = async () => dialogue.promise;
-        const pending = f.evaluate('ghicesteLitera("Z", quizActiv.questions[0], false, QUIZ_MONSTERS.goblin)');
-        await new Promise(resolve => setImmediate(resolve));
-        assert.equal(f.el('quizMapToggle').disabled, true);
-        assert.equal(f.interval(), null);
-        f.el('quizMapToggle').click(); assert.equal(f.calls.showMap, 0);
-        dialogue.resolve(); await pending;
-        assert.equal(f.el('quizMapToggle').disabled, false);
-        assert.equal(f.state().locked, false); assert.ok(f.interval());
     } finally { dialogue.resolve(); f.close(); }
 });
 
