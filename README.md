@@ -159,7 +159,7 @@ Versiunea include un sistem nativ de quiz-uri administrabile din panoul de admin
 - edita, publica/ascunde și șterge quiz-uri existente.
 
 ### Pentru utilizator
-În pagina `#quiz`, fila **Quiz interactiv** încarcă quiz-urile publicate din Supabase. Player-ul include progres, cronometru, punctaj cu bonus de timp, feedback animat și ecran final. Kahoot și Wordwall au fost păstrate ca file separate.
+În pagina `#quiz`, jocurile site-ului încarcă direct quiz-urile publicate din Supabase. Player-ul include progres, cronometru, punctaj, feedback și ecran final.
 
 ## Quiz aventură 3D în castel
 
