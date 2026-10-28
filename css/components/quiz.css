@@ -271,7 +271,15 @@
 }
 
 .quiz-timer {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
     min-width: 56px;
+    min-height: 36px;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
     text-align: center;
     background: #e8f6f4;
     color: #087f8c;
@@ -813,7 +821,7 @@
 
 .castle-hud {
     display: grid;
-    grid-template-columns: auto minmax(160px, 1fr) auto;
+    grid-template-columns: minmax(0, auto) minmax(0, 1fr) minmax(72px, max-content);
     gap: 16px;
     align-items: center;
     margin: 16px 0 12px;
@@ -821,6 +829,10 @@
     border-radius: 16px;
     background: #1b1d29;
     border: 1px solid #343746;
+}
+
+.castle-hud > div {
+    min-width: 0;
 }
 
 .castle-hud-label {
@@ -835,7 +847,9 @@
 .castle-lives {
     font-size: 22px;
     letter-spacing: 2px;
-    white-space: nowrap;
+    line-height: 1.5;
+    white-space: normal;
+    overflow-wrap: anywhere;
 }
 
 .castle-progress-wrap .quiz-progress-track {
@@ -850,6 +864,10 @@
 }
 
 .castle-timer-wrap {
+    display: grid;
+    justify-items: end;
+    align-content: start;
+    gap: 6px;
     text-align: right;
 }
 
@@ -1076,7 +1094,7 @@
 
 @media (max-width:760px) {
     .castle-hud {
-        grid-template-columns: 1fr auto;
+        grid-template-columns: minmax(0, 1fr) minmax(72px, max-content);
     }
 
     .castle-progress-wrap {
