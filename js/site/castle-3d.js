@@ -872,7 +872,7 @@ window.CastleQuiz3D = (() => {
     }
 
     function animateMonster(t) {
-        if (!monster?.userData || monsterState === "entrance" || monsterState === "combat" || reducedMotion()) return;
+        if (!monster?.userData || monster.userData.defeated || monster.userData.defeating || monsterState === "entrance" || monsterState === "combat" || reducedMotion()) return;
         const ud = monster.userData;
         const type = ud.type || "goblin";
         const previous = ud.previousPosition || monster.position.clone();
@@ -931,21 +931,28 @@ window.CastleQuiz3D = (() => {
         torchLights.forEach(light => { light.intensity = light.userData.baseIntensity * (1 + Math.sin(t * 5.3 + light.position.z) * 0.035 * motion); });
         updateParticles(t, motion);
         animateHero(t, delta); animateMonster(t); updateFx(time, delta);
-        if (heroShadow && hero) heroShadow.position.set(hero.position.x, (hero.userData.groundY || 0) + 0.014, hero.position.z);
+        if (heroShadow && hero) updateActorShadow(heroShadow, hero);
         if (heroMarker && hero) {
-            heroMarker.visible = mapOverview;
+            heroMarker.visible = mapOverview && !hero.userData.defeated;
             heroMarker.position.set(hero.position.x, 0.04, hero.position.z);
         }
         if (monsterShadow) {
             monsterShadow.visible = Boolean(monster);
             if (monster) {
-                monsterShadow.position.set(monster.position.x, (monster.userData.groundY || 0) + 0.012, monster.position.z);
-                monsterShadow.material.opacity = 0.32 / (1 + Math.max(0, monster.position.y - (monster.userData.groundY || 0)));
+                updateActorShadow(monsterShadow, monster);
+                monsterShadow.visible = monster.visible;
+                monsterShadow.material.opacity = monster.userData.defeated ? 0.25 : 0.32 / (1 + Math.max(0, monster.position.y - (monster.userData.groundY || 0)));
             }
         }
         if (roomMoodLight) roomMoodLight.intensity = roomMoodLight.userData.baseIntensity * (1 + Math.sin(t * 5) * 0.035 * ambientPulse * motion);
         ambientPulse = Math.max(0, ambientPulse - delta * 0.7);
         renderer.render(scene, camera);
+    }
+
+    function updateActorShadow(shadow, actor) {
+        const rest = actor.userData.defeatShadow;
+        shadow.position.set(actor.position.x + (rest?.x || 0), (actor.userData.groundY || 0) + 0.014, actor.position.z + (rest?.z || 0));
+        shadow.scale.set(rest?.width || 1, rest?.depth || 1, 1);
     }
 
     function updateParticles(t, motion) {
@@ -1222,7 +1229,7 @@ window.CastleQuiz3D = (() => {
     }
 
     async function encounter(type, boss = false, index = 0) {
-        if (!initialized) return;
+        if (!initialized || hero?.userData.defeated) return;
         if (adventureMap) return mapEncounter(type, boss, index);
         const ticket = lifecycle;
         encounterIndex = index;
@@ -1289,32 +1296,43 @@ window.CastleQuiz3D = (() => {
         });
     }
 
-    async function correct() {
-        if (!initialized || !monster) return;
-        if (adventureMap) emitRoute("combat");
-        const fight = heroCombat();
-        if (fight) {
-            heroState = monsterState = "combat";
-            await fight.strike();
-            heroState = "idle";
-        }
-        monsterState = "retreat";
-        if (!fight) {
-            pulseScene("castle-correct-flash", 760);
-            magicRing(monster.position.clone().add(new THREE.Vector3(0, 1.05, 0)), 0x8ff0b5, 0.55);
-            burst(monster.position.clone().add(new THREE.Vector3(0, 1.15, 0)), 0x8ff0b5, 34, 1.75, 0.9, 0.05);
-        }
-        const startX = monster.position.x;
-        const startZ = monster.position.z;
-        const lookFrom = camera.getWorldDirection(new THREE.Vector3()).multiplyScalar(4).add(camera.position);
-        await cameraShot(camera.position.toArray(), [0.65, 2.05, 4.5], lookFrom.toArray(), [0, 1.35, -2], 220);
-        await tween(780, (p) => {
-            monster.position.x = startX + p * (monster.userData.type === "dragon" ? 0.8 : 1.7);
-            monster.position.z = startZ - p * 0.65;
-            const travelYaw = Math.atan2(monster.userData.type === "dragon" ? 0.8 : 1.7, -0.65);
-            monster.rotation.y = Math.sin(p * Math.PI) * travelYaw + p * 0.28;
+    async function defeatActor(actor) {
+        if (!actor || actor.userData.defeated) return;
+        const ticket = lifecycle;
+        if (actor === hero) heroState = "fallen"; else monsterState = "defeating";
+        const fall = window.CastleQuizDefeat?.create({ THREE, actor, tween, groundAt,
+            reducedMotion, isSkipping: () => skipRequested, audio: window.CastleQuizAudio,
+            onGround(body) {
+                const box = new THREE.Box3().setFromObject(body, true), point = box.getCenter(new THREE.Vector3());
+                point.y = (body.userData.groundY || 0) + 0.04;
+                burst(point, 0xaca38f, 8, 0.35, 0.3, 0.018);
+            }
         });
-        monsterState = "idle";
+        if (fall) await fall.fall();
+        else {
+            actor.rotation.x += actor === hero ? 1.43 : -1.43;
+            actor.updateWorldMatrix(true, true);
+            const box = new THREE.Box3().setFromObject(actor, true);
+            actor.position.y += groundAt(actor.position.x, actor.position.z) + 0.012 - box.min.y;
+            actor.userData.defeated = true;
+        }
+        if (ticket !== lifecycle) throw CANCELLED;
+        const box = new THREE.Box3().setFromObject(actor, true), center = box.getCenter(new THREE.Vector3()), size = box.getSize(new THREE.Vector3());
+        const shadow = actor === hero ? heroShadow : monsterShadow;
+        actor.userData.defeatShadow = { x: center.x - actor.position.x, z: center.z - actor.position.z,
+            width: Math.max(0.7, size.x * 0.9) / (shadow?.geometry.parameters.width || 1),
+            depth: Math.max(0.65, size.z * 0.85) / (shadow?.geometry.parameters.height || 1) };
+        if (actor === hero) heroState = "fallen"; else monsterState = "defeated";
+    }
+
+    async function correct() {
+        if (!initialized || !monster || monster.userData.defeated || hero?.userData.defeated) return;
+        if (adventureMap) emitRoute("combat");
+        const foe = monster, fight = heroCombat();
+        heroState = monsterState = "combat";
+        if (fight) await fight.strike({ onDefeat: () => defeatActor(foe) });
+        if (!foe.userData.defeated) await defeatActor(foe);
+        heroState = "idle"; monsterState = "defeated";
         if (adventureMap) {
             mapLastOutcome = "won"; adventureMap.mark(encounterIndex, "won");
             emitRoute("resolved"); return;
@@ -1322,20 +1340,21 @@ window.CastleQuiz3D = (() => {
         const leaf = door?.getObjectByName("doorLeaf");
         if (leaf) {
             window.CastleQuizAudio?.door?.();
-            await tween(640, (p) => { leaf.rotation.y = p * Math.PI * 0.52; });
+            await tween(640, p => { leaf.rotation.y = p * Math.PI * 0.52; });
         }
-        await cameraShot(camera.position.toArray(), [0.9, 2.18, 4.45], [0, 1.35, -2], [0, 1.35, -2.25], 260);
     }
 
-    async function wrong() {
-        if (!initialized) return;
+    async function wrong({ fatal = false } = {}) {
+        if (!initialized || hero?.userData.defeated || monster?.userData.defeated) return;
         if (adventureMap) { mapLastOutcome = "passed"; emitRoute("combat"); }
         const fight = heroCombat();
         if (fight) {
             heroState = monsterState = "combat";
-            await fight.block();
-            heroState = monsterState = "idle";
-            if (adventureMap) emitRoute("encounter");
+            const player = hero;
+            await fight.block({ fatal, onDefeat: fatal ? () => defeatActor(player) : undefined });
+            if (fatal && !player.userData.defeated) await defeatActor(player);
+            heroState = fatal ? "fallen" : "idle"; monsterState = "idle";
+            if (adventureMap && !fatal) emitRoute("encounter");
             return;
         }
         monsterState = "taunt";
@@ -1363,11 +1382,12 @@ window.CastleQuiz3D = (() => {
             if (monster) monster.scale.setScalar(baseMonsterScale * (1 + Math.sin(p * Math.PI) * 0.04));
         });
         if (monster) monster.scale.setScalar(baseMonsterScale);
-        if (adventureMap) emitRoute("encounter");
+        if (fatal) await defeatActor(hero);
+        if (adventureMap && !fatal) emitRoute("encounter");
     }
 
     async function nextRoom() {
-        if (!initialized) return;
+        if (!initialized || hero?.userData.defeated) return;
         if (adventureMap) {
             mapOutcomes.set(encounterIndex, mapLastOutcome);
             adventureMap.mark(encounterIndex, mapLastOutcome);
@@ -1402,18 +1422,18 @@ window.CastleQuiz3D = (() => {
     }
 
     async function victory() {
-        if (!initialized) return;
+        if (!initialized || hero?.userData.defeated || heroState === "fallen") return;
         if (adventureMap) {
             mapOutcomes.set(encounterIndex, mapLastOutcome); adventureMap.mark(encounterIndex, mapLastOutcome);
             heroState = "celebrate";
-            if (monster) { scene.remove(monster); disposeTree(monster, true); monster = null; }
+            if (monster && !monster.userData.defeated) { scene.remove(monster); disposeTree(monster, true); monster = null; }
             await mapCamera(true); emitRoute("finished"); return;
         }
         heroState = "celebrate";
         pulseScene("castle-victory-glow", 1800);
         burst(new THREE.Vector3(0, 1.4, 0.5), 0xffda78, 58, 2.25, 1.4, 0.065);
         magicRing(new THREE.Vector3(0, 0.5, 0.4), 0xffd36f, 0.9);
-        if (monster) { scene.remove(monster); disposeTree(monster, true); monster = null; }
+        if (monster && !monster.userData.defeated) { scene.remove(monster); disposeTree(monster, true); monster = null; }
         const leaf = door?.getObjectByName("doorLeaf"); if (leaf) leaf.rotation.y = Math.PI * 0.52;
         await cameraShot([0, 2.2, 6.2], [-1.45, 2.8, 4.7], [0, 1.25, 1.0], [0, 1.25, 0.7], 900);
         await tween(900, (p) => {
@@ -1426,20 +1446,15 @@ window.CastleQuiz3D = (() => {
     }
 
     async function gameOver() {
-        if (!initialized) return;
-        if (adventureMap) {
-            adventureMap.mark(encounterIndex, "failed"); heroState = "fallen";
-            await tween(420, p => { hero.rotation.z = -p * 0.72; hero.position.y = (hero.userData.baseY || 0) - p * 0.18; });
-            emitRoute("finished"); return;
-        }
+        if (!initialized || !hero) return;
+        if (adventureMap) { adventureMap.mark(encounterIndex, "failed"); emitRoute("combat"); }
+        await defeatActor(hero);
         heroState = "fallen";
-        pulseScene("castle-gameover-fade", 1500);
-        burst(new THREE.Vector3(0, 1.0, 1.0), 0x9a7280, 20, 1.0, 1.1, 0.04);
-        await cameraShot([0, 2.25, 6.2], [1.2, 1.25, 6.9], [0, 1.2, 0.8], [0, 0.72, 1.2], 650);
-        await tween(420, (p) => {
-            hero.rotation.z = -p * 0.72;
-            hero.position.y = (hero.userData.baseY || 0) - p * 0.18;
-        });
+        const box = new THREE.Box3().setFromObject(hero, true), target = box.getCenter(new THREE.Vector3());
+        const look = camera.getWorldDirection(new THREE.Vector3()).multiplyScalar(5).add(camera.position);
+        const position = target.clone().add(new THREE.Vector3(2.0, 1.25, 3.0));
+        await cameraShot(camera.position.toArray(), position.toArray(), look.toArray(), target.toArray(), 650);
+        if (adventureMap) emitRoute("finished");
     }
 
     function getRoomName(index = 0, boss = false) {

@@ -379,3 +379,119 @@ test('repeated strike and block preserve authored scale and raised-floor poses w
         assert.equal(f.effects.length, 6, 'each completed attack produces exactly one impact');
     } finally { release(f.hero, f.monster); }
 });
+
+test('striking transfers weight through a braced stance and heavy enemies recoil less than light enemies', async () => {
+    const recoil = {};
+    for (const type of ['goblin', 'golem', 'dragon']) {
+        let baseZ, baseY, maxRecoil = 0, maxCompression = 0, maxPitch = 0;
+        const f = await fixture(type, { onFrame({ hero, monster, effectCount }) {
+            if (!effectCount) {
+                maxCompression = Math.max(maxCompression, baseY - hero.position.y);
+                maxPitch = Math.max(maxPitch, Math.abs(hero.rotation.x));
+            } else maxRecoil = Math.max(maxRecoil, baseZ - monster.position.z);
+        } });
+        baseZ = f.monster.position.z; baseY = f.hero.position.y;
+        try {
+            await f.combat.strike();
+            assert.ok(maxCompression > 0.045, 'the knees take the windup load before the blade accelerates');
+            assert.ok(maxPitch > 0.035, 'the body participates instead of only rotating the shoulder');
+            assert.ok(maxRecoil > 0.05 && maxRecoil < 0.35, 'contact causes a bounded physical stagger');
+            recoil[type] = maxRecoil;
+        } finally { release(f.hero, f.monster); }
+    }
+    assert.ok(recoil.golem < recoil.goblin * 0.75, 'a heavy golem resists the same hit');
+    assert.ok(recoil.dragon < recoil.goblin * 0.75, 'a dragon does not recoil like a light goblin');
+});
+
+test('fatal monster attacks contact the visible torso rather than announcing another successful shield block', async t => {
+    for (const type of types) await t.test(type, async () => {
+        const f = await fixture(type, { onImpact({ THREE, hero, monster, effect }) {
+            assert.equal(effect.kind, 'body');
+            assert.equal(effect.metadata.shieldPoint, null);
+            assert.ok(surfaceDistance(THREE, hero, effect.point) < 0.025, 'the fatal contact lies on the visible hero');
+            assert.ok(surfaceDistance(THREE, hero.userData.shield, effect.point) > 0.05, 'the blow passes the shield');
+            assert.ok(surfaceDistance(THREE, monster, effect.point) < 0.15, 'the visible monster reaches the fatal contact');
+        } });
+        const before = snapshot(f.hero, f.monster, f.camera);
+        try {
+            await f.combat.block({ fatal: true });
+            assert.equal(f.effects.length, 1);
+            assertRestored(before, f.hero, f.monster, f.camera);
+        } finally { release(f.hero, f.monster); }
+    });
+});
+
+test('a finishing strike hands the struck pose to defeat before recovery and leaves the fallen monster down', async () => {
+    const f = await fixture('knight');
+    const before = snapshot(f.hero, f.camera), originalEnemyZ = f.monster.position.z;
+    let calls = 0, fallen;
+    try {
+        await f.combat.strike({ async onDefeat() {
+            calls++;
+            assert.equal(f.effects.length, 1, 'the verified impact precedes defeat');
+            assert.equal(f.hero.userData.combatPhase, 'followThrough', 'defeat does not wait until the stance has reset');
+            assert.ok(f.monster.position.z < originalEnemyZ - 0.02, 'the enemy is still reacting to the blow');
+            f.monster.position.y = 0.12; f.monster.rotation.z = -Math.PI / 2;
+            f.monster.userData.defeated = true;
+            fallen = snapshot(f.monster);
+        } });
+        assert.equal(calls, 1);
+        assert.equal(f.monster.userData.defeated, true);
+        assertRestored(fallen, f.monster);
+        assertRestored(before, f.hero, f.camera);
+    } finally { release(f.hero, f.monster); }
+});
+
+test('a fatal attack preserves the fallen hero while the attacker and camera recover', async () => {
+    const f = await fixture('demon');
+    const before = snapshot(f.monster, f.camera);
+    let calls = 0, fallen;
+    try {
+        await f.combat.block({ fatal: true, async onDefeat() {
+            calls++;
+            assert.equal(f.effects[0]?.kind, 'body');
+            f.hero.position.y = 0.16; f.hero.rotation.x = -1.4;
+            f.hero.userData.baseY = 0.16; f.hero.userData.defeated = true;
+            fallen = snapshot(f.hero);
+        } });
+        assert.equal(calls, 1);
+        assert.equal(f.hero.userData.baseY, 0.16, 'death owns the terminal actor metadata');
+        assert.equal(f.hero.userData.defeated, true);
+        assertRestored(fallen, f.hero);
+        assertRestored(before, f.monster, f.camera);
+    } finally { release(f.hero, f.monster); }
+});
+
+test('failed defeat handoff restores both actors and preserves the original rejection', async t => {
+    for (const action of ['strike', 'block']) await t.test(action, async () => {
+        const f = await fixture('knight'), before = snapshot(f.hero, f.monster, f.camera);
+        const rejected = new Error('defeat cancelled');
+        try {
+            await assert.rejects(f.combat[action]({ fatal: true, async onDefeat() {
+                const actor = action === 'strike' ? f.monster : f.hero;
+                actor.rotation.z = 0.8; actor.position.y = 0.1;
+                throw rejected;
+            } }), actual => actual === rejected);
+            assertRestored(before, f.hero, f.monster, f.camera);
+        } finally { release(f.hero, f.monster); }
+    });
+});
+
+test('reduced motion and skipping still complete one terminal defeat without impact effects', async t => {
+    for (const action of ['strike', 'block']) for (const mode of ['reduced', 'skipInitially', 'skipDuring']) await t.test(`${action}, ${mode}`, async () => {
+        const f = await fixture('goblin', {
+            reducedMotion: mode === 'reduced', skipInitially: mode === 'skipInitially',
+            skipAt: mode === 'skipDuring' ? (call, frame) => call === 1 && frame === 3 : undefined
+        });
+        const actor = action === 'strike' ? f.monster : f.hero, other = action === 'strike' ? f.hero : f.monster;
+        const before = snapshot(other, f.camera); let calls = 0;
+        try {
+            await f.combat[action]({ fatal: true, onDefeat() {
+                calls++; actor.rotation.z = -1.5; actor.userData.defeated = true;
+            } });
+            assert.equal(calls, 1); assert.equal(f.effects.length, 0);
+            assert.equal(actor.userData.defeated, true); assert.ok(Math.abs(actor.rotation.z + 1.5) < 1e-9);
+            assertRestored(before, other, f.camera);
+        } finally { release(f.hero, f.monster); }
+    });
+});

@@ -137,6 +137,7 @@ async function pornesteQuizCuDate(raw, preview = false) {
     const label = document.getElementById("quizModeLabel");
     if (label) label.textContent = modeMeta(q).icon + " " + modeMeta(q).label;
     actualizeazaHudQuiz();
+    window.QuizViewport?.enter?.(player);
     const canvas = document.getElementById("castleCanvas");
     if (adventure && window.CastleQuiz3D && canvas) await CastleQuiz3D.init(canvas, q.world_theme, { questions: q.questions });
     if (quizActiv !== q || quizLaunchVersion !== launchVersion) return;
@@ -355,7 +356,7 @@ async function ghicesteLitera(letter, q, boss, info) {
     actualizeazaHudQuiz(); renderHangman(q, boss, info); CastleQuizAudio?.wrong?.();
     document.getElementById("quizLives")?.classList.add("castle-life-hit");
     setTimeout(() => { if (current()) document.getElementById("quizLives")?.classList.remove("castle-life-hit"); }, 600);
-    if (quizHasAdventure()) await window.CastleQuiz3D?.wrong?.();
+    if (quizHasAdventure()) await window.CastleQuiz3D?.wrong?.({ fatal: quizVieti <= 0 });
     if (!current()) return;
     if (quizVieti <= 0) return finalizeazaQuiz(false, true);
     if (quizHasAdventure()) await afiseazaDialogCastel(info.icon, q.wrongMessage || "Ai pierdut o viață, dar poți continua să ghicești.", 900);
@@ -409,10 +410,9 @@ async function raspundeRezultatGeneric(ok, q, expirat = false, hangmanTimeout = 
     }
     CastleQuizAudio?.wrong?.(); document.getElementById("quizLives")?.classList.add("castle-life-hit");
     setTimeout(() => { if (current()) document.getElementById("quizLives")?.classList.remove("castle-life-hit"); }, 600);
-    if (quizHasAdventure()) await window.CastleQuiz3D?.wrong?.();
+    if (quizHasAdventure()) await window.CastleQuiz3D?.wrong?.({ fatal: quizVieti <= 0 });
     if (!current()) return;
     if (quizVieti <= 0) {
-        if (quizHasAdventure()) await afiseazaDialogCastel("💀", "Ai rămas fără vieți. Aventura se încheie aici.", 1000);
         if (current()) return finalizeazaQuiz(false, true);
         return;
     }
@@ -470,7 +470,7 @@ async function finalizeazaQuiz(victorie = true, gameOver = false) {
     document.getElementById("quizRetryButton")?.addEventListener("click", () => pornesteQuizCuDate(activeQuiz, preview));
     document.getElementById("quizBackButton")?.addEventListener("click", inchideQuizPlayer);
 }
-function inchideQuizPlayer() { quizLaunchVersion++; opresteTimerQuiz(); CastleQuizAudio?.dispose?.(); window.CastleQuiz3D?.dispose?.(); quizActiv = null; hangmanState = null; quizRaspunsBlocat = true; resetTraseuQuiz(); const stage = document.getElementById("quizQuestionStage"); if (stage) stage.onkeydown = null; document.getElementById("quizPlayer")?.classList.add("ascuns"); document.getElementById("quizInteractiveLista")?.classList.remove("ascuns"); stage?.classList.remove("ascuns"); document.getElementById("quizRezultat")?.classList.add("ascuns"); }
+function inchideQuizPlayer() { quizLaunchVersion++; window.QuizViewport?.leave?.(); opresteTimerQuiz(); CastleQuizAudio?.dispose?.(); window.CastleQuiz3D?.dispose?.(); quizActiv = null; hangmanState = null; quizRaspunsBlocat = true; resetTraseuQuiz(); const stage = document.getElementById("quizQuestionStage"); if (stage) stage.onkeydown = null; document.getElementById("quizPlayer")?.classList.add("ascuns"); document.getElementById("quizInteractiveLista")?.classList.remove("ascuns"); stage?.classList.remove("ascuns"); document.getElementById("quizRezultat")?.classList.add("ascuns"); inchideContainerQuizPreview(); }
 function initializeazaQuizPlayer() {
     leagaTraseuQuiz();
     const bind = (id, handler) => {
