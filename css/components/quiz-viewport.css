@@ -1,0 +1,180 @@
+/* Keep the scene, prompt and every answer button together in the active game. */
+body #quizPlayer.quiz-viewport {
+    position: fixed;
+    inset: var(--quiz-viewport-top, 0px) 0 auto;
+    z-index: 4000;
+    display: grid;
+    grid-template-columns: minmax(0, 1.12fr) minmax(0, .88fr);
+    grid-template-rows: auto auto auto minmax(0, 1fr);
+    grid-template-areas: "bar bar" "hud hud" "route route" "scene stage";
+    gap: 10px;
+    box-sizing: border-box;
+    width: 100%;
+    max-width: none;
+    height: var(--quiz-viewport-height, 100dvh);
+    max-height: var(--quiz-viewport-height, 100dvh);
+    margin: 0;
+    padding: 12px max(12px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
+    border: 0;
+    border-radius: 0;
+    overflow: hidden;
+    overscroll-behavior: contain;
+}
+body #quizPlayer.quiz-viewport.ascuns { display: none; }
+body #quizPlayer.quiz-viewport *, body #quizPlayer.quiz-viewport *::before, body #quizPlayer.quiz-viewport *::after { box-sizing: border-box; }
+body #quizPlayer.quiz-viewport > * { min-width: 0; min-height: 0; }
+body #quizPlayer.quiz-viewport .castle-topbar { grid-area: bar; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 12px; margin: 0; }
+body #quizPlayer.quiz-viewport .quiz-player-title-wrap { min-width: 0; }
+body #quizPlayer.quiz-viewport .quiz-player-title-wrap strong { display: block; font-size: 16px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
+body #quizPlayer.quiz-viewport .quiz-player-title-wrap small { font-size: 11px; }
+body #quizPlayer.quiz-viewport #quizWorldLabel { display: none; }
+body #quizPlayer.quiz-viewport .castle-topbar-actions { display: flex; align-items: center; gap: 12px; white-space: nowrap; }
+body #quizPlayer.quiz-viewport :is(.quiz-close-btn, .quiz-sound-btn) { min-height: 40px; margin: 0; padding: 7px 12px; }
+body #quizPlayer.quiz-viewport .castle-hud { grid-area: hud; grid-template-columns: minmax(0, auto) minmax(0, 1fr) minmax(56px, auto); margin: 0; padding: 7px 12px; gap: 12px; }
+body #quizPlayer.quiz-viewport .castle-progress-wrap { grid-column: auto; grid-row: auto; }
+body #quizPlayer.quiz-viewport .castle-lives { font-size: 18px; letter-spacing: 0; line-height: 1.15; }
+body #quizPlayer.quiz-viewport .castle-hud-label { font-size: 9px; line-height: 1.2; }
+body #quizPlayer.quiz-viewport .castle-timer-wrap { gap: 3px; }
+body #quizPlayer.quiz-viewport #quizTimer { min-height: 29px; min-width: 52px; padding: 5px 8px; font-size: 14px; }
+body #quizPlayer.quiz-viewport .castle-progress-wrap #quizCounter { display: block; font-size: 11px; line-height: 1.25; }
+body #quizPlayer.quiz-viewport .castle-progress-wrap .quiz-progress-track { height: 6px; margin-bottom: 4px; }
+body #quizPlayer.quiz-viewport #quizRouteHud { grid-area: route; width: 100%; max-width: none; margin: 0; padding: 5px 10px; border: 1px solid #bda56b44; border-radius: 10px; }
+body #quizPlayer.quiz-viewport .quiz-route-eyebrow, body #quizPlayer.quiz-viewport .quiz-route-stops { display: none; }
+body #quizPlayer.quiz-viewport .quiz-route-heading p { margin: 0; font-size: 12px; }
+body #quizPlayer.quiz-viewport #quizMapToggle { min-height: 34px; padding: 6px 10px; }
+body #quizPlayer.quiz-viewport #castleScene { grid-area: scene; width: 100%; height: 100%; min-height: 0; max-height: none; aspect-ratio: auto; border-radius: 14px; }
+body #quizPlayer.quiz-viewport #castleCanvas { display: block; width: 100%; height: 100%; }
+body #quizPlayer.quiz-viewport #castleDialogue { max-height: 58%; overflow: auto; padding: 10px; font-size: 12px; }
+body #quizPlayer.quiz-viewport #quizQuestionStage { grid-area: stage; min-height: 0; margin: 0; padding: 0; overflow: hidden; }
+body #quizPlayer.quiz-viewport .quiz-question-card {
+    display: grid;
+    grid-template-rows: auto minmax(0, auto) minmax(80px, 1fr) auto;
+    gap: 12px;
+    width: 100%; height: 100%; min-height: 0;
+    margin: 0; padding: clamp(12px, 2vw, 22px);
+    border-radius: 14px;
+}
+body #quizPlayer.quiz-viewport .castle-monster-title { margin: 0; gap: 8px; }
+body #quizPlayer.quiz-viewport .castle-monster-title > span { width: 32px; height: 32px; font-size: 23px; }
+body #quizPlayer.quiz-viewport .castle-monster-title strong { font-size: 12px; }
+body #quizPlayer.quiz-viewport .castle-monster-title small { font-size: 10px; }
+body #quizPlayer.quiz-viewport .quiz-simple-title { margin: 0; font-size: 11px; }
+body #quizPlayer.quiz-viewport .quiz-question-card > h3 { min-height: 0; max-height: 25vh; margin: 0; overflow: auto; overscroll-behavior: contain; font-size: clamp(17px, 2.1vw, 26px); line-height: 1.3; }
+body #quizPlayer.quiz-viewport .quiz-answer-grid { min-height: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-rows: minmax(0, 1fr); gap: 10px; }
+body #quizPlayer.quiz-viewport .quiz-answer-btn { min-height: 40px; height: 100%; min-width: 0; max-width: 100%; padding: 10px; gap: 8px; overflow: auto; overscroll-behavior: contain; }
+body #quizPlayer.quiz-viewport .quiz-answer-btn > span { flex-basis: 26px; width: 26px; height: 26px; border-radius: 7px; font-size: 13px; }
+body #quizPlayer.quiz-viewport .quiz-answer-btn strong { max-height: 100%; font-size: 15px; line-height: 1.3; }
+body #quizPlayer.quiz-viewport .quiz-feedback { margin: 0; min-height: 0; max-height: 28vh; overflow: auto; overscroll-behavior: contain; }
+body #quizPlayer.quiz-viewport .quiz-feedback:empty { display: none; }
+body #quizPlayer.quiz-viewport .quiz-feedback-box { margin: 0; padding: 10px; gap: 8px; }
+body #quizPlayer.quiz-viewport .quiz-feedback-box p { margin: 0; font-size: 12px; line-height: 1.3; }
+body #quizPlayer.quiz-viewport #quizNextButton { position: sticky; bottom: 0; z-index: 1; min-height: 40px; margin: 0; align-self: end; }
+body #quizPlayer.quiz-viewport #quizRezultat { grid-area: stage; min-height: 0; overflow: auto; }
+body #quizPlayer.quiz-viewport .quiz-result-card { display: flex; flex-direction: column; justify-content: center; min-height: 100%; padding: 18px; }
+body #quizPlayer.quiz-viewport .quiz-result-medal { font-size: 45px; margin: 0; }
+body #quizPlayer.quiz-viewport .quiz-result-card > p { margin: 8px 0; }
+body #quizPlayer.quiz-viewport .quiz-result-card h3 { font-size: 24px; margin: 0; }
+body #quizPlayer.quiz-viewport .quiz-result-score { font-size: 42px; margin: 10px 0; }
+body #quizPlayer.quiz-viewport .castle-result-stats { margin: 8px 0 12px; gap: 6px; }
+body #quizPlayer.quiz-viewport .quiz-result-actions { position: sticky; bottom: 0; padding-top: 6px; background: inherit; }
+body #quizPlayer.quiz-viewport.quiz-view-map { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto auto minmax(0, 1fr); grid-template-areas: "bar" "hud" "route" "scene"; }
+body #quizPlayer.quiz-viewport.quiz-standalone { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto minmax(0, 1fr); grid-template-areas: "bar" "hud" "stage"; }
+body #quizPlayer.quiz-viewport.quiz-standalone #quizQuestionStage, body #quizPlayer.quiz-viewport.quiz-standalone #quizRezultat { width: min(100%, 1120px); margin-inline: auto; }
+body #quizPlayer.quiz-viewport.quiz-standalone .quiz-question-card { padding: clamp(12px, 2vw, 24px); }
+body #quizPlayer.quiz-viewport[data-game-mode="castle_true_false"] .quiz-answer-grid { grid-auto-rows: minmax(0, 1fr); max-height: 240px; }
+body #quizPlayer.quiz-viewport[data-game-mode="castle_true_false"] .quiz-answer-btn { min-height: 48px; }
+body #quizPlayer.quiz-viewport .ordering-game { min-height: 0; display: grid; grid-template-rows: minmax(50px, 1fr) minmax(50px, 1fr) auto; gap: 12px; }
+body #quizPlayer.quiz-viewport :is(.ordering-pool, .ordering-answer) { min-height: 0; margin: 0; padding: 10px; gap: 8px; align-content: center; overflow: auto; }
+body #quizPlayer.quiz-viewport .ordering-chip { min-height: 40px; padding: 7px 12px; font-size: 16px; }
+body #quizPlayer.quiz-viewport .ordering-actions { margin: 0; gap: 10px; }
+body #quizPlayer.quiz-viewport .ordering-actions button { min-height: 40px; padding: 8px 12px; }
+body #quizPlayer.quiz-viewport .hangman-play { min-height: 0; height: 100%; margin: 0; padding: 12px; gap: 18px; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); }
+body #quizPlayer.quiz-viewport .hangman-scene { display: flex; flex-direction: column; min-height: 0; width: 100%; height: 100%; max-width: none; margin: 0; }
+body #quizPlayer.quiz-viewport .hangman-illustration { flex: 1 1 0; min-height: 0; width: 100%; height: 0; max-height: none; }
+body #quizPlayer.quiz-viewport .hangman-scene figcaption { flex: 0 0 auto; padding: 8px; font-size: 11px; }
+body #quizPlayer.quiz-viewport .hangman-controls { min-height: 0; height: 100%; display: grid; grid-template-rows: auto auto minmax(0, 1fr) auto; gap: 10px; }
+body #quizPlayer.quiz-viewport .hangman-status { font-size: 12px; }
+body #quizPlayer.quiz-viewport .hangman-word { min-height: 0; max-height: 20vh; overflow: auto; margin: 0; gap: 4px 0; }
+body #quizPlayer.quiz-viewport .hangman-keyboard { min-height: 0; grid-template-columns: repeat(8, minmax(0, 1fr)); grid-auto-rows: minmax(30px, 1fr); gap: 6px; }
+body #quizPlayer.quiz-viewport .hangman-keyboard button.hangman-key { min-height: 0; height: 100%; padding: 4px 2px; font-size: 15px; }
+body #quizPlayer.quiz-viewport .hangman-note { margin: 0; font-size: 11px; line-height: 1.3; }
+body #quizPlayer.quiz-viewport .hangman-tile { min-height: 34px; width: 28px; font-size: 18px; }
+body #quizPlayer.quiz-viewport.quiz-view-result.quiz-standalone:has(#quizQuestionStage:not(.ascuns) .hangman-play) { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-areas: "bar bar" "hud hud" "stage result"; }
+body #quizPlayer.quiz-viewport.quiz-view-result.quiz-standalone:has(#quizQuestionStage:not(.ascuns) .hangman-play) #quizRezultat { grid-area: result; }
+body #quizPlayer.quiz-viewport.quiz-view-result .hangman-controls { display: none; }
+body #quizPlayer.quiz-viewport.quiz-view-result .hangman-play { grid-template-columns: minmax(0, 1fr); }
+@media (max-width: 700px) and (min-height: 501px) {
+    body #quizPlayer.quiz-viewport { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto auto minmax(100px, .6fr) minmax(0, 1fr); grid-template-areas: "bar" "hud" "route" "scene" "stage"; padding: 8px; gap: 6px; }
+    body #quizPlayer.quiz-viewport .castle-topbar { gap: 8px; }
+    body #quizPlayer.quiz-viewport .quiz-player-title-wrap strong { font-size: 14px; }
+    body #quizPlayer.quiz-viewport .quiz-player-title-wrap small { display: none; }
+    body #quizPlayer.quiz-viewport .castle-topbar-actions { gap: 7px; font-size: 11px; }
+    body #quizPlayer.quiz-viewport :is(.quiz-close-btn, .quiz-sound-btn) { width: 38px; min-width: 38px; min-height: 38px; padding: 0; font-size: 0; }
+    body #quizPlayer.quiz-viewport .quiz-close-btn::before { content: "←"; font-size: 23px; }
+    body #quizPlayer.quiz-viewport .quiz-sound-btn::before { content: "♪"; font-size: 20px; }
+    body #quizPlayer.quiz-viewport .quiz-sound-btn[aria-pressed="false"]::before { content: "×"; }
+    body #quizPlayer.quiz-viewport .castle-hud { padding: 5px 8px; gap: 8px; }
+    body #quizPlayer.quiz-viewport .castle-lives { font-size: 16px; }
+    body #quizPlayer.quiz-viewport .castle-progress-wrap #quizCounter { font-size: 10px; }
+    body #quizPlayer.quiz-viewport .quiz-route-heading p { font-size: 10px; }
+    body #quizPlayer.quiz-viewport #quizMapToggle { min-height: 30px; padding: 4px 8px; max-width: 125px; font-size: 10px; }
+    body #quizPlayer.quiz-viewport .quiz-question-card, body #quizPlayer.quiz-viewport.quiz-standalone .quiz-question-card { padding: 10px; gap: 8px; }
+    body #quizPlayer.quiz-viewport .castle-monster-title, body #quizPlayer.quiz-viewport .quiz-simple-title { display: none; }
+    body #quizPlayer.quiz-viewport .quiz-question-card { grid-template-rows: minmax(0, auto) minmax(70px, 1fr) auto; }
+    body #quizPlayer.quiz-viewport .quiz-question-card > h3 { font-size: 16px; max-height: 16vh; }
+    body #quizPlayer.quiz-viewport .quiz-answer-grid { gap: 6px; }
+    body #quizPlayer.quiz-viewport .quiz-answer-btn { gap: 5px; padding: 7px; border-radius: 10px; }
+    body #quizPlayer.quiz-viewport .quiz-answer-btn > span { flex-basis: 20px; width: 20px; height: 20px; font-size: 11px; }
+    body #quizPlayer.quiz-viewport .quiz-answer-btn strong { font-size: 13px; line-height: 1.25; }
+    body #quizPlayer.quiz-viewport .quiz-feedback { max-height: 20vh; }
+    body #quizPlayer.quiz-viewport .quiz-feedback-box { padding: 7px; gap: 6px; font-size: 12px; }
+    body #quizPlayer.quiz-viewport .quiz-feedback-box p { font-size: 11px; }
+    body #quizPlayer.quiz-viewport #quizNextButton { min-height: 34px; padding: 6px 10px; font-size: 12px; }
+    body #quizPlayer.quiz-viewport .hangman-play { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(75px, .55fr) minmax(0, 1fr); gap: 8px; padding: 7px; }
+    body #quizPlayer.quiz-viewport .hangman-scene { max-width: none; }
+    body #quizPlayer.quiz-viewport .hangman-scene figcaption { padding: 4px 7px; font-size: 10px; }
+    body #quizPlayer.quiz-viewport .hangman-controls { grid-template-rows: auto auto minmax(0, 1fr); gap: 6px; }
+    body #quizPlayer.quiz-viewport .hangman-note { display: none; }
+    body #quizPlayer.quiz-viewport .hangman-status { font-size: 11px; min-height: 15px; }
+    body #quizPlayer.quiz-viewport .hangman-keyboard { grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 4px; grid-auto-rows: minmax(26px, 1fr); }
+    body #quizPlayer.quiz-viewport .hangman-keyboard button.hangman-key { font-size: 14px; }
+    body #quizPlayer.quiz-viewport .hangman-tile { min-height: 28px; width: 24px; font-size: 16px; }
+    body #quizPlayer.quiz-viewport.quiz-view-result.quiz-standalone:has(#quizQuestionStage:not(.ascuns) .hangman-play) { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto minmax(80px, .65fr) minmax(0, 1fr); grid-template-areas: "bar" "hud" "stage" "result"; }
+    body #quizPlayer.quiz-viewport.quiz-view-result .hangman-controls { display: none; }
+    body #quizPlayer.quiz-viewport.quiz-view-result .hangman-play { grid-template-rows: minmax(0, 1fr); }
+}
+@media (max-height: 500px) {
+    body #quizPlayer.quiz-viewport { padding: 6px; gap: 5px; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); }
+    body #quizPlayer.quiz-viewport .castle-topbar { gap: 8px; }
+    body #quizPlayer.quiz-viewport .quiz-player-title-wrap strong { font-size: 13px; }
+    body #quizPlayer.quiz-viewport .quiz-player-title-wrap small { display: none; }
+    body #quizPlayer.quiz-viewport :is(.quiz-close-btn, .quiz-sound-btn) { min-height: 30px; padding: 3px 8px; font-size: 11px; }
+    body #quizPlayer.quiz-viewport .castle-hud { padding: 4px 8px; gap: 8px; }
+    body #quizPlayer.quiz-viewport .castle-lives { font-size: 15px; }
+    body #quizPlayer.quiz-viewport .castle-hud-label { font-size: 8px; }
+    body #quizPlayer.quiz-viewport #quizTimer { min-height: 25px; font-size: 13px; }
+    body #quizPlayer.quiz-viewport .castle-progress-wrap #quizCounter { font-size: 10px; }
+    body #quizPlayer.quiz-viewport #quizMapToggle { min-height: 28px; padding: 3px 8px; font-size: 10px; }
+    body #quizPlayer.quiz-viewport .quiz-route-heading p { font-size: 10px; }
+    body #quizPlayer.quiz-viewport .quiz-question-card, body #quizPlayer.quiz-viewport.quiz-standalone .quiz-question-card { padding: 9px; gap: 7px; }
+    body #quizPlayer.quiz-viewport .castle-monster-title, body #quizPlayer.quiz-viewport .quiz-simple-title { display: none; }
+    body #quizPlayer.quiz-viewport .quiz-question-card { grid-template-rows: minmax(0, auto) minmax(65px, 1fr) auto; }
+    body #quizPlayer.quiz-viewport .quiz-question-card > h3 { max-height: 17vh; font-size: 15px; }
+    body #quizPlayer.quiz-viewport .quiz-answer-grid { gap: 6px; }
+    body #quizPlayer.quiz-viewport .quiz-answer-btn { padding: 6px; gap: 5px; }
+    body #quizPlayer.quiz-viewport .quiz-answer-btn > span { flex-basis: 20px; width: 20px; height: 20px; font-size: 11px; }
+    body #quizPlayer.quiz-viewport .quiz-answer-btn strong { font-size: 12px; }
+    body #quizPlayer.quiz-viewport .quiz-feedback { max-height: 23vh; }
+    body #quizPlayer.quiz-viewport .hangman-play { gap: 10px; padding: 7px; }
+    body #quizPlayer.quiz-viewport .hangman-controls { grid-template-rows: auto auto minmax(0, 1fr); gap: 5px; }
+    body #quizPlayer.quiz-viewport .hangman-note { display: none; }
+    body #quizPlayer.quiz-viewport .hangman-word { max-height: 15vh; }
+    body #quizPlayer.quiz-viewport .hangman-keyboard { gap: 4px; grid-auto-rows: minmax(25px, 1fr); }
+    body #quizPlayer.quiz-viewport .hangman-status { min-height: 15px; font-size: 10px; }
+    body #quizPlayer.quiz-viewport .hangman-tile { min-height: 26px; width: 23px; font-size: 15px; }
+    body #quizPlayer.quiz-viewport .ordering-game { grid-template-rows: minmax(30px, 1fr) minmax(30px, 1fr) auto; gap: 6px; }
+    body #quizPlayer.quiz-viewport .ordering-chip { min-height: 34px; padding: 5px 8px; font-size: 14px; }
+    body #quizPlayer.quiz-viewport .ordering-actions button { min-height: 32px; padding: 5px 8px; }
+}
+
+body:has(#quizPlayer.quiz-viewport) #aiAssistant { z-index: 4100; }
