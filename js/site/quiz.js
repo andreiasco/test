@@ -253,7 +253,28 @@ function leagaTraseuQuiz() {
     }
 }
 
-function actualizeazaHudQuiz() { const lives = document.getElementById("quizLives"); if (lives) { lives.textContent = `${"❤️ ".repeat(Math.max(0, quizVieti))}${"🖤 ".repeat(Math.max(0, quizLivesForMode() - quizVieti))}`.trim(); lives.setAttribute("aria-label", `${quizVieti} vieți rămase`); } const score = document.getElementById("quizLiveScore"); if (score) score.textContent = `Scor: ${quizScor}`; if (quizActiv) { const counter = document.getElementById("quizCounter"); if (counter) counter.textContent = `Provocarea ${Math.min(quizIndexIntrebare + 1, quizActiv.questions.length)} / ${quizActiv.questions.length}`; const bar = document.getElementById("quizProgressBar"); if (bar) bar.style.width = `${(quizIndexIntrebare / quizActiv.questions.length) * 100}%`; } }
+function actualizeazaHudQuiz() {
+    const lives = document.getElementById("quizLives");
+    if (lives) {
+        const total = quizLivesForMode(), remaining = Math.max(0, Math.min(total, Math.trunc(Number(quizVieti) || 0)));
+        // Draw the fill on the heart itself so it also works before icon conversion.
+        const shape = "M20 5a5 5 0 0 0-8 1 5 5 0 0 0-8-1C-1 10 7 17 12 21c5-4 13-11 8-16Z";
+        lives.innerHTML = Array.from({ length: total }, (_, index) => {
+            const full = index < remaining, color = full ? "#e53935" : "#8995a5";
+            return `<svg class="site-inline-icon quiz-life" data-life-state="${full ? "full" : "empty"}" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="${shape}" fill="${full ? color : "none"}" stroke="${color}" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+        }).join(" ");
+        lives.setAttribute("role", "img");
+        lives.setAttribute("aria-label", remaining === 1 ? "1 viață rămasă" : remaining + " vieți rămase");
+    }
+    const score = document.getElementById("quizLiveScore");
+    if (score) score.textContent = "Scor: " + quizScor;
+    if (quizActiv) {
+        const counter = document.getElementById("quizCounter");
+        if (counter) counter.textContent = `Provocarea ${Math.min(quizIndexIntrebare + 1, quizActiv.questions.length)} / ${quizActiv.questions.length}`;
+        const bar = document.getElementById("quizProgressBar");
+        if (bar) bar.style.width = (quizIndexIntrebare / quizActiv.questions.length * 100) + "%";
+    }
+}
 async function afiseazaDialogCastel(icon, text, duration = 0) {
     const box = document.getElementById("castleDialogue");
     if (!box) return;
