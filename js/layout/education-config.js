@@ -37,6 +37,35 @@ const EDUCATION_COLLECTIONS = [
         ]
     },
     {
+        "key": "manuale-digitale",
+        "parent": "elevi",
+        "title": "Manuale digitale",
+        "icon": "book",
+        "intro": "Descoperă manuale digitale pentru liceu, clasele IX–XII, organizate pe clase și pe materii în ordine alfabetică. Alege clasa, apoi materia și deschide manualul potrivit.",
+        "bodyLabel": "Despre manual",
+        "table": "edu_manuale_digitale",
+        "grades": [9, 10, 11, 12],
+        "setupSql": "supabase/manuale-digitale.sql",
+        "fields": [
+            {
+                "name": "subject",
+                "label": "Materia",
+                "kind": "text",
+                "required": true
+            },
+            {
+                "name": "publisher",
+                "label": "Editura",
+                "kind": "text"
+            },
+            {
+                "name": "authors",
+                "label": "Autori",
+                "kind": "text"
+            }
+        ]
+    },
+    {
         "key": "antrenament-examen",
         "parent": "elevi",
         "title": "Pregătire pentru Evaluarea Națională",
@@ -332,3 +361,6 @@ const EDUCATION_COLLECTIONS = [
 ];
 const EDUCATION_PARENTS = { elevi: "Biblioteca elevului", profesori: "Biblioteca profesorului", revista: "Reviste digitale" };
 const EDUCATION_STATIC_ROUTES = ["informatii-adeverinte", "reguli-publicare"];
+
+function educationGrades(collection) { return collection.grades || [5, 6, 7, 8]; }
+function educationGradeLabel(grade) { return String(grade) === "0" ? "Clasa pregătitoare" : `Clasa a ${grade}-a`; }

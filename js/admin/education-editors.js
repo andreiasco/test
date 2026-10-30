@@ -43,7 +43,7 @@ async function incarcaEditorEducational(key) {
         setup.textContent = ''; randareListaEditorEducational(key);
     } catch (error) {
         educationAdminData.delete(key);
-        setup.textContent = 'Colecția nu poate fi încărcată. Pentru prima utilizare rulează supabase/education-resources.sql în SQL Editor, apoi reîmprospătează.';
+        setup.textContent = 'Colecția nu poate fi încărcată. Pentru prima utilizare rulează ' + (collection.setupSql || 'supabase/education-resources.sql') + ' în SQL Editor, apoi reîmprospătează.';
         document.querySelector(`[data-education-admin-list="${key}"]`).textContent = 'Lista nu este disponibilă momentan.';
         console.error(error);
     }
@@ -77,6 +77,7 @@ function colecteazaResursaEducationala(collection, form, previous) {
     if (rawUrl && !payload.external_url) throw new Error('Linkul trebuie să înceapă cu https://, fără date de autentificare.');
     collection.fields.forEach(config => {
         const input = value(config.name);
+        if (config.required && !input) throw new Error('Completează: ' + config.label);
         if (config.kind === 'number') {
             if (input && (!Number.isFinite(Number(input)) || Number(input) < 1 || Number(input) > 10000)) throw new Error('Verifică: ' + config.label);
             payload[config.name] = input ? Number(input) : null;
@@ -89,6 +90,10 @@ function colecteazaResursaEducationala(collection, form, previous) {
     const file = field('file').files[0];
     const extension = file?.name.split('.').pop().toLowerCase();
     if (file && (file.size > 20 * 1024 * 1024 || !['pdf','doc','docx','xls','xlsx','ppt','pptx','png','jpg','jpeg','webp'].includes(extension))) throw new Error('Alege un format acceptat, de cel mult 20 MB.');
+    if (collection.key === 'manuale-digitale') {
+        if (!educationGrades(collection).map(String).includes(payload.grade)) throw new Error('Alege clasa manualului.');
+        if (!payload.file_path && !file && !payload.external_url) throw new Error('Adaugă fișierul manualului sau un link HTTPS.');
+    }
     if (!payload.body && !payload.file_path && !file && !payload.external_url) throw new Error('Adaugă conținut, un fișier sau un link.');
     return { payload, file, extension };
 }

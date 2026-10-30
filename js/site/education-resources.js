@@ -15,12 +15,24 @@ function educationCard(collection, resource) {
     const explanations = collection.fields.filter(field => field.kind === 'textarea' && !swotFields.includes(field.name)).map(field => educationContent(field.label, resource[field.name], ['answers','rubric'].includes(field.name))).join('');
     const matrix = collection.key === 'centralizatoare-swot' && swotFields.some(name => resource[name]) ? `<div class="education-swot">${collection.fields.filter(field => swotFields.includes(field.name)).map(field => educationContent(field.label, resource[field.name] || 'Nespecificat')).join('')}</div>` : '';
     return `<article class="alma-feature-panel education-card education-card-${collection.key}">
-        ${resource.grade ? `<p class="alma-eyebrow">Clasa a ${escapeHTML(resource.grade)}-a</p>` : ''}<h2>${escapeHTML(resource.title)}</h2>
+        ${resource.grade ? `<p class="alma-eyebrow">${escapeHTML(educationGradeLabel(resource.grade))}</p>` : ''}<h2>${escapeHTML(resource.title)}</h2>
         ${resource.description ? `<p>${escapeHTML(resource.description)}</p>` : ''}
         ${facts ? `<dl class="education-facts">${facts}</dl>` : ''}
         ${educationContent(collection.bodyLabel, resource.body)}${explanations}${matrix}
         <div class="education-actions">${resource.file_path ? `<button type="button" class="opera-btn" data-education-open="${escapeHTML(resource.id)}" data-collection="${collection.key}">${/\.pdf$/i.test(resource.file_name) ? 'Deschide PDF' : 'Descarcă fișierul'} — ${escapeHTML(resource.file_name)}</button>` : ''}${url ? `<a class="opera-link" href="${escapeHTML(url)}" target="_blank" rel="noopener noreferrer">Deschide linkul (filă nouă)</a>` : ''}</div><p class="education-file-status" role="status"></p>
     </article>`;
+}
+function educationSortManuals(rows) {
+    const alphabet = new Intl.Collator('ro', { sensitivity: 'base', numeric: true });
+    return [...rows].sort((a, b) => Number(a.grade) - Number(b.grade) || alphabet.compare(a.subject, b.subject) || alphabet.compare(a.title, b.title));
+}
+function educationManualGroups(collection, rows) {
+    return educationGrades(collection).map(grade => {
+        const manuals = rows.filter(row => String(row.grade) === String(grade));
+        if (!manuals.length) return '';
+        const subjects = [...new Set(manuals.map(row => row.subject))];
+        return `<section class="education-manual-grade"><h2>${educationGradeLabel(grade)}</h2>${subjects.map(subject => `<div class="education-manual-subject"><h3>${escapeHTML(subject)}</h3><div class="education-list">${manuals.filter(row => row.subject === subject).map(row => educationCard(collection, row)).join('')}</div></div>`).join('')}</section>`;
+    }).join('');
 }
 function randareColectieEducationala(collection) {
     const list = document.querySelector(`[data-education-list="${collection.key}"]`);
@@ -29,9 +41,15 @@ function randareColectieEducationala(collection) {
     const grade = controls?.querySelector('[data-education-grade]')?.value || '';
     const type = controls?.querySelector('[data-education-type]');
     const query = (controls?.querySelector('[data-education-search]')?.value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
-    const resources = educationPublished.get(collection.key) || [];
-    const filtered = resources.filter(row => (!grade || row.grade === grade || !row.grade) && (!type?.value || row[type.dataset.educationType] === type.value) && `${row.title} ${row.description || ''}`.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().includes(query));
-    list.innerHTML = filtered.map(row => educationCard(collection, row)).join('') || `<p class="alma-notice">${resources.length ? 'Nu există rezultate pentru filtrele alese.' : 'Nu au fost publicate încă resurse în această colecție.'}</p>`;
+    const resources = (educationPublished.get(collection.key) || []).filter(row => collection.key !== 'manuale-digitale' || educationGrades(collection).map(String).includes(String(row.grade)));
+    if (collection.key === 'manuale-digitale' && type) {
+        const selection = type.value;
+        const subjects = [...new Set(resources.filter(row => !grade || String(row.grade) === grade).map(row => row.subject))].sort(new Intl.Collator('ro', { sensitivity: 'base' }).compare);
+        type.innerHTML = '<option value="">Toate materiile</option>' + subjects.map(subject => `<option value="${escapeHTML(subject)}">${escapeHTML(subject)}</option>`).join('');
+        type.value = subjects.includes(selection) ? selection : '';
+    }
+    const filtered = resources.filter(row => (!grade || String(row.grade) === grade || !row.grade) && (!type?.value || row[type.dataset.educationType] === type.value) && `${row.title} ${row.subject || ''} ${row.publisher || ''} ${row.authors || ''} ${row.description || ''}`.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().includes(query));
+    list.innerHTML = (collection.key === 'manuale-digitale' ? educationManualGroups(collection, educationSortManuals(filtered)) : filtered.map(row => educationCard(collection, row)).join('')) || `<p class="alma-notice">${resources.length ? 'Nu există rezultate pentru filtrele alese.' : 'Nu au fost publicate încă resurse în această colecție.'}</p>`;
     const count = document.querySelector(`[data-education-count="${collection.key}"]`);
     if (count) count.textContent = `${filtered.length} resurse afișate`;
 }

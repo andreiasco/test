@@ -4,8 +4,8 @@
 
 În **Supabase → SQL Editor**, rulează în ordine:
 
-1. `remove-old-catalog-materials.sql`: elimină tabela `catalog_materials` cu datele ei (inclusiv cele 12 materiale de test), funcțiile și politicile create pentru ea și bucketul vechi, dacă este gol. Dacă ai încărcat fișiere, scriptul se oprește înaintea oricărei modificări: golește numai bucketul `CatalogMateriale` din Supabase Storage și rulează scriptul din nou. Nu șterge direct rânduri din `storage.objects`, pentru a nu lăsa fișiere orfane în stocarea fizică.
-2. `education-resources.sql`: creează numai cele zece colecții noi, cu tabele distincte, coloane specifice, RLS și bucketul privat `ResurseEducationale`. Nu adaugă date de test și nu transferă materialele vechi.
+1. `education-resources.sql`: creează cele zece colecții educaționale de bază, cu tabele distincte, RLS și bucketul privat `ResurseEducationale`.
+2. `manuale-digitale.sql`: adaugă colecția Manuale digitale și accesul la fișierele sale. Vezi [instrucțiunile](MANUALE_DIGITALE.md).
 3. Reîncarcă site-ul și panoul administratorului.
 
 Aceste scripturi nu au fost executate automat. Autorii, operele, clasele și capitolele existente, quiz-urile, contribuțiile profesorilor și numerele revistei nu sunt modificate.

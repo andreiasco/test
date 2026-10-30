@@ -5,7 +5,7 @@ const NAV_HTML = `
 
 
 <nav aria-label="Navigare principală">
-    <a class="alma-brand" href="${estePaginaAdmin ? "index.html" : ""}#acasa" aria-label="EDU ALMA — Acasă"><img src="assets/edu-alma-emblem.png" alt="" width="48" height="48"><span><strong><em>EDU</em> ALMA</strong><small>Educație Digitală Utilă</small></span></a>
+    <a class="alma-brand" href="${estePaginaAdmin ? "index.html" : ""}#acasa" aria-label="EDU ALMA — Acasă"><img src="assets/edu-alma-emblem.png?v=gold-rays-v2" alt="" width="48" height="48"><span><strong><em>EDU</em> ALMA</strong><small>Educație Digitală Utilă</small></span></a>
     <div class="nav-links">
         <a href="${estePaginaAdmin ? "index.html" : ""}#acasa">Acasă</a>
         <a href="${estePaginaAdmin ? "index.html" : ""}#elevi">Elevi</a>

@@ -20,7 +20,7 @@ body.dark {
     --action-line: #536d8b;
 }
 
-body:is(.dark, :not(.dark)) :is(button, input[type="submit"], input[type="button"], .buton, .home-cta, .kahoot-link, .opera-link) {
+body:is(.dark, :not(.dark)) :is(button, input[type="submit"], input[type="button"], .buton, .home-cta, .opera-link) {
     background: var(--action-bg);
     color: var(--action-text);
     border: 1px solid var(--action-line);
@@ -33,7 +33,7 @@ body:is(.dark, :not(.dark)) :is(button, input[type="submit"], input[type="button
     cursor: pointer;
     transition: background-color .18s ease, border-color .18s ease, color .18s ease;
 }
-body:is(.dark, :not(.dark)) :is(button, input[type="submit"], input[type="button"], .buton, .home-cta, .kahoot-link, .opera-link):hover:not(:disabled):not([aria-disabled="true"]) {
+body:is(.dark, :not(.dark)) :is(button, input[type="submit"], input[type="button"], .buton, .home-cta, .opera-link):hover:not(:disabled):not([aria-disabled="true"]) {
     background: var(--action-hover);
     border-color: var(--accent-gold);
     color: var(--action-text);
@@ -117,10 +117,10 @@ body #quizNextButton:hover:not(:disabled) { background: var(--action-hover); col
 
 body:is(.dark, :not(.dark)) :is(button, input[type="submit"], input[type="button"]):disabled,
 body [aria-disabled="true"] { opacity: .55; cursor: not-allowed; transform: none; }
-body :is(button, input[type="submit"], input[type="button"], .buton, .home-cta, .kahoot-link, .opera-link, .alma-text-link):focus-visible {
+body :is(button, input[type="submit"], input[type="button"], .buton, .home-cta, .opera-link, .alma-text-link):focus-visible {
     outline: 3px solid var(--accent-gold);
     outline-offset: 3px;
 }
 @media (prefers-reduced-motion: reduce) {
-    body :is(button, input[type="submit"], input[type="button"], .buton, .home-cta, .kahoot-link, .opera-link) { transition: none; }
+    body :is(button, input[type="submit"], input[type="button"], .buton, .home-cta, .opera-link) { transition: none; }
 }
