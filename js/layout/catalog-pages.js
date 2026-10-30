@@ -80,6 +80,9 @@ const ALMA_STUDENT_CATEGORIES = [
     almaCategory('biblioteca-vizuala', 'Biblioteca vizuală', 'Fișe și scheme vizuale pentru învățare și recapitulare.', 'magazine', [
         ['Fișe vizuale și scheme colorate', 'Noțiuni-cheie, exemple și scheme pentru recapitulare.', '#fise-vizuale']
     ]),
+    almaCategory('manuale-digitale-catalog', 'Manuale digitale', 'Manuale pentru clasele IX–XII, organizate alfabetic după materie.', 'book', [
+        ['Descoperă manualele digitale', 'Alege clasa și materia pentru a consulta manualele disponibile și a învăța în ritmul tău.', '#manuale-digitale']
+    ]),
     almaCategory('evaluarea-nationala', 'Evaluarea Națională', 'Materiale dedicate pregătirii pentru examen.', 'cap', [
         ['Antrenament pentru examen', 'Vocabular, gramatică, receptarea textului, redactare și teste-model.', '#antrenament-examen']
     ]),

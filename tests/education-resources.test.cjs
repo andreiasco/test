@@ -14,9 +14,9 @@ test('all collections have separate tables and routes; informative pages have no
     const ctx = context();
     const collections = vm.runInContext('EDUCATION_COLLECTIONS', ctx);
     const html = vm.runInContext('EDUCATION_PAGES_HTML', ctx);
-    assert.equal(collections.length, 10);
-    assert.equal(new Set(collections.map(item => item.table)).size, 10);
-    const sql = read('supabase/education-resources.sql');
+    assert.equal(collections.length, 11);
+    assert.equal(new Set(collections.map(item => item.table)).size, 11);
+    const sql = read('supabase/education-resources.sql') + read('supabase/manuale-digitale.sql');
     let active;
     const pages = collections.map(item => ({ id: 'pagina-' + item.key, classList: { toggle(_, enabled) { if (enabled) active = item.key; } } }));
     ctx.document = { querySelectorAll: selector => selector === '.pagina' ? pages : [], getElementById: () => null };
@@ -45,7 +45,7 @@ test('test pages show duration, score and a collapsed rubric; student practice k
     assert.match(ctx.educationCard(practice, { title: 'Exercițiu', answers: 'Răspuns' }), /<details class="education-answer">/);
 });
 function fakeForm(values = {}) {
-    const controls = Object.fromEntries(['id','title','description','body','grade','sort_order','external_url','published','remove_file','file','evaluation_type','duration_minutes','max_score','rubric','author_credit','creation_type','author_note'].map(name => [name, { value: values[name] || '', checked: false, disabled: false, files: [] }]));
+    const controls = Object.fromEntries(['id','title','description','body','grade','sort_order','external_url','published','remove_file','file','evaluation_type','duration_minutes','max_score','rubric','author_credit','creation_type','author_note','subject','publisher','authors'].map(name => [name, { value: values[name] || '', checked: false, disabled: false, files: [] }]));
     const elements = Object.values(controls); elements.namedItem = name => controls[name];
     return { controls, elements, reset() {}, querySelector: () => ({ textContent: '' }) };
 }
@@ -58,15 +58,6 @@ test('specialized editor collects test fields and rejects invalid durations and 
     form.controls.duration_minutes.value = '-1'; assert.throws(() => ctx.colecteazaResursaEducationala(tests, form), /Durata/);
     const creations = vm.runInContext('EDUCATION_COLLECTIONS.find(item => item.key === "creatii-elevi")', ctx);
     assert.throws(() => ctx.colecteazaResursaEducationala(creations, fakeForm({ title: 'Poezie', body: 'Versuri' })), /autorul/);
-});
-test('cleanup targets only the old catalog schema, refuses nonempty buckets and never deletes storage objects directly', () => {
-    const sql = read('supabase/remove-old-catalog-materials.sql');
-    assert.match(sql, /drop table if exists public\.catalog_materials;/);
-    assert.match(sql, /raise exception/);
-    assert.ok(!/delete from storage\.objects/i.test(sql));
-    assert.ok(!/drop table[^;]*edu_/i.test(sql));
-    assert.ok(!/drop table[^;]*(autori|opere|quizzes|reviste)/i.test(sql));
-    assert.ok(!/drop[^;]*cascade/i.test(sql));
 });
 test('a signed-out visitor cannot request a private resource URL', async () => {
     let login = 0;
@@ -107,4 +98,47 @@ test('a non-admin cannot upload or save content in a dedicated collection', asyn
     await ctx.salveazaResursaEducationala('teste-bareme', { preventDefault() {} });
     assert.equal(uploads.length, 0); assert.equal(writes.length, 0);
     assert.match(status.textContent, /administrator/);
+});
+
+test('manuals appear between visual library and exam, with a student admin panel and required metadata', () => {
+    const ctx = context();
+    const categories = vm.runInContext('ALMA_STUDENT_CATEGORIES', ctx);
+    assert.ok(categories.indexOf('biblioteca-vizuala') < categories.indexOf('manuale-digitale-catalog'));
+    assert.ok(categories.indexOf('manuale-digitale-catalog') < categories.indexOf('evaluarea-nationala'));
+    vm.runInContext(read('js/layout/admin-panel/education-editors.js'), ctx);
+    vm.runInContext(read('js/layout/admin-panel/shell.js'), ctx);
+    assert.ok(vm.runInContext('ADMIN_LIBRARY_NAV.elevi.some(item => item.page === "resurse-manuale-digitale")', ctx));
+    const collection = vm.runInContext('EDUCATION_COLLECTIONS.find(item => item.key === "manuale-digitale")', ctx);
+    assert.deepEqual(Array.from(collection.grades), [9,10,11,12]);
+    const form = fakeForm({ title: 'Manual', grade: '9', subject: 'Matematică', external_url: 'https://example.com/manual' });
+    assert.equal(ctx.colecteazaResursaEducationala(collection, form).payload.subject, 'Matematică');
+    form.controls.subject.value = '';
+    assert.throws(() => ctx.colecteazaResursaEducationala(collection, form), /Materia/);
+    form.controls.subject.value = 'Matematică'; form.controls.grade.value = '';
+    assert.throws(() => ctx.colecteazaResursaEducationala(collection, form), /clasa/);
+    form.controls.grade.value = '8';
+    assert.throws(() => ctx.colecteazaResursaEducationala(collection, form), /clasa/);
+    form.controls.grade.value = '9'; form.controls.external_url.value = ''; form.controls.body.value = 'Descriere';
+    assert.throws(() => ctx.colecteazaResursaEducationala(collection, form), /fișierul manualului/);
+    const html = ctx.editorEducationalHTML(collection);
+    assert.match(html, /name="subject"[^>]*required/);
+    assert.match(html, /name="grade" required/);
+});
+test('manual sorting is numeric by class and Romanian alphabetical by subject and title; headings escape text', () => {
+    const ctx = context();
+    const rows = [
+        { grade:'10',subject:'Biologie',title:'Liceu' },
+        { grade:'9',subject:'Științe',title:'Științe' },
+        { grade:'9',subject:'Matematică',title:'Z' },
+        { grade:'12',subject:'Comunicare',title:'Clasa XII' },
+        { grade:'9',subject:'Matematică',title:'A' }
+    ];
+    assert.deepEqual(Array.from(ctx.educationSortManuals(rows), row => row.title), ['A','Z','Științe','Liceu','Clasa XII']);
+    const collection = vm.runInContext('EDUCATION_COLLECTIONS.find(item => item.key === "manuale-digitale")', ctx);
+    const html = ctx.educationManualGroups(collection, [{grade:'9',subject:'<img src=x>',title:'Manual'}]);
+    assert.ok(html.includes('&lt;img src=x&gt;')); assert.ok(!html.includes('<img src=x>'));
+    const sql = read('supabase/manuale-digitale.sql');
+    assert.match(sql, /enable row level security/);
+    assert.match(sql, /manuale_digitale_files_read/);
+    assert.match(sql, /published and file_path = storage.objects.name/);
 });

@@ -4,7 +4,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
 const root = path.resolve(__dirname, '..');
-const read = name => fs.readFileSync(path.join(root, name), 'utf8');
+const read = name => fs.readFileSync(path.join(root, name.split('?')[0]), 'utf8');
 
 function renderLayout() {
     const scripts = [...read('index.html').matchAll(/<script src="(js\/layout\/[^"]+)"/g)].map(m => m[1]);
@@ -53,7 +53,7 @@ test('both entry points load local assets and catalog before dependent layouts',
         const html = read(file);
         assert.ok(html.indexOf('js/layout/catalog-pages.js') < html.indexOf('js/layout/home.js'));
         for (const [, asset] of html.matchAll(/(?:src|href)="((?:js|css|assets)\/[^"]+)"/g)) {
-            assert.ok(fs.existsSync(path.join(root, asset)), `missing asset: ${asset}`);
+            assert.ok(fs.existsSync(path.join(root, asset.split('?')[0])), `missing asset: ${asset}`);
         }
     }
     assert.ok(fs.statSync(path.join(root, 'assets/edu-alma-emblem.png')).size > 0);

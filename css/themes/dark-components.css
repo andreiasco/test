@@ -15,7 +15,6 @@ body.dark #adminPanel {
 
 body.dark .card,
 body.dark .quiz-card,
-body.dark .kahoot-card,
 body.dark .login-box,
 body.dark .admin-box {
     background: #1b385c;
@@ -26,7 +25,6 @@ body.dark .admin-box {
 
 body.dark .card h3,
 body.dark .quiz-card h3,
-body.dark .kahoot-card h3,
 body.dark .login-box h2,
 body.dark .admin-box h3,
 body.dark .admin-header h2,
@@ -36,7 +34,6 @@ body.dark .titlu {
 
 body.dark .card p,
 body.dark .quiz-card p,
-body.dark .kahoot-card p,
 body.dark .subtitlu {
     color: #cbd8e2;
 }
