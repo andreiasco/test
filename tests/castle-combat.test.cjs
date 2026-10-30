@@ -1,0 +1,497 @@
+const { test } = require('node:test');
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+const vm = require('node:vm');
+const { pathToFileURL } = require('node:url');
+
+const rootPath = path.resolve(__dirname, '..');
+const threePath = path.resolve(path.dirname(require.resolve('three')), '..');
+const libraries = Promise.all([
+    import(pathToFileURL(path.join(threePath, 'build/three.module.js')).href),
+    import(pathToFileURL(path.join(threePath, 'examples/jsm/utils/BufferGeometryUtils.js')).href)
+]);
+const context = { window: {} };
+for (const file of [
+    'castle-monsters-humanoids.js', 'castle-monsters-creatures.js',
+    'castle-monsters.js', 'castle-hero.js', 'castle-combat.js'
+]) {
+    vm.runInNewContext(fs.readFileSync(path.join(rootPath, 'js/site', file), 'utf8'), context, { filename: file });
+}
+const types = ['goblin', 'skeleton', 'knight', 'golem', 'wizard', 'demon', 'bat', 'spider', 'ghost', 'dragon'];
+
+function release(...roots) {
+    const geometries = new Set(), materials = new Set(), textures = new Set();
+    for (const root of roots) root.traverse(object => {
+        if (object.geometry) geometries.add(object.geometry);
+        for (const material of Array.isArray(object.material) ? object.material : [object.material]) {
+            if (!material) continue;
+            materials.add(material);
+            for (const value of Object.values(material)) if (value?.isTexture) textures.add(value);
+        }
+    });
+    for (const set of [geometries, materials, textures]) for (const resource of set) resource.dispose();
+}
+
+function snapshot(...roots) {
+    const result = new Map();
+    for (const root of roots) root.traverse(object => {
+        object.updateMatrix();
+        result.set(object, object.matrix.toArray());
+    });
+    return result;
+}
+
+function assertRestored(before, ...roots) {
+    const after = snapshot(...roots);
+    assert.equal(after.size, before.size, 'combat does not leave helper objects in actor hierarchies');
+    for (const [object, matrix] of before) {
+        assert.ok(after.has(object), `${object.name}: original object remains attached`);
+        after.get(object).forEach((value, i) => assert.ok(
+            Math.abs(value - matrix[i]) < 1e-9,
+            `${object.name || object.type}: local pose restored at matrix element ${i} (${value} vs ${matrix[i]})`
+        ));
+    }
+}
+
+// Measure the rendered model itself, independently of combat's collision targets.
+function surfaceDistance(THREE, root, point) {
+    root.updateWorldMatrix(true, true);
+    const triangle = new THREE.Triangle();
+    const closest = new THREE.Vector3();
+    let distanceSq = Infinity;
+    root.traverse(object => {
+        if (!object.isMesh || !object.visible || distanceSq < 1e-12) return;
+        const geometry = object.geometry;
+        const position = geometry.getAttribute('position');
+        const index = geometry.index;
+        const count = index ? index.count : position.count;
+        for (let offset = 0; offset < count; offset += 3) {
+            for (const [vertex, shift] of [[triangle.a, 0], [triangle.b, 1], [triangle.c, 2]]) {
+                vertex.fromBufferAttribute(position, index ? index.getX(offset + shift) : offset + shift)
+                    .applyMatrix4(object.matrixWorld);
+            }
+            triangle.closestPointToPoint(point, closest);
+            distanceSq = Math.min(distanceSq, closest.distanceToSquared(point));
+            if (distanceSq < 1e-12) break;
+        }
+    });
+    return Math.sqrt(distanceSq);
+}
+
+async function fixture(type = 'goblin', options = {}) {
+    const [THREE, { mergeGeometries }] = await libraries;
+    const lowDetail = options.lowDetail ?? true;
+    const hero = context.window.CastleQuizHero.create(THREE, mergeGeometries, { lowDetail });
+    const monster = context.window.CastleQuizMonsters.create(THREE, mergeGeometries, type, { lowDetail });
+    const floor = options.floor ?? 0.2;
+    const groundAt = options.groundAt || (() => floor);
+    const enemyZ = type === 'dragon' ? -3.85 : -3.55;
+    hero.userData.groundY = groundAt(-0.65, 1.3);
+    monster.userData.groundY = groundAt(0, enemyZ);
+    hero.position.set(-0.65, hero.userData.baseY + hero.userData.groundY, 1.3);
+    monster.position.set(0, monster.userData.baseY + monster.userData.groundY, enemyZ);
+    const camera = new THREE.PerspectiveCamera(48, 16 / 9, 0.1, 60);
+    camera.position.set(0.9, 2.18, 5.85);
+    camera.lookAt(0, 1.35, -2.25);
+    const effects = [], sounds = [];
+    let tweenCalls = 0, elapsed = 0, frameTime = 0;
+    let skipping = false;
+    const tween = async (duration, update, easing = value => value * value * (3 - 2 * value)) => {
+        tweenCalls++;
+        const frames = options.frames ?? 16;
+        for (let frame = 0; frame <= frames; frame++) {
+            if (options.cancelAt?.(tweenCalls, frame)) throw options.cancelError;
+            if (options.cancelAfterImpact && effects.length && frame === 5) throw options.cancelError;
+            if (options.skipAt?.(tweenCalls, frame)) skipping = true;
+            const progress = skipping || options.reducedMotion ? 1 : frame / frames;
+            frameTime = elapsed + duration * progress;
+            update(easing(progress));
+            hero.updateWorldMatrix(true, true);
+            monster.updateWorldMatrix(true, true);
+            options.onFrame?.({ THREE, hero, monster, camera, tweenCalls, frame, progress, duration, time: frameTime, effectCount: effects.length });
+            await Promise.resolve();
+            if (skipping || options.reducedMotion) break;
+        }
+        elapsed += duration;
+    };
+    const combat = context.window.CastleQuizCombat.create({
+        THREE, hero, monster, camera, tween,
+        reducedMotion: () => Boolean(options.reducedMotion),
+        isSkipping: () => skipping || Boolean(options.skipInitially),
+        groundAt,
+        audio: new Proxy({}, { get: (_, name) => (...args) => sounds.push({ name, args }) }),
+        impact(kind, point, metadata) {
+            hero.updateWorldMatrix(true, true);
+            monster.updateWorldMatrix(true, true);
+            const effect = { kind, point: point.clone(), metadata };
+            effects.push(effect);
+            options.onImpact?.({ THREE, hero, monster, camera, effect, time: frameTime });
+        }
+    });
+    return { THREE, hero, monster, camera, combat, effects, sounds, tweenCalls: () => tweenCalls };
+}
+
+test('legacy actors without sword and shield decline combat so the existing quiz fallback remains usable', async () => {
+    const [THREE] = await libraries;
+    const legacy = new THREE.Group();
+    assert.equal(context.window.CastleQuizCombat.create({
+        THREE, hero: legacy, monster: new THREE.Group(), camera: new THREE.PerspectiveCamera(),
+        tween: async (_, update) => update(1), reducedMotion: () => false, groundAt: () => 0
+    }), null);
+});
+
+test('the shield response camera stays inside the clear corridor instead of entering its wall', async () => {
+    const f = await fixture('knight', {
+        onFrame({ camera }) {
+            assert.ok(Math.abs(camera.position.x) < 2.6, 'camera remains inside the corridor walls and torch brackets');
+        }
+    });
+    try { await f.combat.block(); }
+    finally { release(f.hero, f.monster); }
+});
+
+test('the real sword reaches each monster surface before one impact and all equipment poses are restored', async t => {
+    for (const type of types) await t.test(type, async () => {
+        let contact;
+        const f = await fixture(type, { onImpact({ THREE, hero, monster, effect }) {
+            assert.equal(effect.kind, 'blade');
+            assert.ok(hero.userData.swordTip?.isObject3D, 'authored blade-tip anchor exists');
+            const tip = hero.userData.swordTip.getWorldPosition(new THREE.Vector3());
+            contact = {
+                tipDistance: tip.distanceTo(effect.point),
+                surfaceDistance: surfaceDistance(THREE, monster, effect.point)
+            };
+            assert.ok(contact.tipDistance < 0.15, `visible sword reaches impact (${contact.tipDistance}m)`);
+            assert.ok(contact.surfaceDistance < 0.025, `impact lies on visible monster (${contact.surfaceDistance}m)`);
+        } });
+        const before = snapshot(f.hero, f.monster, f.camera);
+        try {
+            assert.ok(f.combat, 'equipped hero supports combat');
+            await f.combat.strike();
+            assert.equal(f.effects.length, 1, 'one impact per strike');
+            assert.ok(contact, 'contact was inspected before recoil');
+            assertRestored(before, f.hero, f.monster, f.camera);
+        } finally { release(f.hero, f.monster); }
+    });
+});
+
+test('monster attacks actually approach the shield before a single block impact', async t => {
+    for (const type of types) await t.test(type, async () => {
+        const f = await fixture(type, { onImpact({ THREE, hero, monster, effect }) {
+            assert.equal(effect.kind, 'shield');
+            assert.ok(hero.userData.shieldContact?.isObject3D, 'authored shield anchor exists');
+            const shieldDistance = surfaceDistance(THREE, hero.userData.shield, effect.point);
+            const attackerDistance = surfaceDistance(THREE, monster, effect.point);
+            assert.ok(shieldDistance < 0.025, `impact lies on visible shield (${shieldDistance}m)`);
+            assert.ok(attackerDistance < 0.15, `visible attacker reaches shield (${attackerDistance}m)`);
+            if (effect.metadata?.attackerPoint) assert.ok(
+                effect.metadata.attackerPoint.distanceTo(effect.point) < 0.15,
+                'reported attacking point agrees with shield contact'
+            );
+        } });
+        const before = snapshot(f.hero, f.monster, f.camera);
+        try {
+            await f.combat.block();
+            assert.equal(f.effects.length, 1, 'one impact per block');
+            assertRestored(before, f.hero, f.monster, f.camera);
+        } finally { release(f.hero, f.monster); }
+    });
+});
+
+test('cancelling windup, contact travel or recovery restores actor joints and camera without swallowing cancellation', async t => {
+    for (const action of ['strike', 'block']) for (const phase of [1, 2, 3]) await t.test(`${action}, phase ${phase}`, async () => {
+        const error = new Error('deliberate combat cancellation');
+        const f = await fixture('knight', { cancelError: error, cancelAt: (call, frame) => call === phase && frame === 5 });
+        const before = snapshot(f.hero, f.monster, f.camera);
+        try {
+            await assert.rejects(f.combat[action](), actual => actual === error);
+            assertRestored(before, f.hero, f.monster, f.camera);
+            assert.ok(f.effects.length <= 1, 'cancellation never duplicates an impact');
+        } finally { release(f.hero, f.monster); }
+    });
+});
+
+test('cancelling after contact restores the pose and preserves exactly one completed impact', async t => {
+    for (const action of ['strike', 'block']) await t.test(action, async () => {
+        const error = new Error('cancel during impact recovery');
+        const f = await fixture('knight', { cancelError: error, cancelAfterImpact: true });
+        const before = snapshot(f.hero, f.monster, f.camera);
+        try {
+            await assert.rejects(f.combat[action](), actual => actual === error);
+            assert.equal(f.effects.length, 1, 'contact already completed once before cancellation');
+            assertRestored(before, f.hero, f.monster, f.camera);
+        } finally { release(f.hero, f.monster); }
+    });
+});
+
+test('contact remains attached to visible geometry when actors cross from a raised podium to the trail', async t => {
+    for (const action of ['strike', 'block']) await t.test(action, async () => {
+        const f = await fixture('dragon', {
+            groundAt: (_, z) => z < -2 ? 0.34 : 0,
+            onImpact({ THREE, hero, monster, effect }) {
+                const attackingPoint = action === 'strike'
+                    ? hero.userData.swordTip.getWorldPosition(new THREE.Vector3())
+                    : effect.metadata?.attackerPoint;
+                assert.ok(attackingPoint?.isVector3, 'actual attacking point is available');
+                assert.ok(attackingPoint.distanceTo(effect.point) < 0.15, 'terrain height is included in solved contact');
+                const target = action === 'strike' ? monster : hero.userData.shield;
+                assert.ok(surfaceDistance(THREE, target, effect.point) < 0.025, 'impact remains on the visible target');
+            }
+        });
+        const before = snapshot(f.hero, f.monster, f.camera);
+        try {
+            await f.combat[action]();
+            assert.equal(f.effects.length, 1);
+            assertRestored(before, f.hero, f.monster, f.camera);
+        } finally { release(f.hero, f.monster); }
+    });
+});
+
+test('desktop geometry preserves low shield and raised-platform contact', async t => {
+    for (const type of ['spider', 'dragon']) await t.test(type, async () => {
+        const f = await fixture(type, {
+            lowDetail: false,
+            groundAt: (_, z) => type === 'dragon' && z < -2 ? 0.34 : 0,
+            onImpact({ THREE, hero, monster, effect }) {
+                assert.ok(surfaceDistance(THREE, hero.userData.shield, effect.point) < 0.025, 'contact lies on the detailed shield');
+                assert.ok(surfaceDistance(THREE, monster, effect.point) < 0.15, 'detailed attacker reaches the shield');
+            }
+        });
+        const before = snapshot(f.hero, f.monster, f.camera);
+        try {
+            await f.combat.block();
+            assert.equal(f.effects.length, 1);
+            assertRestored(before, f.hero, f.monster, f.camera);
+        } finally { release(f.hero, f.monster); }
+    });
+});
+
+test('reduced motion and skipped combat avoid impact effects and retain the starting pose', async t => {
+    for (const action of ['strike', 'block']) for (const mode of ['reduced', 'skipInitially', 'skipDuring']) await t.test(`${action}, ${mode}`, async () => {
+        const f = await fixture('dragon', {
+            reducedMotion: mode === 'reduced', skipInitially: mode === 'skipInitially',
+            skipAt: mode === 'skipDuring' ? (call, frame) => call === 1 && frame === 3 : undefined
+        });
+        const before = snapshot(f.hero, f.monster, f.camera);
+        try {
+            await f.combat[action]();
+            assert.equal(f.effects.length, 0, 'skipped combat creates no impact');
+            assertRestored(before, f.hero, f.monster, f.camera);
+        } finally { release(f.hero, f.monster); }
+    });
+});
+
+test('intermediate combat poses keep the sword and shield rigidly gripped while elbows articulate', async t => {
+    for (const action of ['strike', 'block']) await t.test(action, async () => {
+        let grips, wristRest, forearmRest, maxElbowMotion = 0, maxWristMotion = 0;
+        const f = await fixture('knight', { onFrame({ hero }) {
+            const h = hero.userData;
+            for (const [name, equipment] of [['sword', h.sword], ['shield', h.shield]]) {
+                assert.ok(equipment.position.distanceTo(grips[name].position) < 1e-9, `${name} does not slide through the gauntlet`);
+                assert.ok(equipment.quaternion.angleTo(grips[name].quaternion) < 1e-7, `${name} does not spin independently of the hand`);
+            }
+            for (const side of ['L', 'R']) {
+                maxElbowMotion = Math.max(maxElbowMotion, h[`forearm${side}`].quaternion.angleTo(forearmRest[side]));
+                maxWristMotion = Math.max(maxWristMotion, h[`hand${side}`].quaternion.angleTo(wristRest[side]));
+            }
+        } });
+        const h = f.hero.userData;
+        grips = Object.fromEntries(['sword', 'shield'].map(name => [name, {
+            position: h[name].position.clone(), quaternion: h[name].quaternion.clone()
+        }]));
+        forearmRest = Object.fromEntries(['L', 'R'].map(side => [side, h[`forearm${side}`].quaternion.clone()]));
+        wristRest = Object.fromEntries(['L', 'R'].map(side => [side, h[`hand${side}`].quaternion.clone()]));
+        const before = snapshot(f.hero, f.monster, f.camera);
+        try {
+            await f.combat[action]();
+            assert.ok(maxElbowMotion > 0.15, `the ${action} uses elbow flexion instead of a rigid shoulder-only gesture`);
+            assert.ok(maxWristMotion < Math.PI / 3, 'the armored wrist stays within a plausible range');
+            assertRestored(before, f.hero, f.monster, f.camera);
+        } finally { release(f.hero, f.monster); }
+    });
+});
+
+test('a sword strike approaches at a grounded pace and carries its blade through contact before retreating', async t => {
+    const frames = [];
+    let impactTime = null, impactPoint, rootAtImpact;
+    const floor = 0.2;
+    const f = await fixture('knight', {
+        floor,
+        onFrame({ THREE, hero, time, effectCount }) {
+            const h = hero.userData;
+            const boots = ['L', 'R'].map(side => {
+                const foot = h[`foot${side}`];
+                const bounds = new THREE.Box3().setFromObject(foot, true);
+                return { center: bounds.getCenter(new THREE.Vector3()), minY: bounds.min.y };
+            });
+            frames.push({ time, root: hero.position.clone(), tip: h.swordTip.getWorldPosition(new THREE.Vector3()), boots, effectCount });
+        },
+        onImpact({ hero, effect, time }) {
+            impactTime = time; impactPoint = effect.point.clone(); rootAtImpact = hero.position.clone();
+        }
+    });
+    try {
+        await f.combat.strike();
+        assert.equal(f.effects.length, 1);
+        let maxSpeed = 0, movingSamples = 0, supportedSamples = 0, plantedSamples = 0;
+        for (let i = 1; i < frames.length; i++) {
+            const current = frames[i], previous = frames[i - 1], dt = (current.time - previous.time) / 1000;
+            if (dt <= 0 || current.effectCount) continue;
+            const distance = Math.hypot(current.root.x - previous.root.x, current.root.z - previous.root.z);
+            if (distance < 0.005) continue;
+            movingSamples++; maxSpeed = Math.max(maxSpeed, distance / dt);
+            if (current.boots.some(boot => Math.abs(boot.minY - floor) < 0.045)) supportedSamples++;
+            const bootSpeeds = current.boots.map((boot, side) => {
+                if (Math.abs(boot.minY - floor) > 0.045) return Infinity;
+                const before = previous.boots[side].center;
+                return Math.hypot(boot.center.x - before.x, boot.center.z - before.z) / dt;
+            });
+            if (Math.min(...bootSpeeds) < 0.75) plantedSamples++;
+            assert.ok(current.boots.every(boot => boot.minY >= floor - 0.035), 'boots do not pass substantially through the floor during approach');
+        }
+        assert.ok(movingSamples > 5, 'the approach is sampled over visible travel');
+        assert.ok(maxSpeed < 3.8, `armored approach has a plausible peak speed (${maxSpeed}m/s)`);
+        assert.ok(supportedSamples / movingSamples > 0.8, 'the approach keeps a supporting boot on the ground');
+        assert.ok(plantedSamples / movingSamples > 0.5, 'body travel comes from stepping rather than both boots sliding together');
+        assert.ok(frames.some(frame => frame.time - impactTime >= 35 && frame.time - impactTime <= 110 && frame.tip.distanceTo(impactPoint) < 0.1), 'the blade briefly resists at contact before recovery');
+        assert.ok(frames.some(frame => frame.time > impactTime + 90 && frame.time < impactTime + 500
+            && frame.root.distanceTo(rootAtImpact) < 0.2 && frame.tip.distanceTo(impactPoint) > 0.12), 'the blade visibly follows through while the stance remains planted');
+        t.diagnostic(JSON.stringify({ maxApproachSpeed: maxSpeed, movingSamples, supportedSamples, plantedSamples }));
+    } finally { release(f.hero, f.monster); }
+});
+
+test('repeated strike and block preserve authored scale and raised-floor poses without accumulating recoil', async () => {
+    const f = await fixture('golem', { floor: 0.34 });
+    f.hero.scale.set(1.02, 1.03, 1.01);
+    f.monster.scale.setScalar(1.04);
+    f.hero.rotation.y = -0.06;
+    f.monster.rotation.y = 0.11;
+    f.hero.userData.armL.rotation.x = 0.035;
+    f.camera.rotateZ(0.025);
+    const before = snapshot(f.hero, f.monster, f.camera);
+    try {
+        for (let attempt = 0; attempt < 3; attempt++) {
+            await f.combat.strike();
+            await f.combat.block();
+            assertRestored(before, f.hero, f.monster, f.camera);
+        }
+        assert.equal(f.effects.length, 6, 'each completed attack produces exactly one impact');
+    } finally { release(f.hero, f.monster); }
+});
+
+test('striking transfers weight through a braced stance and heavy enemies recoil less than light enemies', async () => {
+    const recoil = {};
+    for (const type of ['goblin', 'golem', 'dragon']) {
+        let baseZ, baseY, maxRecoil = 0, maxCompression = 0, maxPitch = 0;
+        const f = await fixture(type, { onFrame({ hero, monster, effectCount }) {
+            if (!effectCount) {
+                maxCompression = Math.max(maxCompression, baseY - hero.position.y);
+                maxPitch = Math.max(maxPitch, Math.abs(hero.rotation.x));
+            } else maxRecoil = Math.max(maxRecoil, baseZ - monster.position.z);
+        } });
+        baseZ = f.monster.position.z; baseY = f.hero.position.y;
+        try {
+            await f.combat.strike();
+            assert.ok(maxCompression > 0.045, 'the knees take the windup load before the blade accelerates');
+            assert.ok(maxPitch > 0.035, 'the body participates instead of only rotating the shoulder');
+            assert.ok(maxRecoil > 0.05 && maxRecoil < 0.35, 'contact causes a bounded physical stagger');
+            recoil[type] = maxRecoil;
+        } finally { release(f.hero, f.monster); }
+    }
+    assert.ok(recoil.golem < recoil.goblin * 0.75, 'a heavy golem resists the same hit');
+    assert.ok(recoil.dragon < recoil.goblin * 0.75, 'a dragon does not recoil like a light goblin');
+});
+
+test('fatal monster attacks contact the visible torso rather than announcing another successful shield block', async t => {
+    for (const type of types) await t.test(type, async () => {
+        const f = await fixture(type, { onImpact({ THREE, hero, monster, effect }) {
+            assert.equal(effect.kind, 'body');
+            assert.equal(effect.metadata.shieldPoint, null);
+            assert.ok(surfaceDistance(THREE, hero, effect.point) < 0.025, 'the fatal contact lies on the visible hero');
+            assert.ok(surfaceDistance(THREE, hero.userData.shield, effect.point) > 0.05, 'the blow passes the shield');
+            assert.ok(surfaceDistance(THREE, monster, effect.point) < 0.15, 'the visible monster reaches the fatal contact');
+        } });
+        const before = snapshot(f.hero, f.monster, f.camera);
+        try {
+            await f.combat.block({ fatal: true });
+            assert.equal(f.effects.length, 1);
+            assertRestored(before, f.hero, f.monster, f.camera);
+        } finally { release(f.hero, f.monster); }
+    });
+});
+
+test('a finishing strike hands the struck pose to defeat before recovery and leaves the fallen monster down', async () => {
+    const f = await fixture('knight');
+    const before = snapshot(f.hero, f.camera), originalEnemyZ = f.monster.position.z;
+    let calls = 0, fallen;
+    try {
+        await f.combat.strike({ async onDefeat() {
+            calls++;
+            assert.equal(f.effects.length, 1, 'the verified impact precedes defeat');
+            assert.equal(f.hero.userData.combatPhase, 'followThrough', 'defeat does not wait until the stance has reset');
+            assert.ok(f.monster.position.z < originalEnemyZ - 0.02, 'the enemy is still reacting to the blow');
+            f.monster.position.y = 0.12; f.monster.rotation.z = -Math.PI / 2;
+            f.monster.userData.defeated = true;
+            fallen = snapshot(f.monster);
+        } });
+        assert.equal(calls, 1);
+        assert.equal(f.monster.userData.defeated, true);
+        assertRestored(fallen, f.monster);
+        assertRestored(before, f.hero, f.camera);
+    } finally { release(f.hero, f.monster); }
+});
+
+test('a fatal attack preserves the fallen hero while the attacker and camera recover', async () => {
+    const f = await fixture('demon');
+    const before = snapshot(f.monster, f.camera);
+    let calls = 0, fallen;
+    try {
+        await f.combat.block({ fatal: true, async onDefeat() {
+            calls++;
+            assert.equal(f.effects[0]?.kind, 'body');
+            f.hero.position.y = 0.16; f.hero.rotation.x = -1.4;
+            f.hero.userData.baseY = 0.16; f.hero.userData.defeated = true;
+            fallen = snapshot(f.hero);
+        } });
+        assert.equal(calls, 1);
+        assert.equal(f.hero.userData.baseY, 0.16, 'death owns the terminal actor metadata');
+        assert.equal(f.hero.userData.defeated, true);
+        assertRestored(fallen, f.hero);
+        assertRestored(before, f.monster, f.camera);
+    } finally { release(f.hero, f.monster); }
+});
+
+test('failed defeat handoff restores both actors and preserves the original rejection', async t => {
+    for (const action of ['strike', 'block']) await t.test(action, async () => {
+        const f = await fixture('knight'), before = snapshot(f.hero, f.monster, f.camera);
+        const rejected = new Error('defeat cancelled');
+        try {
+            await assert.rejects(f.combat[action]({ fatal: true, async onDefeat() {
+                const actor = action === 'strike' ? f.monster : f.hero;
+                actor.rotation.z = 0.8; actor.position.y = 0.1;
+                throw rejected;
+            } }), actual => actual === rejected);
+            assertRestored(before, f.hero, f.monster, f.camera);
+        } finally { release(f.hero, f.monster); }
+    });
+});
+
+test('reduced motion and skipping still complete one terminal defeat without impact effects', async t => {
+    for (const action of ['strike', 'block']) for (const mode of ['reduced', 'skipInitially', 'skipDuring']) await t.test(`${action}, ${mode}`, async () => {
+        const f = await fixture('goblin', {
+            reducedMotion: mode === 'reduced', skipInitially: mode === 'skipInitially',
+            skipAt: mode === 'skipDuring' ? (call, frame) => call === 1 && frame === 3 : undefined
+        });
+        const actor = action === 'strike' ? f.monster : f.hero, other = action === 'strike' ? f.hero : f.monster;
+        const before = snapshot(other, f.camera); let calls = 0;
+        try {
+            await f.combat[action]({ fatal: true, onDefeat() {
+                calls++; actor.rotation.z = -1.5; actor.userData.defeated = true;
+            } });
+            assert.equal(calls, 1); assert.equal(f.effects.length, 0);
+            assert.equal(actor.userData.defeated, true); assert.ok(Math.abs(actor.rotation.z + 1.5) < 1e-9);
+            assertRestored(before, other, f.camera);
+        } finally { release(f.hero, f.monster); }
+    });
+});

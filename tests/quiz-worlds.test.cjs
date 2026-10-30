@@ -4,6 +4,36 @@ const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
 const read = file => fs.readFileSync(path.join(__dirname, '..', file), 'utf8');
+test('merged 3D engine retains world selection and both particle formats', async () => {
+    const ctx = context({ performance: { now: () => 0 } });
+    const source = read('js/site/castle-3d.js').replace(
+        'return { init, encounter, correct, wrong, nextRoom, victory, gameOver, getRoomName, showMap, skip, dispose };',
+        'return { init, getRoomName, testParticles(value, t, motion) { particles = value; updateParticles(t, motion); particles = null; } };'
+    );
+    vm.runInContext(source, ctx);
+    const engine = ctx.window.CastleQuiz3D;
+    for (const world of ['castle', 'snow', 'desert', 'jungle', 'unknown']) {
+        await engine.init(null, world);
+        assert.equal(engine.getRoomName(0), ctx.quizWorldRoom(world, 0).name);
+    }
+    const flake = { position: { y: 3 }, userData: { snow: true, phase: 0 } };
+    engine.testParticles({ children: [flake] }, 2, 1);
+    assert.ok(flake.position.y < 3);
+    const y = flake.position.y;
+    engine.testParticles({ children: [flake] }, 3, 0);
+    assert.equal(flake.position.y, y);
+    const positions = { count: 1, setX(i, value) { this.x = value; }, setY(i, value) { this.y = value; } };
+    engine.testParticles({ isPoints: true, geometry: { getAttribute: () => positions }, userData: { basePositions: [1, 2, 3] } }, 0, 1);
+    assert.equal(positions.x, 1.025);
+    assert.equal(positions.y, 2);
+    assert.equal(positions.needsUpdate, true);
+    assert.match(source, /if \(currentWorld === 'castle'\) buildCastle\(\);\s*else\s*\{[\s\S]*?QuizWorldScenery\.buildEnvironment/);
+    for (const file of ['index.html', 'admin.html']) {
+        const html = read(file);
+        const scenery = html.indexOf('src="js/site/quiz-world-scenery.js"');
+        assert.ok(scenery >= 0 && scenery < html.indexOf('src="js/site/castle-3d.js"'), file);
+    }
+});
 function context(extra = {}) {
     const ctx = vm.createContext({ window: {}, ...extra });
     vm.runInContext(read('js/layout/quiz-worlds.js'), ctx);
@@ -144,8 +174,9 @@ test('demo SQL contains all 12 world/mode combinations and 60 playable questions
         const normalized = ctx.normalizeazaQuiz(row);
         assert.equal(normalized.questions.length, 5, row.title);
         assert.equal(normalized.world_theme, row.world_theme);
-        assert.equal(normalized.questions.filter(question => question.boss).length, 1);
-        assert.equal(normalized.questions[4].boss, true);
+        const adventure = row.game_mode === 'castle_choice' || row.game_mode === 'castle_adventure';
+        assert.equal(normalized.questions.filter(question => question.boss).length, adventure ? 1 : 0);
+        assert.equal(normalized.questions[4].boss, adventure);
         assert.ok(row.title.startsWith('[TEST]'));
         combinations.add(row.world_theme + '/' + row.game_mode);
     }

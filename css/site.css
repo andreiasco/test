@@ -8,6 +8,8 @@
 @import url("components/authors.css");
 @import url("components/quote.css");
 @import url("components/quiz.css");
+@import url("components/hangman.css");
+@import url("components/adventure-map.css");
 @import url("components/login.css");
 @import url("components/profile.css");
 @import url("pages/admin-panel.css");
@@ -28,6 +30,8 @@
 @import url("themes/alma-icons.css");
 @import url("themes/alma-education.css");
 @import url("themes/alma-quiz-worlds.css");
+@import url("components/quiz-modes.css");
+@import url("components/quiz-viewport.css");
 
 /* Etichetă accesibilă, ascunsă doar vizual. */
 .sr-only {

@@ -1,5 +1,7 @@
 // Asset-uri 3D locale pentru Quiz Castel.
-// Daca un model GLB nu se poate incarca, motorul foloseste automat varianta procedurala.
+// Monștrii incluși folosesc sculpturile din castle-monsters*.js, cu GLB de rezervă.
+// Eroul inclus folosește cavalerul articulat din castle-hero.js.
+// Un path GLB personalizat are prioritate; detailed:false activează GLB-ul inclus.
 window.CastleQuizAssets = {
     hero: { path: "assets/quiz3d/hero.glb", scale: 1.0, y: 0 },
     monsters: {

@@ -113,17 +113,19 @@ window.CastleQuizAudio = (() => {
         oscillator.start(at); oscillator.stop(at + duration + 0.025);
     }
 
-    function noise(duration, volume, { delay = 0, frequency = 700, filterType = "bandpass", pan = 0, kind = "effect", reflection = 0.28, loop = false } = {}) {
+    function noise(duration, volume, { delay = 0, frequency = 700, frequencyEnd = null, attack = null, filterType = "bandpass", pan = 0, kind = "effect", reflection = 0.28, loop = false } = {}) {
         if (!audible()) return null;
         const c = ensure(); if (!c) return null;
         const at = c.currentTime + delay;
         const source = c.createBufferSource();
         source.buffer = noiseBuffer; source.loop = true;
         const filter = c.createBiquadFilter();
-        filter.type = filterType; filter.frequency.value = frequency; filter.Q.value = 0.65;
+        filter.type = filterType; filter.frequency.setValueAtTime(frequency, at); filter.Q.value = 0.65;
+        if (frequencyEnd) filter.frequency.exponentialRampToValueAtTime(frequencyEnd, at + duration);
         const gain = c.createGain();
+        const onset = loop ? 0.7 : attack === null ? Math.min(0.012, duration * 0.2) : Math.min(attack, duration * 0.45);
         gain.gain.setValueAtTime(0.0001, at);
-        gain.gain.exponentialRampToValueAtTime(volume, at + (loop ? 0.7 : Math.min(0.012, duration * 0.2)));
+        gain.gain.exponentialRampToValueAtTime(volume, at + onset);
         if (!loop) gain.gain.exponentialRampToValueAtTime(0.0001, at + duration);
         source.connect(filter); filter.connect(gain);
         track(source, [filter, ...route(gain, pan, reflection)], kind);
@@ -174,6 +176,48 @@ window.CastleQuizAudio = (() => {
         noise(boss ? 0.95 : 0.48, boss ? 0.11 : 0.065, { frequency: boss ? 220 : 360, reflection: 0.33 });
         tone(boss ? 53 : 83, boss ? 0.8 : 0.42, boss ? 0.075 : 0.045,
             { type: "triangle", slide: boss ? 32 : 61, reflection: 0.3 });
+    }
+    function combatReady() {
+        if (!audible()) return false;
+        const c = ensure();
+        // Contactele trecute nu se adună dacă browserul încă așteaptă gestul elevului.
+        return Boolean(c && c.state === "running");
+    }
+    function stopCombat() { stopKind("combat"); }
+    function swing() {
+        if (!combatReady()) return;
+        // Aer scurt, cu intensitate în creștere; fără ton electronic de sabie.
+        noise(0.17 + Math.random() * 0.025, 0.055, {
+            frequency: 650 + Math.random() * 140, frequencyEnd: 1500 + Math.random() * 250,
+            attack: 0.07, pan: -0.12 + Math.random() * 0.24, kind: "combat", reflection: 0.12,
+        });
+    }
+    function impact(kind = "blade") {
+        if (!combatReady()) return;
+        const shield = kind === "shield";
+        const variation = 0.94 + Math.random() * 0.12;
+        const pan = -0.1 + Math.random() * 0.2;
+        const options = { pan, kind: "combat", reflection: 0.22 };
+        // Corpul loviturii: lemn/curele amortizate sub metal, nu un clinchet lung.
+        noise(shield ? 0.1 : 0.065, shield ? 0.075 : 0.06, {
+            ...options, frequency: shield ? 800 : 1800, filterType: "lowpass", reflection: 0.16,
+        });
+        tone((shield ? 105 : 142) * variation, shield ? 0.13 : 0.085, shield ? 0.07 : 0.05, options);
+        // Moduri nearmonice și scurte dau rezonanța tablei și a lamei.
+        const modes = shield
+            ? [[338, 0.15, 0.022], [787, 0.09, 0.011], [1379, 0.055, 0.005]]
+            : [[594, 0.16, 0.025], [1043, 0.11, 0.012], [1867, 0.065, 0.006]];
+        modes.forEach(([frequency, duration, volume]) => tone(frequency * variation, duration, volume, options));
+    }
+    function armour() {
+        if (!combatReady()) return;
+        const variation = 0.94 + Math.random() * 0.12;
+        const options = { pan: -0.08 + Math.random() * 0.16, kind: "combat", reflection: 0.12 };
+        // Frecarea căptușelii și două rezonanțe mici ale zalelor/plăcilor.
+        noise(0.065, 0.022, { ...options, frequency: 570, filterType: "lowpass" });
+        noise(0.035, 0.018, { ...options, frequency: 2400 * variation });
+        tone(1789 * variation, 0.075, 0.011, options);
+        tone(2873 * variation, 0.045, 0.005, { ...options, delay: 0.018 });
     }
     function bell(frequency, delay, volume) {
         tone(frequency, 0.58, volume, { delay, reflection: 0.32 });
@@ -235,5 +279,5 @@ window.CastleQuizAudio = (() => {
         }
         else if (ambienceWanted && enabled && ctx) ambience(true);
     });
-    return { ensure, footstep, steps, stopSteps, door, monster, correct, wrong, victory, gameOver, click, tick, ambience, setEnabled, dispose };
+    return { ensure, footstep, steps, stopSteps, door, monster, swing, impact, armour, stopCombat, correct, wrong, victory, gameOver, click, tick, ambience, setEnabled, dispose };
 })();

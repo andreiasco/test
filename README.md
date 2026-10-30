@@ -24,7 +24,21 @@ Profesorul AI al elevilor apelează OpenAI Responses API prin funcția Supabase 
 
 # Quiz Castel — materiale, mișcare și sunet
 
-Scena folosește hărți PBR generate local, cu seed-uri stabile, pentru piatră, dale și lemn (`js/site/castle-materials.js`): culoare, relief și rugozitate. Arcadele, lumina caldă a torțelor și reflexiile discrete dau coridorului mai multă profunzime. Sunt păstrate modelele GLB locale; nu sunt adăugate pachete externe de texturi sau sunete.
+Scena folosește hărți PBR generate local, cu seed-uri stabile, pentru piatră, dale și lemn (`js/site/castle-materials.js`): culoare, relief și rugozitate. Arcadele, lumina caldă a torțelor și reflexiile discrete dau coridorului mai multă profunzime. Nu sunt adăugate pachete externe de texturi sau sunete.
+
+Monștrii incluși folosesc modelele anatomice din `castle-monsters-humanoids.js` și `castle-monsters-creatures.js`: fețe orientate spre jucător, membre rotunjite, coaste, armură stratificată, țesătură, coarne și aripi cu membrane și degete de susținere. `castle-monsters.js` generează relieful suprafețelor și unește geometria statică pe materiale, păstrând articulațiile pentru animații. Profilul mobil reduce geometria. Modelele sunt create în proiect, fără descărcări suplimentare de personaje.
+
+Un `path` GLB personalizat din `CastleQuizAssets.monsters` păstrează prioritatea. Pentru revenirea la unul dintre GLB-urile originale, se adaugă `detailed: false` la descriptorul său. GLB-urile și variantele procedurale simple rămân disponibile dacă modelul detaliat nu se poate construi.
+
+Eroul din `castle-hero.js` este un cavaler orientat spre adversari, cu coif închis, armură din plăci, sabie și scut curbat. Echipamentul este legat de articulațiile brațelor, iar mersul ține cont de greutatea lui și de înălțimea podelei. `CastleQuizModelKit` partajează utilitarele de geometrie și suprafețe cu monștrii. Un GLB personalizat pentru erou păstrează prioritatea; `CastleQuizAssets.hero.detailed = false` activează modelul original.
+
+`castle-combat.js` sincronizează apropierea, pregătirea loviturii, contactul și revenirea: un răspuns corect declanșează atacul cu sabia, iar unul greșit atacul adversarului și reacția cu scutul. Sunetele scurte de sabie, impact și armură pornesc în fazele corespunzătoare. Mișcarea redusă și sărirea animației evită efectele de contact; închiderea scenei oprește efectele active.
+
+Coatele, încheieturile, genunchii și gleznele au pivoturi proprii. Sabia și scutul păstrează priza în mână pe tot parcursul duelului; pașii urmăresc distanța, iar piciorul de sprijin rămâne pe podea în timpul loviturii. Contactul are o scurtă fază de rezistență, urmată de continuarea mișcării și o reacție adaptată masei adversarului. Adversarii așteaptă în interiorul încăperii, iar camera urmărește confruntarea fără saltul anterior dintre poziții fixe.
+
+`castle-atmosphere.js` adaugă flăcări modelate și suporturi de fier pentru torțe, butoaie și detalii de piatră, un cadru pentru fereastra sălii finale și elemente specifice zăpezii, deșertului și junglei. Detaliile sunt grupate pe materiale și păstrează liber culoarul duelului.
+
+Spânzurătoarea are o scenă SVG proprie (`hangman-view.js` și `hangman.css`), cu structură de lemn, frânghie și personaj completat progresiv. Desenul respectă viețile disponibile la începutul cuvântului; greșelile și literele găsite apar imediat, iar tastatura poate fi folosită și fizic. În timpul reacției 3D, cronometrul este oprit și apoi reia exact timpul rămas. Literele repetate, ieșirea din quiz și răspunsurile întârziate nu mai aplică penalizări repetate.
 
 - `js/site/castle-rig.js` ancorează pivoturile membrelor GLB la articulații, păstrând geometria atașată corpului în timpul animației.
 - Mersul și apelurile `CastleQuizAudio.footstep()` urmăresc distanța parcursă. Ușa se deschide în jurul balamalei, iar pașii programați sunt opriți când mișcarea este sărită.
@@ -40,7 +54,7 @@ NODE_PATH="/workspace/.cloud-onboarding/test/node_modules${NODE_PATH:+:$NODE_PAT
   node tests/ai-dom-check.cjs
 ```
 
-Prima comandă include regresiile pentru rig (`tests/castle-rig.test.cjs`) și ciclul de viață audio (`tests/quiz-audio.test.cjs`). Aspectul WebGL și tranzițiile se verifică separat în browser, pentru camerele tematice, dimensiuni desktop/mobil și preferința de mișcare redusă.
+Prima comandă include regresiile pentru rig (`tests/castle-rig.test.cjs`), geometria și articulațiile monștrilor (`tests/castle-monsters.test.cjs`) și ciclul de viață audio (`tests/quiz-audio.test.cjs`). Aspectul WebGL și tranzițiile se verifică separat în browser, pentru camerele tematice, dimensiuni desktop/mobil și preferința de mișcare redusă.
 
 # Site modularizat
 
@@ -145,7 +159,7 @@ Versiunea include un sistem nativ de quiz-uri administrabile din panoul de admin
 - edita, publica/ascunde și șterge quiz-uri existente.
 
 ### Pentru utilizator
-În pagina `#quiz`, fila **Quiz interactiv** încarcă quiz-urile publicate din Supabase. Player-ul include progres, cronometru, punctaj cu bonus de timp, feedback animat și ecran final. Kahoot și Wordwall au fost păstrate ca file separate.
+În pagina `#quiz`, jocurile site-ului încarcă direct quiz-urile publicate din Supabase. Player-ul include progres, cronometru, punctaj, feedback și ecran final.
 
 ## Quiz aventură 3D în castel
 
@@ -213,7 +227,11 @@ Camerele sunt selectate automat după numărul întrebării. Ultima întrebare f
 - Administratorul poate crea patru tipuri de quiz: `castle_choice`, `castle_true_false`, `castle_hangman`, `castle_ordering`.
 - Spânzurătoarea pierde o viață la fiecare literă greșită; 0 vieți încheie jocul.
 - Ordonarea folosește elemente selectabile prin tap/click și verifică ordinea exactă.
-- Toate modurile folosesc aventura 3D, 3 vieți și boss final.
+- Doar **Alege răspunsul** folosește harta 3D, eroul, monștrii și dragonul final, cu 3 vieți.
+- **Pune în ordine** afișează cuvintele selectabile și zona pentru ordinea aleasă.
+- **Adevărat / Fals** afișează afirmația și exact cele două răspunsuri.
+- **Spânzurătoarea** afișează desenul, cuvântul ascuns și tastatura. Fiecare cuvânt nou începe cu 6 vieți; fiecare literă greșită adaugă o parte a omului.
+- Cele trei moduri simple pornesc direct, inclusiv când motorul 3D nu este disponibil.
 
 ## Etapa 6 – personaje GLB + animații cinematice
 
