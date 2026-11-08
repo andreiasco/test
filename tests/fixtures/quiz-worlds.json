@@ -1,24 +1,3 @@
--- 12 quiz-uri publicate: 4 tipuri pentru fiecare nivel nou (Zăpadă, Deșert, Junglă).
--- Câte 5 provocări: cele 4 camere obișnuite și camera finală.
--- Rulează DUPĂ quiz-worlds.sql. Nu modifică quiz-uri existente și nu creează duplicate.
-begin;
-lock table public.quizzes in share row exclusive mode;
-do $seed$
-declare
-    admin_id uuid;
-begin
-    if not exists (select 1 from information_schema.columns where table_schema='public' and table_name='quizzes' and column_name='world_theme') then
-        raise exception 'Rulează mai întâi supabase/quiz-worlds.sql.';
-    end if;
-    select id into admin_id from public.profiles where role='admin' order by id limit 1;
-    if admin_id is null then
-        raise exception 'Nu există un profil cu rol admin pentru atribuirea quiz-urilor.';
-    end if;
-    insert into public.quizzes
-        (title, description, grade, game_mode, world_theme, difficulty, lives, seconds_per_question, published, questions, created_by, updated_at)
-    select demo.title, demo.description, demo.grade, demo.game_mode, demo.world_theme, demo.difficulty,
-           demo.lives, demo.seconds_per_question, demo.published, demo.questions, admin_id, now()
-    from jsonb_to_recordset($quiz_demo$
 [
   {
     "title": "[TEST] Zăpadă — Alege răspunsul",
@@ -1000,33 +979,3 @@ begin
     ]
   }
 ]
-$quiz_demo$::jsonb) as demo(
-        title text, description text, grade text, game_mode text, world_theme text, difficulty text,
-        lives integer, seconds_per_question integer, published boolean, questions jsonb
-    )
-    where not exists (
-        select 1 from public.quizzes existing
-        where existing.title=demo.title and existing.world_theme=demo.world_theme and existing.game_mode=demo.game_mode
-    );
-end;
-$seed$;
-commit;
-
--- Verificare: 12 rânduri, cu câte un quiz pentru fiecare combinație nivel/tip.
-select title, world_theme, game_mode, jsonb_array_length(questions::jsonb) as provocari, published
-from public.quizzes
-where (title,world_theme,game_mode) in (
-    ('[TEST] Zăpadă — Alege răspunsul', 'snow', 'castle_choice'),
-    ('[TEST] Zăpadă — Adevărat / Fals', 'snow', 'castle_true_false'),
-    ('[TEST] Zăpadă — Spânzurătoarea', 'snow', 'castle_hangman'),
-    ('[TEST] Zăpadă — Pune în ordine', 'snow', 'castle_ordering'),
-    ('[TEST] Deșert — Alege răspunsul', 'desert', 'castle_choice'),
-    ('[TEST] Deșert — Adevărat / Fals', 'desert', 'castle_true_false'),
-    ('[TEST] Deșert — Spânzurătoarea', 'desert', 'castle_hangman'),
-    ('[TEST] Deșert — Pune în ordine', 'desert', 'castle_ordering'),
-    ('[TEST] Junglă — Alege răspunsul', 'jungle', 'castle_choice'),
-    ('[TEST] Junglă — Adevărat / Fals', 'jungle', 'castle_true_false'),
-    ('[TEST] Junglă — Spânzurătoarea', 'jungle', 'castle_hangman'),
-    ('[TEST] Junglă — Pune în ordine', 'jungle', 'castle_ordering')
-)
-order by world_theme,game_mode;

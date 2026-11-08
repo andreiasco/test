@@ -1,6 +1,5 @@
 # Niveluri vizuale pentru quiz-uri
 
-Pentru demonstrație, `quiz-worlds-test-data.sql` adaugă 12 quiz-uri publicate, marcate `[TEST]`: câte unul din fiecare tip pentru Zăpadă, Deșert și Junglă. Fiecare are cinci provocări pentru parcurgerea celor patru camere și a camerei finale. Rulează-l după configurarea coloanei. Scriptul poate fi reluat fără duplicate și fără suprascrierea editărilor; autorul este primul profil admin existent. `remove-quiz-worlds-test-data.sql` elimină numai quiz-urile din acest set, identificate prin titlu, nivel și tip.
 
 Rulează `supabase/quiz-worlds.sql` în SQL Editor al proiectului Supabase, apoi reîncarcă site-ul. Scriptul adaugă numai coloana `quizzes.world_theme`, cu valoarea implicită `castle` și o constrângere pentru cele patru opțiuni. Nu schimbă întrebările, tipurile, punctajele, rolurile sau politicile existente.
 

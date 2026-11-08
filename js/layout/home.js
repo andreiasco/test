@@ -7,7 +7,7 @@ const HOME_HTML = `
     <p>O platformă pentru elevi și profesori, în care literatura, resursele didactice și jocurile interactive se întâlnesc.</p>
     <div class="alma-hero-actions"><a class="alma-primary" href="#elevi">Biblioteca elevului</a><a class="alma-secondary" href="#profesori">Biblioteca profesorului</a></div>
     <div class="alma-audiences"><span>Pentru elevi</span><span>Pentru profesori</span><span>Din pasiune pentru educație</span></div></div>
-    <div class="alma-hero-seal"><img src="assets/edu-alma-emblem.png" width="360" height="360" alt="Sigla EDU ALMA — Activități, Lecții, Materiale, Aplicații"><p>Educația prinde viață!</p></div>
+    <div class="alma-hero-seal"><img src="assets/edu-alma-emblem.png?v=gold-rays-v2" width="360" height="360" alt="Sigla EDU ALMA — Activități, Lecții, Materiale, Aplicații"><p>Educația prinde viață!</p></div>
 </header>
 <section class="alma-home-explore" id="functionalitati"><div class="alma-section-heading"><div><p class="alma-eyebrow">UN LOC PENTRU FIECARE CURIOZITATE</p><h2>Ce vrei să descoperi astăzi?</h2></div><p>Alege un punct de plecare.<br>Noi îți aducem ideile mai aproape.</p></div>
 <div class="alma-home-grid"><a class="alma-home-tile" href="#rezumate-literare"><span class="alma-icon">${almaIcon('book')}</span><h3>Biblioteca literară</h3><p>Descoperă operele și resursele după titlu sau autor.</p></a>

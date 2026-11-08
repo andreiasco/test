@@ -9,15 +9,13 @@ body.dark {
 
 body.dark .card,
 body.dark .quiz-card,
-body.dark .kahoot-card,
 body.dark .login-box,
 body.dark .admin-box {
     background: #271f27;
 }
 
 body.dark .card p,
-body.dark .quiz-card p,
-body.dark .kahoot-card p {
+body.dark .quiz-card p{
     color: #ddd;
 }
 

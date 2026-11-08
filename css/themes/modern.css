@@ -9,7 +9,7 @@
 }
 body { font-family: 'Segoe UI', system-ui, sans-serif; line-height: 1.55; background: var(--paper); color: var(--navy); }
 h1, h2, h3, h4, .titlu, .autor-nume, .home-hero h1, .home-section-heading h2,
-.card h3, .quiz-card h3, .kahoot-card h3, .login-box h2, .admin-box h3 {
+.card h3, .quiz-card h3, .login-box h2, .admin-box h3 {
     font-family: 'Segoe UI', system-ui, sans-serif;
     letter-spacing: -.035em;
     line-height: 1.18;
@@ -36,7 +36,7 @@ nav .search-toggle, .account-menu summary { min-height: 42px; border-radius: 10p
 .subtitlu { max-width: 680px; margin: 0 auto 32px; font-size: 16px; line-height: 1.7; }
 .pagina:not(#pagina-acasa) section { margin-top: 40px; margin-bottom: 40px; }
 .cards { gap: 20px; align-items: stretch; }
-.card, .quiz-card, .kahoot-card, .admin-box, .login-box, .profile-box, .profile-panel,
+.card, .quiz-card, .admin-box, .login-box, .profile-box, .profile-panel,
 .intro-box, .rol-card, .howto-card {
     border: 1px solid var(--line);
     border-radius: 18px;
@@ -58,10 +58,10 @@ nav .search-toggle, .account-menu summary { min-height: 42px; border-radius: 10p
 .capitol-limba h4 { font-size: 19px; }
 .capitol-limba > p { color: var(--ink-soft); font-size: 14px; margin: 8px 0 16px; }
 .limba-clasa-descriere, #poezie .subtitlu, #proza .subtitlu, #teatru .subtitlu { border-bottom: 1px solid var(--line); padding-bottom: 20px; }
-button, .opera-link, .home-cta, .kahoot-link, .buton { border-radius: 10px; }
+button, .opera-link, .home-cta, .buton { border-radius: 10px; }
 .opera-btn, .opera-link { padding: 10px 15px; background: #edf4f3; border: 1px solid #d2e3df; border-radius: 9px; color: var(--teal); font-weight: 650; font-size: 13px; }
 .opera-btn:hover, .opera-link:hover { background: var(--teal); border-color: var(--teal); color: #fff; }
-.login-btn, .admin-btn, .quiz-tab, .auth-tab, .reset-btn, .kahoot-link { border-radius: 10px; }
+.login-btn, .admin-btn, .quiz-tab, .auth-tab, .reset-btn { border-radius: 10px; }
 :where(input:not([type='checkbox']):not([type='radio']), select, textarea),
 .login-box input, .auth-form select, .admin-box input, .admin-box textarea, .admin-box select {
     border-radius: 10px;

@@ -17,7 +17,16 @@ nav .nav-links {
     border: 0;
 }
 nav .nav-links > a, nav .nav-overflow { flex: 0 0 auto; }
-nav .nav-tools { grid-column: 3; grid-row: 1; margin: 0; }
+nav .nav-tools {
+    grid-column: 3;
+    grid-row: 1;
+    position: relative;
+    inset: auto;
+    transform: none;
+    align-self: center;
+    flex-wrap: nowrap;
+    margin: 0;
+}
 nav .nav-overflow[hidden] { display: none; }
 nav .nav-overflow summary {
     display: flex;

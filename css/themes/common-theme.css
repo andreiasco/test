@@ -81,7 +81,6 @@ nav button:hover,
 
 .card,
 .quiz-card,
-.kahoot-card,
 .login-box,
 .admin-box {
     border: 1px solid var(--line);
@@ -103,7 +102,6 @@ nav button:hover,
 
 .card h3,
 .quiz-card h3,
-.kahoot-card h3,
 .login-box h2,
 .admin-box h3,
 .admin-header h2 {
@@ -112,8 +110,7 @@ nav button:hover,
 }
 
 .card p,
-.quiz-card p,
-.kahoot-card p {
+.quiz-card p{
     color: var(--ink-soft);
 }
 
@@ -143,35 +140,17 @@ nav button:hover,
 }
 
 .quiz-tab,
-.kahoot-link,
 .login-btn,
 .admin-btn {
     border-radius: 2px;
-}
-
-.quiz-tab.kahoot,
-.kahoot-link {
-    background: var(--navy);
-}
-
-.quiz-tab.wordwall {
-    background: var(--terracotta);
 }
 
 .quiz-card {
     border-top-color: var(--teal);
 }
 
-.kahoot-card {
-    border-top-color: var(--navy);
-}
-
 .quiz-card h3 {
     color: var(--teal);
-}
-
-.kahoot-card h3 {
-    color: var(--navy);
 }
 
 .login-box {

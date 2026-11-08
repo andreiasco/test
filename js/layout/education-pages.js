@@ -6,7 +6,8 @@ function paginaColectieEducationala(collection) {
         <h1 class="titlu education-title"><span class="alma-icon">${almaIcon(collection.icon)}</span>${collection.title}</h1>
         <p class="subtitlu">${collection.intro}</p>
         <div class="education-filters" data-education-filters="${collection.key}">
-            ${collection.parent !== 'revista' ? `<label>Clasa<select data-education-grade><option value="">Toate clasele</option>${[5,6,7,8].map(grade => `<option value="${grade}">Clasa a ${grade}-a</option>`).join('')}</select></label>` : ''}
+            ${collection.parent !== 'revista' ? `<label>Clasa<select data-education-grade><option value="">Toate clasele</option>${educationGrades(collection).map(grade => `<option value="${grade}">${educationGradeLabel(grade)}</option>`).join('')}</select></label>` : ''}
+            ${collection.key === 'manuale-digitale' ? '<label>Materia<select data-education-type="subject"><option value="">Toate materiile</option></select></label>' : ''}
             ${filter ? `<label>${filter.label}<select data-education-type="${filter.name}"><option value="">Toate</option>${filter.options.map(option => `<option>${option}</option>`).join('')}</select></label>` : ''}
             <label>Caută în colecție<input type="search" data-education-search placeholder="Titlu sau subiect..."></label>
         </div>

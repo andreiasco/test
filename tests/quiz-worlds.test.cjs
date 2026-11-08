@@ -162,11 +162,8 @@ test('admin preview moves the existing player outside the hidden main and restor
     assert.equal(player.parentNode,parent);assert.equal(document.body.style.overflow,'');assert.ok(focus.restored);
 });
 
-test('demo SQL contains all 12 world/mode combinations and 60 playable questions', () => {
-    const sql = read('supabase/quiz-worlds-test-data.sql');
-    const match = sql.match(/\$quiz_demo\$\s*([\s\S]*?)\s*\$quiz_demo\$::jsonb/);
-    assert.ok(match);
-    const records = JSON.parse(match[1]);
+test('world fixtures contain all 12 world/mode combinations and 60 playable questions', () => {
+    const records = JSON.parse(read('tests/fixtures/quiz-worlds.json'));
     assert.equal(records.length, 12);
     const ctx = context(); vm.runInContext(read('js/site/quiz.js'), ctx);
     const combinations = new Set();

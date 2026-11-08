@@ -5,7 +5,6 @@
 button,
 .home-cta,
 .buton,
-.kahoot-link,
 .opera-link {
     border-radius: 6px;
     font-family: inherit;
@@ -53,30 +52,17 @@ nav .search-toggle:hover {
 
 .home-cta,
 .login-btn,
-.admin-btn,
-.quiz-tab.wordwall {
+.admin-btn{
     background: var(--terracotta);
     color: #fffaf0;
 }
 
 .home-cta:hover,
 .login-btn:hover,
-.admin-btn:hover,
-.quiz-tab.wordwall:hover {
+.admin-btn:hover{
     background: #963b2d;
     color: #fffaf0;
     transform: translateY(-1px);
-}
-
-.quiz-tab.kahoot,
-.kahoot-link {
-    background: var(--navy);
-    color: #fffaf0;
-}
-
-.quiz-tab.kahoot:hover,
-.kahoot-link:hover {
-    background: var(--navy-deep);
 }
 
 .opera-btn,
