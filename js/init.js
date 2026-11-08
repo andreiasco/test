@@ -49,6 +49,7 @@ function afiseazaPagina(hash = window.location.hash) {
     };
 
     const paginaId = ancora.startsWith('carte-') ? 'pagina-carti' : (pagini[ancora] || "pagina-acasa");
+    if (paginaId === "pagina-quiz") window.QuizLeaderboard?.refresh?.();
     const esteRutaPrincipala = [
         "acasa", "elevi", "profesori", "scoala-altfel", "jocuri", "profesor-ai", "abonamente", "ajutor", "contact",
         "limba",

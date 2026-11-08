@@ -171,7 +171,8 @@ Versiunea actuală include un creator de quiz pentru administrator și un player
 - după greșeală monstrul poate spune „De data aceasta te iert. Te las să treci mai departe.”;
 - la 0 vieți quiz-ul se termină imediat (Game Over);
 - ultima întrebare este tratată automat ca boss final (dragon);
-- la final se calculează scorul și bonusul pentru viețile rămase;
+- fiecare răspuns corect valorează 1 punct; la final, totalul este numărul răspunsurilor corecte, fără bonusuri;
+- clasamentul comun adună punctele din jocurile finalizate și poate fi golit de administrator din secțiunea Jocuri; configurare în `supabase/QUIZ_LEADERBOARD.md`;
 - administratorul poate alege tipul întrebării (alegere multiplă / adevărat-fals), monstrul, replicile și explicația;
 - există previzualizare înainte de publicare.
 

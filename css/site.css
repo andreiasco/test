@@ -32,6 +32,7 @@
 @import url("themes/alma-quiz-worlds.css");
 @import url("components/quiz-modes.css");
 @import url("components/quiz-viewport.css");
+@import url("components/quiz-leaderboard.css");
 
 /* Etichetă accesibilă, ascunsă doar vizual. */
 .sr-only {
