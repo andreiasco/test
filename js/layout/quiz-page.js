@@ -59,5 +59,13 @@ const QUIZ_HTML = `
         </div>
     </div>
 
+    <section class="quiz-leaderboard" data-quiz-leaderboard aria-labelledby="quizLeaderboardTitle">
+        <div class="quiz-leaderboard-heading">
+            <div><h3 id="quizLeaderboardTitle">Clasament</h3><p>1 punct pentru fiecare răspuns corect, fără bonus final. Punctele se adună din jocurile finalizate.</p></div>
+            <button type="button" class="quiz-leaderboard-refresh" data-leaderboard-refresh>Actualizează</button>
+        </div>
+        <div data-leaderboard-content aria-live="polite"><p class="quiz-leaderboard-message">Conectează-te pentru a vedea clasamentul.</p></div>
+    </section>
+
 </section>
 </div>`;

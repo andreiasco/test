@@ -110,7 +110,7 @@ test('a phrase with numbers, spaces and punctuation wins after its letters are d
     const f = fixture('„ȘCOALĂ” — 26!');
     try {
         for (const letter of ['Ș','C','O','A','L']) await f.guess(letter);
-        assert.equal(f.view().dataset.result,'won'); assert.equal(f.state().score,100); assert.equal(f.state().lives,6);
+        assert.equal(f.view().dataset.result,'won'); assert.equal(f.state().score,1); assert.equal(f.state().lives,6);
         assert.equal(f.document.querySelectorAll('.hangman-tile[data-revealed="false"]').length,0);
         assert.ok(f.stage().textContent.includes('26')); assert.equal(f.calls.correct,0); assert.equal(f.calls.dialogue,0);
     } finally { f.close(); }
@@ -136,11 +136,11 @@ test('solving a word locks the completed view and awards its score once', async 
     const f = fixture('AĂ');
     try {
         await f.guess('A');
-        assert.equal(f.view().dataset.result,'won'); assert.equal(f.state().score,100); assert.equal(f.state().correct,1);
+        assert.equal(f.view().dataset.result,'won'); assert.equal(f.state().score,1); assert.equal(f.state().correct,1);
         assert.ok([...f.document.querySelectorAll('[data-letter]')].every(button => button.disabled));
         assert.equal(f.document.querySelectorAll('.hangman-tile[data-revealed="false"]').length,0);
         await f.guess('Ă'); await f.guess('Z');
-        assert.equal(f.state().score,100); assert.equal(f.calls.correct,0);
+        assert.equal(f.state().score,1); assert.equal(f.calls.correct,0);
         assert.ok(f.document.querySelector('#quizFeedback #quizNextButton'));
     } finally { f.close(); }
 });

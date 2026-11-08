@@ -6,7 +6,7 @@
         opere: ["incarcaListaAutoriSelect", "incarcaOpereAdmin"],
         limba: ["incarcaLimbaAdmin"],
         pdf: ["incarcaListaPDF"],
-        quiz: ["incarcaQuizuriAdmin"],
+        quiz: ["incarcaQuizuriAdmin", "incarcaClasamentQuiz"],
         revista: ["incarcaRevistaAdmin", "incarcaNumereRevistaAdmin", "incarcaCreatiiEleviAdmin"],
         cont: ["incarcaContAdmin"]
     };

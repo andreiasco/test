@@ -74,7 +74,7 @@ test('true or false always presents exactly Adevărat and Fals, then continues w
         assert.deepEqual(buttons.map(button => button.querySelector('strong').textContent), ['Adevărat', 'Fals']);
         assert.equal(f.el('quizQuestionStage').querySelectorAll('.ordering-chip,[data-letter]').length, 0);
         await f.w.raspundeQuiz(0);
-        assert.equal(f.state().score, 100); assert.ok(f.el('quizNextButton'));
+        assert.equal(f.state().score, 1); assert.ok(f.el('quizNextButton'));
         await f.w.urmatoareaIntrebareQuiz();
         assert.equal(f.state().index, 1); assert.equal(f.state().lives, 3);
         assert.deepEqual(actionCalls(f.calls), []); assert.equal(f.calls.dialogue, 0);
@@ -94,7 +94,7 @@ test('word ordering uses just the word controls and checks the actual arranged s
         for (const text of ['Ana', 'are', 'mere']) [...f.el('orderingPool').children].find(node => node.textContent === text).click();
         assert.deepEqual([...f.el('orderingAnswer').children].map(node => node.textContent), ['Ana','are','mere']);
         f.el('orderingSubmit').click(); await turn();
-        assert.equal(f.state().score, 100); assert.equal(f.state().locked, true);
+        assert.equal(f.state().score, 1); assert.equal(f.state().locked, true);
         assert.ok(f.el('quizNextButton'));
         f.el('quizNextButton').click(); await turn();
         assert.equal(f.state().index, 1);
@@ -130,7 +130,7 @@ test('a new hangman word starts with six attempts and a fresh drawing after an e
         await f.launch('castle_hangman'); await f.guess('Z');
         assert.equal(f.state().lives, 5);
         for (const letter of 'ABC') await f.guess(letter);
-        assert.equal(f.state().hangman.result, 'won'); assert.equal(f.state().score, 100);
+        assert.equal(f.state().hangman.result, 'won'); assert.equal(f.state().score, 1);
         await f.w.urmatoareaIntrebareQuiz();
         assert.equal(f.state().index, 1); assert.equal(f.state().hangman.target, 'CARTE');
         assert.equal(f.state().lives, 6); assert.equal(f.state().hangman.maxMistakes, 6);
@@ -194,7 +194,7 @@ test('canonical true/false buttons retain the correct meaning when stored answer
         await f.w.pornesteQuizCuDate(raw);
         assert.deepEqual([...f.el('quizQuestionStage').querySelectorAll('[data-answer-index] strong')].map(node=>node.textContent),['Adevărat','Fals']);
         await f.w.raspundeQuiz(1);
-        assert.equal(f.state().score,100);
+        assert.equal(f.state().score,1);
         assert.equal(f.state().lives,3);
         assert.deepEqual(actionCalls(f.calls),[]);
     } finally { f.close(); }
@@ -208,7 +208,7 @@ test('a standalone exercise can start, answer, continue and close when the 3D mo
         assert.equal(f.el('castleScene').hidden,true);
         assert.equal(f.state().locked,false);
         await f.w.raspundeQuiz(0);
-        assert.equal(f.state().score,100); assert.ok(f.el('quizNextButton'));
+        assert.equal(f.state().score,1); assert.ok(f.el('quizNextButton'));
         await f.w.urmatoareaIntrebareQuiz();
         assert.equal(f.state().index,1); assert.equal(f.state().locked,false);
         f.w.inchideQuizPlayer();
@@ -224,7 +224,7 @@ test('graded word ordering locks its chips and actions even when click events ar
         await f.launch('castle_ordering');
         for(const text of ['Ana','are','mere']) [...f.el('orderingPool').children].find(node=>node.textContent===text).click();
         f.el('orderingSubmit').click(); await turn();
-        assert.equal(f.state().score,100); assert.equal(f.state().locked,true);
+        assert.equal(f.state().score,1); assert.equal(f.state().locked,true);
         const controls=[...f.el('quizQuestionStage').querySelectorAll('.ordering-chip,#orderingReset,#orderingSubmit')];
         assert.equal(controls.length,5);
         assert.ok(controls.every(button=>button.disabled),'all ordering controls are disabled after grading');

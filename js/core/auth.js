@@ -48,6 +48,7 @@ function inchideLogin() {
 
 const LUNGIME_MINIMA_PAROLA = 12;
 let rolUtilizatorCurent = null;
+let authStateVersion = 0;
 
 function normalizeazaEmail(email) {
     return email.trim().toLowerCase();
@@ -346,6 +347,8 @@ async function obtineRolUtilizator(user) {
 
 async function actualizeazaStareAutentificare(user) {
 
+    const stateVersion = ++authStateVersion;
+
     const status = document.getElementById("authStatus");
     const logoutButton = document.getElementById("logoutButton");
     const loginButton = document.getElementById("loginButton");
@@ -362,7 +365,9 @@ async function actualizeazaStareAutentificare(user) {
     if (typeof setAiAccess === "function") setAiAccess(true);
 
     const role = await obtineRolUtilizator(user);
+    if (stateVersion !== authStateVersion) return;
     rolUtilizatorCurent = role;
+    window.QuizLeaderboard?.setUser?.(user, role);
     if (typeof seteazaAccesQuiz === "function") seteazaAccesQuiz(true);
     if (role !== "elev" && typeof reseteazaProfilElev === "function") reseteazaProfilElev();
 
@@ -383,6 +388,8 @@ async function actualizeazaStareAutentificare(user) {
 
 function actualizeazaStareDelogata() {
 
+    authStateVersion++;
+
     const status = document.getElementById("authStatus");
     const logoutButton = document.getElementById("logoutButton");
     const loginButton = document.getElementById("loginButton");
@@ -398,6 +405,7 @@ function actualizeazaStareDelogata() {
     loginButton?.classList.remove("ascuns");
     profileButton?.classList.add("ascuns");
     rolUtilizatorCurent = null;
+    window.QuizLeaderboard?.setUser?.(null, null);
     if (typeof seteazaAccesQuiz === "function") seteazaAccesQuiz(false);
     if (typeof rolContActiv !== "undefined") rolContActiv = null;
     if (typeof reseteazaProfilElev === "function") reseteazaProfilElev();
@@ -407,6 +415,8 @@ function actualizeazaStareDelogata() {
 }
 
 async function afiseazaAdmin(user) {
+
+    const stateVersion = authStateVersion;
 
     const panel =
         document.getElementById(
@@ -434,6 +444,7 @@ async function afiseazaAdmin(user) {
 
 
     const role = await obtineRolUtilizator(user);
+    if (stateVersion !== authStateVersion) return;
 
     if (role !== "admin") {
         panel.classList.add("ascuns");

@@ -16,10 +16,33 @@ function progresGol() {
     };
 }
 
+function numarProgres(value) {
+    const number = Number(value);
+    return Number.isSafeInteger(number) && number >= 0 ? number : 0;
+}
+
+function normalizeazaProgresElev(salvat) {
+    if (!salvat || typeof salvat !== "object" || !Array.isArray(salvat.quizuri)) return progresGol();
+    const quizuri = salvat.quizuri.filter(item => item && typeof item === "object" && !Array.isArray(item)).map(item => {
+        const total = item.total == null ? numarProgres(item.correct) : numarProgres(item.total);
+        const correct = Math.min(numarProgres(item.correct), total);
+        return { ...item, total, correct, score: correct };
+    });
+    // Istoricul păstrează doar ultimele 30 de jocuri, dar contorul include toate jocurile.
+    const raspunsuriCorecte = Math.max(numarProgres(salvat.raspunsuriCorecte), quizuri.reduce((sum, item) => sum + item.correct, 0));
+    return {
+        ...progresGol(), ...salvat, quizuri,
+        materiale: Array.isArray(salvat.materiale) ? salvat.materiale : [],
+        raspunsuriCorecte,
+        totalPuncte: raspunsuriCorecte,
+        quizuriCastigate: Math.max(numarProgres(salvat.quizuriCastigate), quizuri.filter(item => item.won).length)
+    };
+}
+
 function incarcaProgresElev(user) {
     try {
         const salvat = JSON.parse(localStorage.getItem(cheieProgresElev(user)) || "null");
-        return salvat && Array.isArray(salvat.quizuri) ? { ...progresGol(), ...salvat } : progresGol();
+        return normalizeazaProgresElev(salvat);
     } catch (error) {
         console.warn("Progresul local nu a putut fi citit.", error);
         return progresGol();
@@ -38,8 +61,8 @@ async function sincronizeazaProgresSupabase(user, progresLocal) {
 
         if (error) throw error;
 
-        if (data?.progress_data && typeof data.progress_data === "object") {
-            return { ...progresGol(), ...data.progress_data };
+        if (Array.isArray(data?.progress_data?.quizuri)) {
+            return normalizeazaProgresElev(data.progress_data);
         }
 
         if (progresLocal.quizuri.length || progresLocal.materiale.length) {
@@ -62,7 +85,11 @@ async function salveazaProgresSupabase(user, progres) {
 
 function salveazaProgresElev() {
     if (!profilElevUser || !progresElev) return;
-    localStorage.setItem(cheieProgresElev(profilElevUser), JSON.stringify(progresElev));
+    try {
+        localStorage.setItem(cheieProgresElev(profilElevUser), JSON.stringify(progresElev));
+    } catch (error) {
+        console.warn("Progresul local nu a putut fi salvat.", error);
+    }
     salveazaProgresSupabase(profilElevUser, progresElev).catch(error => {
         console.warn("Progresul nu a putut fi sincronizat în Supabase.", error);
     });
@@ -87,7 +114,7 @@ function insigneProfil() {
         { icon: "🌱", title: "Primul pas", text: "Finalizează primul quiz.", obtinuta: quizuri >= 1 },
         { icon: "🏰", title: "Exploratorul castelului", text: "Cucerește un quiz.", obtinuta: castigate >= 1 },
         { icon: "🎯", title: "Ținta atinsă", text: "Strânge 10 răspunsuri corecte.", obtinuta: corecte >= 10 },
-        { icon: "🏆", title: "Record personal", text: "Obține peste 1.000 de puncte.", obtinuta: record >= 1000 },
+        { icon: "🏆", title: "Record personal", text: "Obține 10 puncte într-un quiz.", obtinuta: record >= 10 },
         { icon: "📚", title: "Cititor curios", text: "Parcurge 3 materiale.", obtinuta: materiale >= 3 }
     ];
 }
@@ -101,7 +128,11 @@ async function actualizeazaProfilElev(user) {
     const progresCloud = await sincronizeazaProgresSupabase(user, progresElev);
     if (profilElevUser?.id !== user.id) return;
     progresElev = progresCloud;
-    localStorage.setItem(cheieProgresElev(user), JSON.stringify(progresElev));
+    try {
+        localStorage.setItem(cheieProgresElev(user), JSON.stringify(progresElev));
+    } catch (error) {
+        console.warn("Progresul local nu a putut fi salvat.", error);
+    }
     randareProfilElev();
 }
 
@@ -163,18 +194,20 @@ function reseteazaProfilElev() {
 function inregistreazaRezultatQuiz(rezultat) {
     if (rolUtilizatorCurent !== "elev" || !profilElevUser || !rezultat) return;
     if (!progresElev) progresElev = incarcaProgresElev(profilElevUser);
+    const total = numarProgres(rezultat.total);
+    const correct = Math.min(numarProgres(rezultat.correct), total);
     progresElev.quizuri.unshift({
         quizId: String(rezultat.quizId || ""),
         title: rezultat.title || "Quiz fără titlu",
-        score: Number(rezultat.score) || 0,
-        correct: Number(rezultat.correct) || 0,
-        total: Number(rezultat.total) || 0,
+        score: correct,
+        correct,
+        total,
         won: Boolean(rezultat.won),
         date: new Date().toLocaleDateString("ro-RO")
     });
     progresElev.quizuri = progresElev.quizuri.slice(0, 30);
-    progresElev.totalPuncte += Number(rezultat.score) || 0;
-    progresElev.raspunsuriCorecte += Number(rezultat.correct) || 0;
+    progresElev.totalPuncte += correct;
+    progresElev.raspunsuriCorecte += correct;
     if (rezultat.won) progresElev.quizuriCastigate += 1;
     salveazaProgresElev();
     randareProfilElev();

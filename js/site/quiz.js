@@ -4,6 +4,8 @@
 let quizuriPublice = []; let quizActiv = null; let quizIndexIntrebare = 0; let quizScor = 0; let quizVieti = 3; let quizCorecte = 0; let quizTimerId = null; let quizTimpRamas = 0; let quizRaspunsBlocat = false; let quizEstePreview = false; let quizSoundEnabled = true; let hangmanState = null;
 let quizPreviewPlacement = null;
 let quizLaunchVersion = 0;
+let quizAttemptId = null;
+let quizFinalizedLaunch = null;
 let quizRouteState = null;
 let quizRouteToggleBusy = false;
 let quizRoutePausedTimer = null;
@@ -30,6 +32,7 @@ function inchideContainerQuizPreview() {
     state.focus?.focus?.({ preventScroll: true });
 }
 const QUIZ_MONSTERS = { goblin: { name: "Goblinul", icon: "👹" }, bat: { name: "Liliacul uriaș", icon: "🦇" }, skeleton: { name: "Scheletul", icon: "💀" }, spider: { name: "Păianjenul uriaș", icon: "🕷️" }, knight: { name: "Cavalerul blestemat", icon: "🛡️" }, ghost: { name: "Fantoma", icon: "👻" }, golem: { name: "Golemul", icon: "🪨" }, wizard: { name: "Vrăjitorul întunecat", icon: "🧙" }, demon: { name: "Demonul", icon: "😈" }, dragon: { name: "Dragonul", icon: "🐉" } };
+const QUIZ_POINTS_PER_CORRECT = 1;
 const QUIZ_MODES = { castle_choice: { label: "Alege răspunsul", icon: "🎯", type: "multiple_choice" }, castle_true_false: { label: "Adevărat / Fals", icon: "✅", type: "true_false" }, castle_hangman: { label: "Spânzurătoarea", icon: "🪢", type: "hangman" }, castle_ordering: { label: "Pune în ordine", icon: "🔀", type: "ordering" }, castle_adventure: { label: "Alege răspunsul", icon: "🎯", type: "multiple_choice" } };
 function escapeQuizHtml(v) { return String(v ?? "").replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#039;"); }
 function stripDiacritics(s) { return String(s || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase(); }
@@ -115,6 +118,7 @@ async function pornesteQuizCuDate(raw, preview = false) {
     if (!adventure) window.CastleQuiz3D?.dispose?.();
     CastleQuizAudio?.ensure?.(); CastleQuizAudio?.ambience?.(quizSoundEnabled && adventure);
     quizActiv = q; quizEstePreview = preview; quizIndexIntrebare = 0; quizScor = 0;
+    quizAttemptId = window.crypto.randomUUID(); quizFinalizedLaunch = null;
     quizVieti = quizLivesForMode(q); quizCorecte = 0; quizRaspunsBlocat = true; hangmanState = null;
     resetTraseuQuiz(); leagaTraseuQuiz();
     document.getElementById("quizInteractiveLista")?.classList.add("ascuns");
@@ -365,7 +369,7 @@ async function ghicesteLitera(letter, q, boss, info) {
     if (stripDiacritics(q.target).includes(key)) {
         if (!hangmanSolved(q.target, state.guessed)) { renderHangman(q, boss, info); return; }
         quizRaspunsBlocat = true; state.result = "won"; state.pending = true;
-        opresteTimerQuiz(); quizScor += 100; quizCorecte++; actualizeazaHudQuiz();
+        opresteTimerQuiz(); quizScor += QUIZ_POINTS_PER_CORRECT; quizCorecte++; actualizeazaHudQuiz();
         renderHangman(q, boss, info); CastleQuizAudio?.correct?.();
         if (quizHasAdventure()) await window.CastleQuiz3D?.correct?.();
         if (current()) return afiseazaFeedbackAventura(true, q, false);
@@ -419,7 +423,7 @@ async function raspundeRezultatGeneric(ok, q, expirat = false, hangmanTimeout = 
     quizRaspunsBlocat = true; opresteTimerQuiz();
     document.querySelectorAll("#quizQuestionStage .ordering-game button").forEach(button => { button.disabled = true; });
     if (ok) {
-        quizScor += 100; quizCorecte++; actualizeazaHudQuiz(); CastleQuizAudio?.correct?.();
+        quizScor += QUIZ_POINTS_PER_CORRECT; quizCorecte++; actualizeazaHudQuiz(); CastleQuizAudio?.correct?.();
         if (quizHasAdventure()) await window.CastleQuiz3D?.correct?.();
         if (current()) return afiseazaFeedbackAventura(true, q, expirat);
         return;
@@ -471,7 +475,9 @@ async function urmatoareaIntrebareQuiz() {
 }
 async function finalizeazaQuiz(victorie = true, gameOver = false) {
     opresteTimerQuiz(); if (!quizActiv) return;
-    const activeQuiz = quizActiv, launchVersion = quizLaunchVersion, preview = quizEstePreview;
+    if (quizFinalizedLaunch === quizLaunchVersion) return;
+    const activeQuiz = quizActiv, launchVersion = quizLaunchVersion, preview = quizEstePreview, attemptId = quizAttemptId;
+    quizFinalizedLaunch = launchVersion;
     quizRaspunsBlocat = true; CastleQuizAudio?.ambience?.(false);
     gameOver ? CastleQuizAudio?.gameOver?.() : CastleQuizAudio?.victory?.();
     const total = activeQuiz.questions.length, stage = document.getElementById("quizQuestionStage"), rez = document.getElementById("quizRezultat"), bar = document.getElementById("quizProgressBar");
@@ -481,15 +487,17 @@ async function finalizeazaQuiz(victorie = true, gameOver = false) {
         if (gameOver) await window.CastleQuiz3D?.gameOver?.(); else await window.CastleQuiz3D?.victory?.();
     }
     if (quizActiv !== activeQuiz || quizLaunchVersion !== launchVersion) return;
-    const bonus = victorie ? quizVieti * 200 + 300 : 0, totalScore = quizScor + bonus;
+    const totalScore = quizCorecte * QUIZ_POINTS_PER_CORRECT;
     quizScor = totalScore; actualizeazaHudQuiz();
     if (!preview && typeof inregistreazaRezultatQuiz === "function") {
         inregistreazaRezultatQuiz({ quizId: activeQuiz.id, title: activeQuiz.title, score: totalScore, correct: quizCorecte, total, won: victorie });
     }
-    rez.innerHTML = `<div class="quiz-result-card quiz-result-pop castle-result ${gameOver ? "game-over" : "victory"}"><div class="quiz-result-medal">${gameOver ? "💀" : "🏆"}</div><p>${gameOver ? "JOC ÎNCHEIAT" : quizHasAdventure(activeQuiz) ? "TRASEU ÎNCHEIAT!" : "JOC ÎNCHEIAT!"}</p><h3>${escapeQuizHtml(activeQuiz.title)}</h3><div class="quiz-result-score">${totalScore} <small>puncte</small></div><div class="castle-result-stats"><span>✅ ${quizCorecte} / ${total} provocări câștigate</span><span>❤️ ${quizVieti} vieți rămase</span>${victorie ? `<span>🎁 +${bonus} bonus final</span>` : ""}</div><div class="quiz-result-actions"><button type="button" id="quizRetryButton">↻ Încearcă din nou</button><button type="button" id="quizBackButton" class="secondary">← Înapoi la jocuri</button></div></div>`;
+    const pointsLabel = totalScore === 1 ? "punct" : "puncte";
+    rez.innerHTML = `<div class="quiz-result-card quiz-result-pop castle-result ${gameOver ? "game-over" : "victory"}"><div class="quiz-result-medal">${gameOver ? "💀" : "🏆"}</div><p>${gameOver ? "JOC ÎNCHEIAT" : quizHasAdventure(activeQuiz) ? "TRASEU ÎNCHEIAT!" : "JOC ÎNCHEIAT!"}</p><h3>${escapeQuizHtml(activeQuiz.title)}</h3><div class="quiz-result-score">${totalScore} <small>${pointsLabel}</small></div><div class="castle-result-stats"><span>✅ ${quizCorecte} / ${total} răspunsuri corecte</span><span class="quiz-score-calculation">${quizCorecte} × ${QUIZ_POINTS_PER_CORRECT} = ${totalScore} ${pointsLabel}</span><span>❤️ ${quizVieti} vieți rămase</span></div><div class="quiz-result-actions"><button type="button" id="quizRetryButton">↻ Încearcă din nou</button><button type="button" id="quizBackButton" class="secondary">← Înapoi la jocuri</button></div></div>`;
     rez.classList.remove("ascuns");
     document.getElementById("quizRetryButton")?.addEventListener("click", () => pornesteQuizCuDate(activeQuiz, preview));
     document.getElementById("quizBackButton")?.addEventListener("click", inchideQuizPlayer);
+    if (!preview) window.QuizLeaderboard?.submit?.({ attemptId, quizId: activeQuiz.id, correct: quizCorecte, total });
 }
 function inchideQuizPlayer() { quizLaunchVersion++; window.QuizViewport?.leave?.(); opresteTimerQuiz(); CastleQuizAudio?.dispose?.(); window.CastleQuiz3D?.dispose?.(); quizActiv = null; hangmanState = null; quizRaspunsBlocat = true; resetTraseuQuiz(); const stage = document.getElementById("quizQuestionStage"); if (stage) stage.onkeydown = null; document.getElementById("quizPlayer")?.classList.add("ascuns"); document.getElementById("quizInteractiveLista")?.classList.remove("ascuns"); stage?.classList.remove("ascuns"); document.getElementById("quizRezultat")?.classList.add("ascuns"); inchideContainerQuizPreview(); }
 function initializeazaQuizPlayer() {
